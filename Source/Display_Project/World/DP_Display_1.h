@@ -6,14 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "DP_Display_1.generated.h"
 
-#define CREATE_SEGMENT(Segment, Name, N)                                                    \
-    Segment = CreateDefaultSubobject<UDP_Segment>(FName{FString{Name} + " " + FString{N}}); \
-    check(Segment);                                                                         \
-    Segment->SetupAttachment(GetRootComponent());                                           \
-    Segments.Add(Segment);                                                                  \
-    Segments.Last(0)->Set(*N);
+#define CREATE_SEGMENT(Segment)                                    \
+    Segment = CreateDefaultSubobject<UDP_Segment>(TEXT(#Segment)); \
+    check(Segment);                                                \
+    Segment->SetupAttachment(GetRootComponent());                  \
+    Segments.Add(Segment);                                         \
+    Segments.Last(0)->Set(TEXT(#Segment)[FCString::Strlen(TEXT(#Segment)) - 1]);
 
 class IDP_SegmentInterface;
+class UDP_BaseScrollingAlgorithm;
 class UDP_Segment;
 
 UCLASS(Abstract)
@@ -29,9 +30,16 @@ protected:
     TObjectPtr<UDP_Segment> Segment_1;
 
     UPROPERTY(EditAnywhere, Category = "Settings")
-    FString Text;
+    FString DisplayText;
+
+    UPROPERTY(EditAnywhere, Category = "Settings")
+    TSubclassOf<UDP_BaseScrollingAlgorithm> ScrollingAlgorithmClass;
 
     TArray<TWeakInterfacePtr<IDP_SegmentInterface>> Segments;
 
     virtual void BeginPlay() override;
+
+private:
+    UPROPERTY()
+    TObjectPtr<UDP_BaseScrollingAlgorithm> ScrollingAlgorithm;
 };

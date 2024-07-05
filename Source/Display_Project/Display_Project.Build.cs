@@ -10,6 +10,6 @@ public class Display_Project : ModuleRules
 
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
-        PublicIncludePaths.AddRange(new string[] { "Display_Project/Interfaces", "Display_Project/World" });
+        PublicIncludePaths.AddRange(new string[] { "Display_Project/Interfaces", "Display_Project/World", "Display_Project/Algorithms" });
     }
 }

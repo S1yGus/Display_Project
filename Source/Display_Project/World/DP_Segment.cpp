@@ -15,5 +15,5 @@ void UDP_Segment::Set(TCHAR Character)
 
 void UDP_Segment::Clear()
 {
-    SetText(FText::FromString(" "));
+    SetText(FText::GetEmpty());
 }

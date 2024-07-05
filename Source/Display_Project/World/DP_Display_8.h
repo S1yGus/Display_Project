@@ -6,7 +6,7 @@
 #include "DP_Display_1.h"
 #include "DP_Display_8.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class DISPLAY_PROJECT_API ADP_Display_8 : public ADP_Display_1
 {
     GENERATED_BODY()
