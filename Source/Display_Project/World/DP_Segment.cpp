@@ -1,19 +1,29 @@
 // Display_Project, all rights reserved.
 
 #include "DP_Segment.h"
-#include "Components/TextRenderComponent.h"
+#include "DP_SegmentWidget.h"
+#include "Components/WidgetComponent.h"
 
 UDP_Segment::UDP_Segment()
 {
-    Text = FText::GetEmpty();
+    SetWidgetSpace(EWidgetSpace::World);
+    SetDrawAtDesiredSize(true);
 }
 
 void UDP_Segment::Set(TCHAR Character)
 {
-    SetText(FText::FromString(FString{1, &Character}));
+    SegmentWidget->SetText(FText::FromString(FString{1, &Character}));
 }
 
 void UDP_Segment::Clear()
 {
-    SetText(FText::GetEmpty());
+    SegmentWidget->SetText(FText::GetEmpty());
+}
+
+void UDP_Segment::BeginPlay()
+{
+    Super::BeginPlay();
+
+    SegmentWidget = Cast<UDP_SegmentWidget>(GetWidget());
+    check(SegmentWidget);
 }

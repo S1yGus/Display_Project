@@ -8,8 +8,8 @@ public class Display_Project : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG" });
 
-        PublicIncludePaths.AddRange(new string[] { "Display_Project/Interfaces", "Display_Project/World", "Display_Project/Algorithms" });
+        PublicIncludePaths.AddRange(new string[] { "Display_Project/Interfaces", "Display_Project/World", "Display_Project/Algorithms", "Display_Project/UI" });
     }
 }

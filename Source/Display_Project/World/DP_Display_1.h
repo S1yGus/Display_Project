@@ -10,8 +10,7 @@
     Segment = CreateDefaultSubobject<UDP_Segment>(TEXT(#Segment)); \
     check(Segment);                                                \
     Segment->SetupAttachment(GetRootComponent());                  \
-    Segments.Add(Segment);                                         \
-    Segments.Last(0)->Set(TEXT(#Segment)[FCString::Strlen(TEXT(#Segment)) - 1]);
+    Segments.Add(Segment);
 
 class IDP_SegmentInterface;
 class UDP_BaseScrollingAlgorithm;
