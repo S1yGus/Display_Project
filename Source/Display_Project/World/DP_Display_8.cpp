@@ -1,7 +1,7 @@
 // Display_Project, all rights reserved.
 
-#include "DP_Display_8.h"
-#include "DP_Segment.h"
+#include "World/DP_Display_8.h"
+#include "World/DP_Segment.h"
 
 ADP_Display_8::ADP_Display_8()
 {

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/WidgetComponent.h"
-#include "DP_SegmentInterface.h"
+#include "Interfaces/DP_SegmentInterface.h"
 #include "DP_Segment.generated.h"
 
 class UDP_SegmentWidget;

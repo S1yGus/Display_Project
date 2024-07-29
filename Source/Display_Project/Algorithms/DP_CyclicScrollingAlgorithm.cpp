@@ -1,12 +1,18 @@
 // Display_Project, all rights reserved.
 
-#include "DP_CyclicScrollingAlgorithm.h"
-#include "DP_SegmentInterface.h"
+#include "Algorithms/DP_CyclicScrollingAlgorithm.h"
+#include "Interfaces/DP_SegmentInterface.h"
 
 void UDP_CyclicScrollingAlgorithm::StartScrolling(const TArray<TWeakInterfacePtr<IDP_SegmentInterface>>& InSegments, const FString& InText)
 {
     Segments = InSegments;
+    RefreshText(InText);
+}
+
+void UDP_CyclicScrollingAlgorithm::RefreshText(const FString& InText)
+{
     Text = InText;
+    TextIndex = 0;
 
     OnScrolling();
 
@@ -17,6 +23,10 @@ void UDP_CyclicScrollingAlgorithm::StartScrolling(const TArray<TWeakInterfacePtr
             Text.AppendChar(' ');
         }
         GetWorld()->GetTimerManager().SetTimer(ScrollingTimerHandle, this, &ThisClass::OnScrolling, ScrollingRate, true);
+    }
+    else
+    {
+        GetWorld()->GetTimerManager().ClearTimer(ScrollingTimerHandle);
     }
 }
 

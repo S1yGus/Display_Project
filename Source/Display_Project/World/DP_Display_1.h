@@ -24,6 +24,8 @@ class DISPLAY_PROJECT_API ADP_Display_1 : public AActor
 public:
     ADP_Display_1();
 
+    void RefreshText(const FString& InText);
+
 protected:
     UPROPERTY(VisibleDefaultsOnly, Category = "Components")
     TObjectPtr<UDP_Segment> Segment_1;
