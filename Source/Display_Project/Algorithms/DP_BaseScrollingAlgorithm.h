@@ -15,4 +15,5 @@ class DISPLAY_PROJECT_API UDP_BaseScrollingAlgorithm : public UObject
 
 public:
     virtual void StartScrolling(const TArray<TWeakInterfacePtr<IDP_SegmentInterface>>& InSegments, const FString& InText);
+    virtual void RefreshText(const FString& InText);
 };

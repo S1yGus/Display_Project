@@ -1,8 +1,8 @@
 // Display_Project, all rights reserved.
 
-#include "DP_Display_1.h"
-#include "DP_Segment.h"
-#include "DP_BaseScrollingAlgorithm.h"
+#include "World/DP_Display_1.h"
+#include "World/DP_Segment.h"
+#include "Algorithms/DP_BaseScrollingAlgorithm.h"
 #include "Components/SceneComponent.h"
 
 ADP_Display_1::ADP_Display_1()
@@ -15,12 +15,17 @@ ADP_Display_1::ADP_Display_1()
     CREATE_SEGMENT(Segment_1);
 }
 
+void ADP_Display_1::RefreshText(const FString& InText)
+{
+    DisplayText = InText;
+    ScrollingAlgorithm->RefreshText(DisplayText);
+}
+
 void ADP_Display_1::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (ScrollingAlgorithm = NewObject<UDP_BaseScrollingAlgorithm>(this, ScrollingAlgorithmClass))
-    {
-        ScrollingAlgorithm->StartScrolling(Segments, DisplayText);
-    }
+    ScrollingAlgorithm = NewObject<UDP_BaseScrollingAlgorithm>(this, ScrollingAlgorithmClass);
+    check(ScrollingAlgorithm);
+    ScrollingAlgorithm->StartScrolling(Segments, DisplayText);
 }

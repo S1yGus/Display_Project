@@ -1,7 +1,7 @@
 // Display_Project, all rights reserved.
 
-#include "DP_Segment.h"
-#include "DP_SegmentWidget.h"
+#include "World/DP_Segment.h"
+#include "UI/DP_SegmentWidget.h"
 #include "Components/WidgetComponent.h"
 
 UDP_Segment::UDP_Segment()

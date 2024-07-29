@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DP_Display_1.h"
+#include "World/DP_Display_1.h"
 #include "DP_Display_8.generated.h"
 
 UCLASS(Abstract)
