@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "World/DP_InteractiveActor.h"
 #include "DP_Display_1.generated.h"
 
 #define CREATE_SEGMENT(Segment)                                    \
@@ -17,7 +17,7 @@ class UDP_BaseScrollingAlgorithm;
 class UDP_Segment;
 
 UCLASS(Abstract)
-class DISPLAY_PROJECT_API ADP_Display_1 : public AActor
+class DISPLAY_PROJECT_API ADP_Display_1 : public ADP_InteractiveActor
 {
     GENERATED_BODY()
 
