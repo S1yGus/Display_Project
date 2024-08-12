@@ -8,10 +8,24 @@ ADP_Button::ADP_Button()
     PrimaryActorTick.bCanEverTick = false;
 }
 
-void ADP_Button::Interact()
+void ADP_Button::Interact(const FTransform& InteractionTransform)
 {
-    if (Display)
+    if (!bIsInteracted)
     {
-        Display->RefreshText(Text);
+        Super::Interact(InteractionTransform);
+
+        if (Display)
+        {
+            Display->RefreshText(DisplayText);
+        }
+
+        OnInteract();
     }
+}
+
+void ADP_Button::BeginPlay()
+{
+    Super::BeginPlay();
+
+    SetButtonText(ButtonText);
 }

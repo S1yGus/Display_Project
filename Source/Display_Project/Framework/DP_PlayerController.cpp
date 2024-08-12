@@ -3,11 +3,12 @@
 #include "Framework/DP_PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Interfaces/DP_ClickableInterface.h"
+#include "Interfaces/DP_InteractiveInterface.h"
 
 ADP_PlayerController::ADP_PlayerController()
 {
     bShowMouseCursor = true;
+    bEnableMouseOverEvents = true;
 }
 
 void ADP_PlayerController::BeginPlay()
@@ -41,9 +42,9 @@ void ADP_PlayerController::OnClick()
 {
     if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery3, false, HitResult))    // ECC_GameTraceChannel1 "Clickable"
     {
-        if (auto* ClickableActor = Cast<IDP_ClickableInterface>(HitResult.GetActor()))
+        if (auto* ClickableActor = Cast<IDP_InteractiveInterface>(HitResult.GetActor()))
         {
-            ClickableActor->Interact();
+            ClickableActor->Interact(FTransform{HitResult.ImpactNormal.Rotation(), HitResult.ImpactPoint});
         }
     }
 }
