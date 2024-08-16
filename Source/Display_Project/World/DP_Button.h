@@ -3,13 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "World/DP_InteractiveActor.h"
+#include "World/DP_PlaceableActor.h"
+#include "Interfaces/DP_InteractiveInterface.h"
 #include "DP_Button.generated.h"
 
 class ADP_Display_1;
 
 UCLASS()
-class DISPLAY_PROJECT_API ADP_Button : public ADP_InteractiveActor
+class DISPLAY_PROJECT_API ADP_Button : public ADP_PlaceableActor, public IDP_InteractiveInterface
 {
     GENERATED_BODY()
 

@@ -4,6 +4,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Interfaces/DP_InteractiveInterface.h"
+#include "Framework/DP_GameModeBase.h"
 
 ADP_PlayerController::ADP_PlayerController()
 {
@@ -15,7 +16,12 @@ void ADP_PlayerController::BeginPlay()
 {
     Super::BeginPlay();
 
-    SetInputMode(FInputModeGameAndUI());
+    SetInputMode(FInputModeGameAndUI().SetHideCursorDuringCapture(false));
+
+    if (auto* GameMode = GetGameMode())
+    {
+        GameMode->OnGameStateChanged.AddUObject(this, &ThisClass::OnGameStateChanged);
+    }
 }
 
 void ADP_PlayerController::SetupInputComponent()
@@ -38,7 +44,20 @@ void ADP_PlayerController::SetupInputComponent()
     }
 }
 
-void ADP_PlayerController::OnClick()
+ADP_GameModeBase* ADP_PlayerController::GetGameMode()
+{
+    return GetWorld() ? GetWorld()->GetAuthGameMode<ADP_GameModeBase>() : nullptr;
+}
+
+void ADP_PlayerController::ObjectPlacementClick()
+{
+    if (auto* GameMode = GetGameMode())
+    {
+        GameMode->SpawnCurrentObject();
+    }
+}
+
+void ADP_PlayerController::InteractClick()
 {
     if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery3, false, HitResult))    // ECC_GameTraceChannel1 "Clickable"
     {
@@ -49,7 +68,25 @@ void ADP_PlayerController::OnClick()
     }
 }
 
+void ADP_PlayerController::OnClick()
+{
+    switch (CurrentGameState)
+    {
+        case EGameState::ObjectPlacement:
+            ObjectPlacementClick();
+            break;
+        default:
+            InteractClick();
+            break;
+    }
+}
+
 void ADP_PlayerController::OnSelect()
 {
     // TODO
+}
+
+void ADP_PlayerController::OnGameStateChanged(EGameState NewGameState)
+{
+    CurrentGameState = NewGameState;
 }

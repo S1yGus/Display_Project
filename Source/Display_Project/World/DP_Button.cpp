@@ -6,14 +6,15 @@
 ADP_Button::ADP_Button()
 {
     PrimaryActorTick.bCanEverTick = false;
+
+    RootComponent = CreateDefaultSubobject<USceneComponent>("SceneComponent");
+    check(RootComponent);
 }
 
 void ADP_Button::Interact(const FTransform& InteractionTransform)
 {
     if (!bIsInteracted)
     {
-        Super::Interact(InteractionTransform);
-
         if (Display)
         {
             Display->RefreshText(DisplayText);
