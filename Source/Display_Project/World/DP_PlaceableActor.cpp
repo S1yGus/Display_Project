@@ -1,16 +1,27 @@
 // Display_Project, all rights reserved.
 
 #include "World/DP_PlaceableActor.h"
+#include "DP_CoreStructures.h"
 
 ADP_PlaceableActor::ADP_PlaceableActor()
 {
     PrimaryActorTick.bCanEverTick = false;
+
+    RootComponent = CreateDefaultSubobject<USceneComponent>("Root");
+    check(RootComponent);
 }
 
-void ADP_PlaceableActor::BeginPlay()
+FString ADP_PlaceableActor::GetObjectName() const
 {
-    Super::BeginPlay();
+    if (AttributesMap.Contains(EAttributeType::ObjectName))
+    {
+        return AttributesMap[EAttributeType::ObjectName].Get<FString>();
+    }
 
-    OnBeginCursorOver.AddDynamic(this, &ThisClass::OnBeginCursorHover);
-    OnEndCursorOver.AddDynamic(this, &ThisClass::OnEndCursorHover);
+    return GetName();
+}
+
+void ADP_PlaceableActor::Init(FAttributesDataMap&& Attributes)
+{
+    AttributesMap = MoveTemp(Attributes);
 }

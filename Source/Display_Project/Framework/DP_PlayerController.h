@@ -10,6 +10,7 @@
 class UInputAction;
 class UInputMappingContext;
 class ADP_GameModeBase;
+class ADP_Grid;
 
 UCLASS()
 class DISPLAY_PROJECT_API ADP_PlayerController : public APlayerController
@@ -18,6 +19,8 @@ class DISPLAY_PROJECT_API ADP_PlayerController : public APlayerController
 
 public:
     ADP_PlayerController();
+
+    virtual void Tick(float DeltaSeconds) override;
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -33,9 +36,10 @@ protected:
     virtual void SetupInputComponent() override;
 
 private:
-    EGameState CurrentGameState{EGameState::WaitingToStart};
+    EGameState CurrentGameState{EGameState::Standby};
 
-    ADP_GameModeBase* GetGameMode();
+    [[nodiscard]] ADP_GameModeBase* GetGameMode();
+
     void ObjectPlacementClick();
     void InteractClick();
 

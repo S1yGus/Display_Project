@@ -23,6 +23,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "FX")
     TObjectPtr<USoundCue> InteractSound;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FX")
-    UNiagaraSystem* InteractNiagaraSystem;
+    UPROPERTY(EditDefaultsOnly, Category = "FX")
+    TObjectPtr<UNiagaraSystem> InteractNiagaraSystem;
 };

@@ -1,15 +1,35 @@
 // Display_Project, all rights reserved.
 
 #include "Framework/DP_PlayerController.h"
+#include "Framework/DP_GameModeBase.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Interfaces/DP_InteractiveInterface.h"
-#include "Framework/DP_GameModeBase.h"
+#include "Kismet/GameplayStatics.h"
+
+#define ECC_Node ETraceTypeQuery::TraceTypeQuery4
+#define ECC_Clickable ETraceTypeQuery::TraceTypeQuery3
 
 ADP_PlayerController::ADP_PlayerController()
 {
     bShowMouseCursor = true;
     bEnableMouseOverEvents = true;
+}
+
+void ADP_PlayerController::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+
+    if (CurrentGameState == EGameState::Placement)
+    {
+        if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Node, false, HitResult))
+        {
+            if (auto* GameMode = GetGameMode())
+            {
+                GameMode->UpdatePreviewLocation(HitResult.GetActor());
+            }
+        }
+    }
 }
 
 void ADP_PlayerController::BeginPlay()
@@ -30,8 +50,7 @@ void ADP_PlayerController::SetupInputComponent()
 
     if (const auto* LocalPlayer = Cast<ULocalPlayer>(Player))
     {
-        if (auto* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();    //
-            InputSystem && InputMapping)
+        if (auto* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(); InputSystem && InputMapping)
         {
             InputSystem->AddMappingContext(InputMapping, 0);
         }
@@ -59,7 +78,7 @@ void ADP_PlayerController::ObjectPlacementClick()
 
 void ADP_PlayerController::InteractClick()
 {
-    if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery3, false, HitResult))    // ECC_GameTraceChannel1 "Clickable"
+    if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Clickable, false, HitResult))
     {
         if (auto* ClickableActor = Cast<IDP_InteractiveInterface>(HitResult.GetActor()))
         {
@@ -72,11 +91,13 @@ void ADP_PlayerController::OnClick()
 {
     switch (CurrentGameState)
     {
-        case EGameState::ObjectPlacement:
+        case EGameState::Placement:
             ObjectPlacementClick();
             break;
-        default:
+        case EGameState::Interact:
             InteractClick();
+            break;
+        default:
             break;
     }
 }

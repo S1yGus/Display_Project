@@ -23,5 +23,6 @@ public:
     virtual void BeginPlay() override;
 
 private:
+    UPROPERTY()
     TObjectPtr<UDP_TextWidget> TextWidget;
 };

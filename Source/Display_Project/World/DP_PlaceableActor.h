@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "DP_CoreEnums.h"
+#include "DP_CoreAliases.h"
 #include "DP_PlaceableActor.generated.h"
 
 class UMaterialInterface;
@@ -16,15 +18,17 @@ class DISPLAY_PROJECT_API ADP_PlaceableActor : public AActor
 public:
     ADP_PlaceableActor();
 
+    [[nodiscard]] FString GetObjectName() const;
+    [[nodiscard]] FIntPoint GetObjectSize() const { return Size; }
+
+    virtual void Init(FAttributesDataMap&& Attributes);
+
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Preview")
     void UpdatePreview(UMaterialInterface* PreviewMaterial);
 
 protected:
-    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Outline")
-    void OnBeginCursorHover(AActor* TouchedActor);
+    FAttributesDataMap AttributesMap;
 
-    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Outline")
-    void OnEndCursorHover(AActor* TouchedActor);
-
-    virtual void BeginPlay() override;
+    UPROPERTY(EditDefaultsOnly, Category = "Settings", Meta = (ClampMin = "0"))
+    FIntPoint Size{1};
 };

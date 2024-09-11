@@ -14,17 +14,16 @@ class DISPLAY_PROJECT_API ADP_HUD : public AHUD
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "UI")
-    TSubclassOf<UUserWidget> ObjectPlacementWidgetClass;
+    TSubclassOf<UUserWidget> PlacementWidgetClass;
 
+    virtual void BeginPlay() override;
+    void CreateWidgets();
+
+private:
     UPROPERTY()
     TMap<EGameState, TObjectPtr<UUserWidget>> GameWidgets;
-
     UPROPERTY()
     TObjectPtr<UUserWidget> CurrentWidget;
 
-    virtual void BeginPlay() override;
-    virtual void SetupWidgets();
-
-private:
     void OnGameStateChanged(EGameState GameState);
 };

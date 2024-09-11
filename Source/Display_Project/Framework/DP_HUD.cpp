@@ -8,9 +8,7 @@ void ADP_HUD::BeginPlay()
 {
     Super::BeginPlay();
 
-    check(ObjectPlacementWidgetClass);
-
-    SetupWidgets();
+    CreateWidgets();
 
     if (auto* GameMode = GetWorld() ? GetWorld()->GetAuthGameMode<ADP_GameModeBase>() : nullptr)
     {
@@ -18,9 +16,10 @@ void ADP_HUD::BeginPlay()
     }
 }
 
-void ADP_HUD::SetupWidgets()
+void ADP_HUD::CreateWidgets()
 {
-    GameWidgets.Add(EGameState::ObjectPlacement, CreateWidget<UUserWidget>(GetWorld(), ObjectPlacementWidgetClass));
+    check(PlacementWidgetClass);
+    GameWidgets.Add(EGameState::Placement, CreateWidget<UUserWidget>(GetWorld(), PlacementWidgetClass));
 
     for (const auto& [GameState, GameWidget] : GameWidgets)
     {

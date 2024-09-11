@@ -1,81 +1,32 @@
 // Display_Project, all rights reserved.
 
 #include "Framework/DP_GameModeBase.h"
-#include "World/DP_PlaceableActor.h"
-#include "GameFramework/PlayerController.h"
+#include "World/DP_Grid.h"
+#include "World/DP_Node.h"
 
-static const float SpawnTimerRate{0.016f};
-
-void ADP_GameModeBase::SpawnCurrentObject()
-{
-    if (CurrentGameState != EGameState::ObjectPlacement)
-        return;
-
-    if (CanSpawn())
-    {
-        TargetScale = MaxPreviewScale;
-        GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ThisClass::OnSpawning, SpawnTimerRate, true);
-    }
-}
+static constexpr double GirdHeight{100.0};
 
 void ADP_GameModeBase::StartPlay()
 {
     Super::StartPlay();
 
-    SetGameState(EGameState::ObjectPlacement);
-}
-
-void ADP_GameModeBase::Tick(float DeltaSeconds)
-{
-    if (CurrentGameState == EGameState::ObjectPlacement)
+#if WITH_EDITOR
+    const UEnum* ObjectEnum = StaticEnum<EObjectType>();
+    for (int32 i = 0; i < ObjectEnum->NumEnums() - 1; ++i)
     {
-        if (auto* PC = GetWorld() ? GetWorld()->GetFirstPlayerController() : nullptr)
+        auto CurrentType = static_cast<EObjectType>(i);
+        if (CurrentType != EObjectType::None)
         {
-            if (FHitResult HitResult; PreviewObject && PC->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery4, false, HitResult))
-            {
-                PreviewObject->SetActorLocation(HitResult.ImpactPoint);
-            }
+            check(ObjectsMap.Contains(CurrentType));
+            check(ObjectsMap[CurrentType].Class);
         }
     }
-}
+#endif    // WITH_EDITOR
 
-void ADP_GameModeBase::UpdatePreview()
-{
-    PreviewObject->UpdatePreview(CanSpawn() ? ValidPreviewMaterial : InvalidPreviewMaterial);
-}
+    SpawnGrid();
 
-void ADP_GameModeBase::OnPreviewBeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
-{
-    if (OtherActor->IsInA(ADP_PlaceableActor::StaticClass()))
-    {
-        ++OverlapCounter;
-        UpdatePreview();
-    }
-}
-
-void ADP_GameModeBase::OnPreviewEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
-{
-    if (OtherActor->IsInA(ADP_PlaceableActor::StaticClass()))
-    {
-        --OverlapCounter;
-        UpdatePreview();
-    }
-}
-
-void ADP_GameModeBase::OnSpawning()
-{
-    PreviewObject->SetActorScale3D(FMath::VInterpTo(PreviewObject->GetActorScale3D(), TargetScale, SpawnTimerRate, ScaleInterpSpeed));
-    if (PreviewObject->GetActorScale3D().Equals(MaxPreviewScale))
-    {
-        TargetScale = MinPreviewScale;
-    }
-    else if (PreviewObject->GetActorScale3D().Equals(MinPreviewScale))
-    {
-        GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
-        GetWorld()->SpawnActor<ADP_PlaceableActor>(ObjectClasses[CurrentObjectType], FTransform{PreviewObject->GetActorRotation(), PreviewObject->GetActorLocation()});
-        PreviewObject->Destroy();
-        // SetGameState(EGameState::WaitingToStart);
-    }
+    SetCurrentObjectType_Internal(EObjectType::None);
+    SetGameState_Internal(EGameState::Placement);
 }
 
 void ADP_GameModeBase::SetGameState(EGameState NewGameState)
@@ -83,24 +34,46 @@ void ADP_GameModeBase::SetGameState(EGameState NewGameState)
     if (CurrentGameState == NewGameState)
         return;
 
+    SetGameState_Internal(NewGameState);
+}
+
+void ADP_GameModeBase::SetCurrentObjectType(EObjectType NewObjectType)
+{
+    if (CurrentObjectType == NewObjectType)
+        return;
+
+    SetCurrentObjectType_Internal(NewObjectType);
+}
+
+void ADP_GameModeBase::AddCurrentObjectAttribute(EAttributeType AttributeType, FAttributeData AttributeData)
+{
+    OnAttributeChanged.Broadcast(AttributeType, AttributeData);
+}
+
+void ADP_GameModeBase::SpawnCurrentObject()
+{
+    Grid->SpawnCurrentObject();
+}
+
+void ADP_GameModeBase::UpdatePreviewLocation(AActor* ReferenceActor)
+{
+    Grid->UpdatePreviewLocation(Cast<ADP_Node>(ReferenceActor));
+}
+
+void ADP_GameModeBase::SpawnGrid()
+{
+    Grid = GetWorld()->SpawnActor<ADP_Grid>(GridClass, FVector{0.0, 0.0, GirdHeight}, FRotator::ZeroRotator);
+    check(Grid);
+}
+
+void ADP_GameModeBase::SetGameState_Internal(EGameState NewGameState)
+{
     CurrentGameState = NewGameState;
     OnGameStateChanged.Broadcast(NewGameState);
+}
 
-    switch (NewGameState)
-    {
-        case EGameState::ObjectPlacement:
-            if (GetWorld() && ObjectClasses.Contains(CurrentObjectType))
-            {
-                const FVector PreviewScale{1.01};
-                const FTransform SpawnTransform{FRotator::ZeroRotator, FVector::ZeroVector, PreviewScale};
-                PreviewObject = GetWorld()->SpawnActor<ADP_PlaceableActor>(ObjectClasses[CurrentObjectType], SpawnTransform);
-                check(PreviewObject);
-                PreviewObject->OnActorBeginOverlap.AddDynamic(this, &ThisClass::OnPreviewBeginOverlap);
-                PreviewObject->OnActorEndOverlap.AddDynamic(this, &ThisClass::OnPreviewEndOverlap);
-                UpdatePreview();
-            }
-            break;
-        default:
-            break;
-    }
+void ADP_GameModeBase::SetCurrentObjectType_Internal(EObjectType NewObjectType)
+{
+    CurrentObjectType = NewObjectType;
+    OnObjectTypeChanged.Broadcast(NewObjectType);
 }
