@@ -7,3 +7,10 @@ void UDP_TextWidget::SetText(const FText& Text)
 {
     WidgetText->SetText(Text);
 }
+
+void UDP_TextWidget::NativeOnInitialized()
+{
+    Super::NativeOnInitialized();
+
+    check(WidgetText);
+}

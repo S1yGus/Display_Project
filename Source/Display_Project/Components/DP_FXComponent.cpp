@@ -1,16 +1,16 @@
 // Display_Project, all rights reserved.
 
-#include "World/DP_InteractiveActor.h"
+#include "Components/DP_FXComponent.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 
-ADP_InteractiveActor::ADP_InteractiveActor()
+UDP_FXComponent::UDP_FXComponent()
 {
-    PrimaryActorTick.bCanEverTick = false;
+    PrimaryComponentTick.bCanEverTick = false;
 }
 
-void ADP_InteractiveActor::Interact(const FTransform& InteractionTransform)
+void UDP_FXComponent::MakeInteractFX(const FTransform& InteractionTransform)
 {
     if (InteractSound)
     {
@@ -24,12 +24,4 @@ void ADP_InteractiveActor::Interact(const FTransform& InteractionTransform)
                                                        InteractionTransform.GetLocation(),    //
                                                        InteractionTransform.Rotator());
     }
-}
-
-void ADP_InteractiveActor::BeginPlay()
-{
-    Super::BeginPlay();
-
-    OnBeginCursorOver.AddDynamic(this, &ThisClass::OnBeginCursorHover);
-    OnEndCursorOver.AddDynamic(this, &ThisClass::OnEndCursorHover);
 }

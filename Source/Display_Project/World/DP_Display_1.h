@@ -3,7 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "World/DP_InteractiveActor.h"
+#include "World/DP_PlaceableActor.h"
+#include "DP_CoreTypes.h"
 #include "DP_Display_1.generated.h"
 
 #define CREATE_SEGMENT(Segment)                                    \
@@ -17,14 +18,16 @@ class UDP_BaseScrollingAlgorithm;
 class UDP_Segment;
 
 UCLASS(Abstract)
-class DISPLAY_PROJECT_API ADP_Display_1 : public ADP_InteractiveActor
+class DISPLAY_PROJECT_API ADP_Display_1 : public ADP_PlaceableActor
 {
     GENERATED_BODY()
 
 public:
     ADP_Display_1();
 
-    void RefreshText(const FString& InText);
+    void RefreshText(const FString& Text);
+
+    virtual void Init(FAttributesDataMap&& Attributes) override;
 
 protected:
     UPROPERTY(VisibleDefaultsOnly, Category = "Components")
@@ -33,7 +36,7 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Settings")
     FString DisplayText;
 
-    UPROPERTY(EditAnywhere, Category = "Settings")
+    UPROPERTY(EditAnywhere, Category = "Classes")
     TSubclassOf<UDP_BaseScrollingAlgorithm> ScrollingAlgorithmClass;
 
     TArray<TWeakInterfacePtr<IDP_SegmentInterface>> Segments;

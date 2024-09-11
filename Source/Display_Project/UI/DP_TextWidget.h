@@ -20,4 +20,6 @@ public:
 protected:
     UPROPERTY(Meta = (BindWidget))
     TObjectPtr<UTextBlock> WidgetText;
+
+    virtual void NativeOnInitialized() override;
 };
