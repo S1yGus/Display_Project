@@ -3,6 +3,7 @@
 #include "World/DP_Grid.h"
 #include "World/DP_PlaceableActor.h"
 #include "World/DP_Node.h"
+#include "World/DP_Panel.h"
 #include "Framework/DP_GameModeBase.h"
 #include "DP_Utils.h"
 
@@ -64,6 +65,7 @@ void ADP_Grid::BeginPlay()
     }
 
     Init();
+    SpawnPanel();
 }
 
 ADP_GameModeBase* ADP_Grid::GetGameMode() const
@@ -73,6 +75,11 @@ ADP_GameModeBase* ADP_Grid::GetGameMode() const
 
 void ADP_Grid::Init()
 {
+    if (!GetWorld())
+        return;
+
+    check(NodeClass);
+
     TArray<TObjectPtr<ADP_Node>> Nodes;
     Nodes.Reserve(GridSize.X * GridSize.Y);
 
@@ -115,6 +122,15 @@ void ADP_Grid::Init()
             Nodes[i]->BottomNode = Nodes[i + GridSize.X];
         }
     }
+}
+
+void ADP_Grid::SpawnPanel()
+{
+    if (!GetWorld() || !PanelClass)
+        return;
+
+    auto* Panel = GetWorld()->SpawnActor<ADP_Panel>(PanelClass, FTransform::Identity * GetActorTransform());
+    check(Panel);
 }
 
 void ADP_Grid::Free()
@@ -375,17 +391,14 @@ void ADP_Grid::SpawnObject()
 
 void ADP_Grid::OnGameStateChanged(EGameState NewGameState)
 {
-    switch (NewGameState)
+    if (NewGameState == EGameState::Standby)
     {
-        case EGameState::Standby:
-            Free();
-            break;
-        default:
-            if (PreviewObject)
-            {
-                PreviewObject->Destroy();
-            }
-            break;
+        Free();
+    }
+
+    if (PreviewObject)
+    {
+        PreviewObject->Destroy();
     }
 }
 
