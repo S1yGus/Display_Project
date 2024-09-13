@@ -4,7 +4,7 @@
 #include "World/DP_Grid.h"
 #include "World/DP_Node.h"
 
-static constexpr double GirdHeight{100.0};
+static constexpr double GirdHeight{150.0};
 
 void ADP_GameModeBase::StartPlay()
 {

@@ -8,9 +8,10 @@
 #include "DP_Grid.generated.h"
 
 class ADP_PlaceableActor;
-class UMaterialInterface;
 class ADP_Node;
+class ADP_Panel;
 class ADP_GameModeBase;
+class UMaterialInterface;
 
 UCLASS()
 class DISPLAY_PROJECT_API ADP_Grid : public AActor
@@ -32,6 +33,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<ADP_Node> NodeClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Classes")
+    TSubclassOf<ADP_Panel> PanelClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "Preview")
     TObjectPtr<UMaterialInterface> ValidPreviewMaterial;
@@ -70,6 +74,7 @@ private:
     FORCEINLINE [[nodiscard]] ADP_GameModeBase* GetGameMode() const;
 
     void Init();
+    void SpawnPanel();
     void Free();
     FORCEINLINE [[nodiscard]] bool CanSpawn() const { return bIsValidArea && bIsAreaVacant; }
     bool SpawnPreview(const FTransform& SpawnTransform);
