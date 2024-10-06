@@ -7,9 +7,8 @@
 
 class ADP_Display_1;
 class UComboBoxString;
-struct FAttribute;
 
 using FAttributeData = TVariant<FString, TObjectPtr<ADP_Display_1>>;
-using FAttributesMap = TMap<EAttributeType, FAttribute>;
-using FAttributesDataMap = TMap<EAttributeType, FAttributeData>;
+using FAttributesMap = TMap<EAttributeType, FAttributeData>;
 using FComboBoxDataUpdater = TFunction<void(TObjectPtr<UComboBoxString>, TArray<FAttributeData>&)>;
+using FComboBoxSelectedOptionGetter = TFunction<FString(const FAttributeData&)>;

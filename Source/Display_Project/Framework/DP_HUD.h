@@ -12,12 +12,23 @@ class DISPLAY_PROJECT_API ADP_HUD : public AHUD
 {
     GENERATED_BODY()
 
-protected:
-    UPROPERTY(EditDefaultsOnly, Category = "UI")
-    TSubclassOf<UUserWidget> PlacementWidgetClass;
+public:
+    FOnObjectTypeChangedSignature OnObjectTypeChanged;
+    FOnAttributeChangedSignature OnAttributeChanged;
+    FOnDestroySelectedSignature OnDestroySelected;
+    FOnDestroyAllSignature OnDestroyAll;
 
-    virtual void BeginPlay() override;
-    void CreateWidgets();
+    void CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap);
+    void ChangeCurrentWidget(EGameState GameState);
+    void HideWidgetAttributes();
+    void Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes);
+
+protected:
+    UPROPERTY(EditDefaultsOnly, Category = "Classes")
+    TSubclassOf<UUserWidget> PlacementWidgetClasses;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Classes")
+    TSubclassOf<UUserWidget> SelectWidgetClasses;
 
 private:
     UPROPERTY()
@@ -25,5 +36,8 @@ private:
     UPROPERTY()
     TObjectPtr<UUserWidget> CurrentWidget;
 
-    void OnGameStateChanged(EGameState GameState);
+    void OnObjectTypeChangedHandler(EObjectType ObjectType);
+    void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
+    void OnDestroyAllHandler();
+    void OnDestroySelectedHandler();
 };

@@ -18,7 +18,7 @@ class DISPLAY_PROJECT_API UDP_ObjectButtonWidget : public UUserWidget
 public:
     FOnClickedObjectButtonSignature OnClickedObjectButton;
 
-    void Init(EObjectType ObjectType, const FText& ObjectName, int32 WidgetID);
+    void Init(EObjectType ObjectType, int32 WidgetID);
 
 protected:
     UPROPERTY(Meta = (BindWidget))
@@ -34,5 +34,5 @@ private:
     int32 ID;
 
     UFUNCTION()
-    void OnClicked();
+    void OnClickedHandler();
 };

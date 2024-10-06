@@ -24,7 +24,9 @@ namespace UI
 {
 
 uint64 UniqueID();
-FText ObjectTypeToText(EObjectType Type);
 FText GenerateUniqueObjectName(const FText& Name);
+FText GetAdjustedDefaultText(EAttributeType Type, const FText& Text);
+FText ObjectTypeToText(EObjectType Type);
+FText AttributeTypeToText(EAttributeType Type);
 
 }    // namespace UI
