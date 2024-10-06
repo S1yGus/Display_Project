@@ -25,10 +25,6 @@ class DISPLAY_PROJECT_API ADP_Display_1 : public ADP_PlaceableActor
 public:
     ADP_Display_1();
 
-    void RefreshText(const FString& Text);
-
-    virtual void Init(FAttributesDataMap&& Attributes) override;
-
 protected:
     UPROPERTY(VisibleDefaultsOnly, Category = "Components")
     TObjectPtr<UDP_Segment> Segment_1;
@@ -42,8 +38,11 @@ protected:
     TArray<TWeakInterfacePtr<IDP_SegmentInterface>> Segments;
 
     virtual void BeginPlay() override;
+    virtual void UpdateAttributes() override;
 
 private:
     UPROPERTY()
     TObjectPtr<UDP_BaseScrollingAlgorithm> ScrollingAlgorithm;
+
+    void RefreshText(const FString& Text);
 };

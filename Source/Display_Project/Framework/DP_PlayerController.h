@@ -9,8 +9,6 @@
 
 class UInputAction;
 class UInputMappingContext;
-class ADP_GameModeBase;
-class ADP_Grid;
 
 UCLASS()
 class DISPLAY_PROJECT_API ADP_PlayerController : public APlayerController
@@ -18,7 +16,13 @@ class DISPLAY_PROJECT_API ADP_PlayerController : public APlayerController
     GENERATED_BODY()
 
 public:
+    FOnUpdatePreviewLocationSignature OnUpdatePreviewLocation;
+    FOnRequestObjectSpawnSignature OnRequestObjectSpawn;
+    FOnObjectSelectedSignature OnObjectSelected;
+
     ADP_PlayerController();
+
+    void UpdateGameState(EGameState NewGameState);
 
     virtual void Tick(float DeltaSeconds) override;
 
@@ -38,12 +42,9 @@ protected:
 private:
     EGameState CurrentGameState{EGameState::Standby};
 
-    [[nodiscard]] ADP_GameModeBase* GetGameMode();
-
     void ObjectPlacementClick();
     void InteractClick();
 
-    void OnClick();
-    void OnSelect();
-    void OnGameStateChanged(EGameState NewGameState);
+    void OnClickHandler();
+    void OnSelectHandler();
 };

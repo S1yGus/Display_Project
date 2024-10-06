@@ -12,12 +12,19 @@ class UHorizontalBox;
 class UWidgetSwitcher;
 class UDP_ObjectButtonWidget;
 class UDP_AttributesListWidget;
-class ADP_GameModeBase;
 
 UCLASS()
 class DISPLAY_PROJECT_API UDP_PlacementWidget : public UUserWidget
 {
     GENERATED_BODY()
+
+public:
+    FOnObjectTypeChangedSignature OnObjectTypeChanged;
+    FOnAttributeChangedSignature OnAttributeChanged;
+    FOnDestroyAllSignature OnDestroyAll;
+
+    void CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap);
+    void HideAttributes();
 
 protected:
     UPROPERTY(Meta = (BindWidget))
@@ -27,7 +34,7 @@ protected:
     TObjectPtr<UWidgetSwitcher> AttributesSwitcher;
 
     UPROPERTY(Meta = (BindWidget))
-    TObjectPtr<UButton> FreeAllButton;
+    TObjectPtr<UButton> DestroyAllButton;
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<UDP_ObjectButtonWidget> ObjectButtonWidgetClass;
@@ -38,16 +45,12 @@ protected:
     virtual void NativeOnInitialized() override;
 
 private:
-    FORCEINLINE [[nodiscard]] ADP_GameModeBase* GetGameMode() const;
-
-    void CreateWidgetsForObjects();
-    FORCEINLINE UDP_ObjectButtonWidget* CreateButtonWidget(EObjectType ObjectType, const FText& ObjectName, int32 WidgetID);
-    FORCEINLINE UDP_AttributesListWidget* CreateAttributesListWidget(EObjectType ObjectType, const FAttributesMap& Attributes);
-    FORCEINLINE void ResetCurrentObjectAttributes();
+    FORCEINLINE UDP_ObjectButtonWidget* CreateButtonWidget(EObjectType ObjectType, int32 WidgetID);
+    FORCEINLINE UDP_AttributesListWidget* CreateAttributesListWidget(EObjectType ObjectType, const TArray<EAttributeType>& Attributes);
+    FORCEINLINE void ResetCurrentAttributesList();
 
     UFUNCTION()
-    void OnClickedFreeButton();
-    void OnClickedObjectButton(EObjectType ObjectType, int32 WidgetID);
-    void OnObjectTypeChanged(EObjectType ObjectType);
+    void OnClickedDestroyAllButtonHandler();
+    void OnClickedObjectButtonHandler(EObjectType ObjectType, int32 WidgetID);
     void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
 };

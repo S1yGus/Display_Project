@@ -1,7 +1,6 @@
 // Display_Project, all rights reserved.
 
 #include "Framework/DP_PlayerController.h"
-#include "Framework/DP_GameModeBase.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Interfaces/DP_InteractiveInterface.h"
@@ -16,6 +15,11 @@ ADP_PlayerController::ADP_PlayerController()
     bEnableMouseOverEvents = true;
 }
 
+void ADP_PlayerController::UpdateGameState(EGameState NewGameState)
+{
+    CurrentGameState = NewGameState;
+}
+
 void ADP_PlayerController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
@@ -24,10 +28,7 @@ void ADP_PlayerController::Tick(float DeltaSeconds)
     {
         if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Node, false, HitResult))
         {
-            if (auto* GameMode = GetGameMode())
-            {
-                GameMode->UpdatePreviewLocation(HitResult.GetActor());
-            }
+            OnUpdatePreviewLocation.Broadcast(HitResult.GetActor());
         }
     }
 }
@@ -37,11 +38,6 @@ void ADP_PlayerController::BeginPlay()
     Super::BeginPlay();
 
     SetInputMode(FInputModeGameAndUI().SetHideCursorDuringCapture(false));
-
-    if (auto* GameMode = GetGameMode())
-    {
-        GameMode->OnGameStateChanged.AddUObject(this, &ThisClass::OnGameStateChanged);
-    }
 }
 
 void ADP_PlayerController::SetupInputComponent()
@@ -58,22 +54,14 @@ void ADP_PlayerController::SetupInputComponent()
 
     if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent))
     {
-        Input->BindAction(ClickAction, ETriggerEvent::Started, this, &ThisClass::OnClick);
-        Input->BindAction(SelectAction, ETriggerEvent::Started, this, &ThisClass::OnSelect);
+        Input->BindAction(ClickAction, ETriggerEvent::Started, this, &ThisClass::OnClickHandler);
+        Input->BindAction(SelectAction, ETriggerEvent::Started, this, &ThisClass::OnSelectHandler);
     }
-}
-
-ADP_GameModeBase* ADP_PlayerController::GetGameMode()
-{
-    return GetWorld() ? GetWorld()->GetAuthGameMode<ADP_GameModeBase>() : nullptr;
 }
 
 void ADP_PlayerController::ObjectPlacementClick()
 {
-    if (auto* GameMode = GetGameMode())
-    {
-        GameMode->SpawnCurrentObject();
-    }
+    OnRequestObjectSpawn.Broadcast();
 }
 
 void ADP_PlayerController::InteractClick()
@@ -87,7 +75,7 @@ void ADP_PlayerController::InteractClick()
     }
 }
 
-void ADP_PlayerController::OnClick()
+void ADP_PlayerController::OnClickHandler()
 {
     switch (CurrentGameState)
     {
@@ -95,6 +83,8 @@ void ADP_PlayerController::OnClick()
             ObjectPlacementClick();
             break;
         case EGameState::Interact:
+            [[fallthrough]];
+        case EGameState::Select:
             InteractClick();
             break;
         default:
@@ -102,12 +92,14 @@ void ADP_PlayerController::OnClick()
     }
 }
 
-void ADP_PlayerController::OnSelect()
+void ADP_PlayerController::OnSelectHandler()
 {
-    // TODO
-}
-
-void ADP_PlayerController::OnGameStateChanged(EGameState NewGameState)
-{
-    CurrentGameState = NewGameState;
+    if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Clickable, false, HitResult))
+    {
+        OnObjectSelected.Broadcast(HitResult.GetActor(), FTransform{HitResult.ImpactNormal.Rotation(), HitResult.ImpactPoint});
+    }
+    else
+    {
+        OnObjectSelected.Broadcast(nullptr, {});
+    }
 }

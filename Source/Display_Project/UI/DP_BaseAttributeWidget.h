@@ -17,15 +17,18 @@ class DISPLAY_PROJECT_API UDP_BaseAttributeWidget : public UUserWidget
 public:
     FOnAttributeChangedSignature OnAttributeChanged;
 
-    void Init(EAttributeType AttributeType, const FAttribute& Attribute);
+    void Init(EAttributeType AttributeType);
+    EAttributeType GetType() const { return Type; }
 
+    virtual void Update(const FAttributeData& Data);
     virtual void Reset();
 
 protected:
-    EAttributeType Type;
-
     UPROPERTY(Meta = (BindWidget))
     TObjectPtr<UTextBlock> AttributeName;
 
     virtual void NativeOnInitialized() override;
+
+private:
+    EAttributeType Type;
 };

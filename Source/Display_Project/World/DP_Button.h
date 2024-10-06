@@ -18,7 +18,6 @@ class DISPLAY_PROJECT_API ADP_Button : public ADP_PlaceableActor, public IDP_Int
 public:
     ADP_Button();
 
-    virtual void Init(FAttributesDataMap&& Attributes) override;
     virtual void Interact(const FTransform& InteractionTransform) override;
 
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Settings")
@@ -41,4 +40,5 @@ protected:
     void OnInteract();
 
     virtual void BeginPlay() override;
+    virtual void UpdateAttributes() override;
 };

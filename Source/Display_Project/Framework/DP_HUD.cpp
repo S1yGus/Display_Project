@@ -1,37 +1,34 @@
 // Display_Project, all rights reserved.
 
 #include "Framework/DP_HUD.h"
-#include "Framework/DP_GameModeBase.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/DP_PlacementWidget.h"
+#include "UI/DP_SelectWidget.h"
 
-void ADP_HUD::BeginPlay()
+void ADP_HUD::CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap)
 {
-    Super::BeginPlay();
+    auto* PlacementWidget = CreateWidget<UDP_PlacementWidget>(GetWorld(), PlacementWidgetClasses);
+    check(PlacementWidget);
+    PlacementWidget->OnObjectTypeChanged.AddUObject(this, &ThisClass::OnObjectTypeChangedHandler);
+    PlacementWidget->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
+    PlacementWidget->OnDestroyAll.AddUObject(this, &ThisClass::OnDestroyAllHandler);
+    PlacementWidget->CreateWidgetsForObjects(ObjectsMap);
+    GameWidgets.Add(EGameState::Interact, PlacementWidget);
 
-    CreateWidgets();
+    auto* SelectWidget = CreateWidget<UDP_SelectWidget>(GetWorld(), SelectWidgetClasses);
+    check(SelectWidget);
+    SelectWidget->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
+    SelectWidget->OnDestroySelected.AddUObject(this, &ThisClass::OnDestroySelectedHandler);
+    SelectWidget->CreateWidgetsForObjects(ObjectsMap);
+    GameWidgets.Add(EGameState::Select, SelectWidget);
 
-    if (auto* GameMode = GetWorld() ? GetWorld()->GetAuthGameMode<ADP_GameModeBase>() : nullptr)
+    for (auto& [State, Widget] : GameWidgets)
     {
-        GameMode->OnGameStateChanged.AddUObject(this, &ThisClass::OnGameStateChanged);
+        Widget->AddToViewport();
+        Widget->SetVisibility(ESlateVisibility::Collapsed);
     }
 }
 
-void ADP_HUD::CreateWidgets()
-{
-    check(PlacementWidgetClass);
-    GameWidgets.Add(EGameState::Placement, CreateWidget<UUserWidget>(GetWorld(), PlacementWidgetClass));
-
-    for (const auto& [GameState, GameWidget] : GameWidgets)
-    {
-        if (GameWidget)
-        {
-            GameWidget->AddToViewport();
-            GameWidget->SetVisibility(ESlateVisibility::Collapsed);
-        }
-    }
-}
-
-void ADP_HUD::OnGameStateChanged(EGameState GameState)
+void ADP_HUD::ChangeCurrentWidget(EGameState GameState)
 {
     if (CurrentWidget)
     {
@@ -47,4 +44,40 @@ void ADP_HUD::OnGameStateChanged(EGameState GameState)
     {
         CurrentWidget->SetVisibility(ESlateVisibility::Visible);
     }
+}
+
+void ADP_HUD::HideWidgetAttributes()
+{
+    if (auto* PlacementWidget = Cast<UDP_PlacementWidget>(GameWidgets[EGameState::Interact]))
+    {
+        PlacementWidget->HideAttributes();
+    }
+}
+
+void ADP_HUD::Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes)
+{
+    if (auto* SelectWidget = Cast<UDP_SelectWidget>(GameWidgets[EGameState::Select]))
+    {
+        SelectWidget->Select(ObjectType, ObjectName, Attributes);
+    }
+}
+
+void ADP_HUD::OnObjectTypeChangedHandler(EObjectType ObjectType)
+{
+    OnObjectTypeChanged.Broadcast(ObjectType);
+}
+
+void ADP_HUD::OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData)
+{
+    OnAttributeChanged.Broadcast(AttributeType, AttributeData);
+}
+
+void ADP_HUD::OnDestroyAllHandler()
+{
+    OnDestroyAll.Broadcast();
+}
+
+void ADP_HUD::OnDestroySelectedHandler()
+{
+    OnDestroySelected.Broadcast();
 }

@@ -3,10 +3,11 @@
 #include "UI/DP_ObjectButtonWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "DP_Utils.h"
 
-void UDP_ObjectButtonWidget::Init(EObjectType ObjectType, const FText& ObjectName, int32 WidgetID)
+void UDP_ObjectButtonWidget::Init(EObjectType ObjectType, int32 WidgetID)
 {
-    ButtonText->SetText(ObjectName);
+    ButtonText->SetText(UI::ObjectTypeToText(ObjectType));
     Type = ObjectType;
     ID = WidgetID;
 }
@@ -18,10 +19,10 @@ void UDP_ObjectButtonWidget::NativeOnInitialized()
     check(Button);
     check(ButtonText);
 
-    Button->OnClicked.AddDynamic(this, &ThisClass::OnClicked);
+    Button->OnClicked.AddDynamic(this, &ThisClass::OnClickedHandler);
 }
 
-void UDP_ObjectButtonWidget::OnClicked()
+void UDP_ObjectButtonWidget::OnClickedHandler()
 {
     OnClickedObjectButton.Broadcast(Type, ID);
 }

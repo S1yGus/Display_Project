@@ -4,7 +4,6 @@
 #include "World/DP_PlaceableActor.h"
 #include "World/DP_Node.h"
 #include "World/DP_Panel.h"
-#include "Framework/DP_GameModeBase.h"
 #include "DP_Utils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogGrid, All, All)
@@ -27,7 +26,7 @@ void ADP_Grid::SpawnCurrentObject()
     {
         bIsSpawning = true;
         TargetPreviewScale = MaxPreviewScale;
-        GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ThisClass::OnSpawning, SpawnTimerRate, true);
+        GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ThisClass::OnSpawningHandler, SpawnTimerRate, true);
     }
 }
 
@@ -53,24 +52,56 @@ void ADP_Grid::UpdatePreviewLocation(ADP_Node* ReferenceNode)
     UpdatePreviewMaterial();
 }
 
+void ADP_Grid::Free(TObjectPtr<ADP_PlaceableActor> Object)
+{
+    if (OccupiedNodesMap.Contains(Object))
+    {
+        for (auto Node : OccupiedNodesMap[Object])
+        {
+            Node->Free();
+        }
+        OccupiedNodesMap.Remove(Object);
+    }
+    else
+    {
+        UE_LOG(LogGrid, Warning, TEXT("Object pointer with name %s was not found in the occupied nodes map!"), *Object->GetName());
+    }
+}
+
+void ADP_Grid::FreeAll()
+{
+    for (auto& [Object, Nodes] : OccupiedNodesMap)
+    {
+        for (auto Node : Nodes)
+        {
+            Node->Free();
+        }
+    }
+    OccupiedNodesMap.Empty();
+    DestroyPreview();
+}
+
+void ADP_Grid::UpdateCurrentObjectClass(UClass* ObjectClass)
+{
+    CurrentObjectClass = ObjectClass;
+    DestroyPreview();
+}
+
+void ADP_Grid::AddCurrentObjectAttribute(EAttributeType AttributeType, FAttributeData AttributeData)
+{
+    if (!CurrentObjectAttributesMap.Contains(AttributeType))
+    {
+        CurrentObjectAttributesMap.Add(AttributeType);
+    }
+    CurrentObjectAttributesMap[AttributeType] = AttributeData;
+}
+
 void ADP_Grid::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (auto* GameMode = GetGameMode())
-    {
-        GameMode->OnGameStateChanged.AddUObject(this, &ThisClass::OnGameStateChanged);
-        GameMode->OnObjectTypeChanged.AddUObject(this, &ThisClass::OnObjectTypeChanged);
-        GameMode->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChanged);
-    }
-
     Init();
     SpawnPanel();
-}
-
-ADP_GameModeBase* ADP_Grid::GetGameMode() const
-{
-    return GetWorld() ? GetWorld()->GetAuthGameMode<ADP_GameModeBase>() : nullptr;
 }
 
 void ADP_Grid::Init()
@@ -133,35 +164,37 @@ void ADP_Grid::SpawnPanel()
     check(Panel);
 }
 
-void ADP_Grid::Free()
-{
-    for (auto* Node : OccupiedNodes)
-    {
-        Node->Free();
-    }
-
-    OccupiedNodes.Empty();
-}
-
 bool ADP_Grid::SpawnPreview(const FTransform& SpawnTransform)
 {
-    if (auto* GameMode = GetGameMode())
+    if (GetWorld())
     {
-        if (const auto& ObjectsMap = GameMode->GetObjectsMap(); ObjectsMap.Contains(CurrentObjectType) && GetWorld())
-        {
-            PreviewObject = GetWorld()->SpawnActor<ADP_PlaceableActor>(ObjectsMap[CurrentObjectType].Class, SpawnTransform);
-            check(PreviewObject);
+        PreviewObject = GetWorld()->SpawnActor<ADP_PlaceableActor>(CurrentObjectClass, SpawnTransform);
+        check(PreviewObject);
+        PreviewObject->UpdatePreviewMode(true);
 
-            return true;
-        }
+        return true;
     }
 
     return false;
 }
 
+void ADP_Grid::DestroyPreview()
+{
+    if (PreviewObject && !bIsSpawning)
+    {
+        if (GetWorldTimerManager().IsTimerActive(SpawnTimerHandle))
+        {
+            GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+        }
+        CurrentObjectAttributesMap.Empty();
+        PreviewObject->Destroy();
+        SelectedNode = nullptr;
+    }
+}
+
 void ADP_Grid::UpdatePreviewMaterial()
 {
-    PreviewObject->UpdatePreview(CanSpawn() ? ValidPreviewMaterial : InvalidPreviewMaterial);
+    PreviewObject->UpdatePreviewMaterial(CanSpawn() ? ValidPreviewMaterial : InvalidPreviewMaterial);
 }
 
 TOptional<ADP_Node*> ADP_Grid::GetValidPreviewNode(ADP_Node* Node, const FIntPoint& ObjectSize)
@@ -258,7 +291,7 @@ ADP_Node* ADP_Grid::GetValidPreviewNodeY(ADP_Node* Node, int32 ObjectSizeY)
     return Node;
 }
 
-bool ADP_Grid::ForEachNodeInArea(ADP_Node* StartNode, const FIntPoint& ObjectSize, TSet<ADP_Node*>& OutTraversedNodes, TFunction<bool(ADP_Node*)>&& Func)
+bool ADP_Grid::ForEachNodeInArea(ADP_Node* StartNode, const FIntPoint& ObjectSize, TSet<TObjectPtr<ADP_Node>>& OutTraversedNodes, TFunction<bool(ADP_Node*)>&& Func)
 {
     for (int32 y = 0; y < ObjectSize.Y / 2; ++y)
     {
@@ -307,7 +340,7 @@ bool ADP_Grid::ForEachNodeInArea(ADP_Node* StartNode, const FIntPoint& ObjectSiz
 
 bool ADP_Grid::IsAreaVacant(ADP_Node* StartNode, const FIntPoint& ObjectSize)
 {
-    TSet<ADP_Node*> Placeholder;
+    TSet<TObjectPtr<ADP_Node>> Placeholder;
     Placeholder.Reserve(ObjectSize.X * ObjectSize.Y);
     return ForEachNodeInArea(StartNode, ObjectSize, Placeholder,
                              [](const auto* Node)
@@ -316,7 +349,7 @@ bool ADP_Grid::IsAreaVacant(ADP_Node* StartNode, const FIntPoint& ObjectSize)
                              });
 }
 
-bool ADP_Grid::Occupy(ADP_Node* StartNode, ADP_PlaceableActor* Object, TSet<ADP_Node*>& OutTraversedNodes)
+bool ADP_Grid::Occupy(ADP_Node* StartNode, ADP_PlaceableActor* Object, TSet<TObjectPtr<ADP_Node>>& OutTraversedNodes)
 {
     return ForEachNodeInArea(StartNode, Object->GetObjectSize(), OutTraversedNodes,
                              [Object](auto* Node)
@@ -329,15 +362,15 @@ bool ADP_Grid::Occupy(ADP_Node* StartNode, ADP_PlaceableActor* Object, TSet<ADP_
                              });
 }
 
-void ADP_Grid::OnSpawning()
+void ADP_Grid::OnSpawningHandler()
 {
     PreviewObject->SetActorScale3D(FMath::VInterpTo(PreviewObject->GetActorScale3D(), TargetPreviewScale, SpawnTimerRate, ScaleInterpSpeed));
 
     if (PreviewObject->GetActorScale3D().Equals(MaxPreviewScale))
     {
-        TargetPreviewScale = MinPreviewScale;
+        TargetPreviewScale = FVector::One();
     }
-    else if (PreviewObject->GetActorScale3D().Equals(MinPreviewScale))
+    else if (PreviewObject->GetActorScale3D().Equals(FVector::One()))
     {
         SpawnObject();
     }
@@ -345,81 +378,34 @@ void ADP_Grid::OnSpawning()
 
 void ADP_Grid::SpawnObject()
 {
-    if (auto* GameMode = GetGameMode())
+    GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+    auto Object = PreviewObject;
+    PreviewObject = nullptr;
+    Object->UpdatePreviewMode(false);
+    Object->Init(MoveTemp(CurrentObjectAttributesMap));
+
+    TSet<TObjectPtr<ADP_Node>> TraversedNodes;
+    const FIntPoint ObjectSize = Object->GetObjectSize();
+    TraversedNodes.Reserve(ObjectSize.X * ObjectSize.Y);
+    if (Occupy(CurrentValidNode, Object, TraversedNodes))
     {
-        if (const auto& ObjectsMap = GameMode->GetObjectsMap(); ObjectsMap.Contains(CurrentObjectType) && GetWorld())
+        OccupiedNodesMap.Add(Object, TraversedNodes);
+    }
+    else
+    {
+        UE_LOG(LogGrid, Error, TEXT("Error placing object %s in the specified area!"), *Object->GetName());
+
+        for (auto Node : TraversedNodes)
         {
-            GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
-            const auto SpawnTransform = FTransform{PreviewObject->GetActorRotation(), PreviewObject->GetActorLocation()};
-            auto* Object = GetWorld()->SpawnActorDeferred<ADP_PlaceableActor>(ObjectsMap[CurrentObjectType].Class, SpawnTransform);
-            check(Object);
-            Object->Init(MoveTemp(CurrentObjectAttributesMap));
-            Object->FinishSpawning(SpawnTransform);
-
-            TSet<ADP_Node*> TraversedNodes;
-            const FIntPoint ObjectSize = Object->GetObjectSize();
-            TraversedNodes.Reserve(ObjectSize.X * ObjectSize.Y);
-            if (Occupy(CurrentValidNode, Object, TraversedNodes))
-            {
-                OccupiedNodes = OccupiedNodes.Union(TraversedNodes);
-            }
-            else
-            {
-                UE_LOG(LogGrid, Error, TEXT("Error placing object %s in the specified area!"), *Object->GetName());
-
-                for (auto* Node : TraversedNodes)
-                {
-                    Node->Free();
-                }
-
-                if (IsValid(Object))
-                {
-                    Object->Destroy();
-                }
-            }
-
-            GameMode->SetCurrentObjectType(EObjectType::None);
-            GameMode->SetGameState(EGameState::Interact);
-            bIsSpawning = false;
+            Node->Free();
         }
-        else
+
+        if (IsValid(Object))
         {
-            UE_LOG(LogGrid, Error, TEXT("Data for object type %s is not set!"), *DP::EnumToString(CurrentObjectType));
+            Object->Destroy();
         }
     }
-}
 
-void ADP_Grid::OnGameStateChanged(EGameState NewGameState)
-{
-    if (NewGameState == EGameState::Standby)
-    {
-        Free();
-    }
-
-    if (PreviewObject)
-    {
-        PreviewObject->Destroy();
-    }
-}
-
-void ADP_Grid::OnObjectTypeChanged(EObjectType NewObjectType)
-{
-    CurrentObjectType = NewObjectType;
-    CurrentObjectAttributesMap.Empty();
-    SelectedNode = nullptr;
-
-    if (PreviewObject)
-    {
-        PreviewObject->Destroy();
-    }
-}
-
-void ADP_Grid::OnAttributeChanged(EAttributeType AttributeType, FAttributeData AttributeData)
-{
-    if (!CurrentObjectAttributesMap.Contains(AttributeType))
-    {
-        CurrentObjectAttributesMap.Add(AttributeType);
-    }
-
-    CurrentObjectAttributesMap[AttributeType] = AttributeData;
+    bIsSpawning = false;
+    OnObjectSpawned.Broadcast();
 }

@@ -6,7 +6,25 @@
 #include "Components/Button.h"
 #include "Components/HorizontalBox.h"
 #include "Components/WidgetSwitcher.h"
-#include "Framework/DP_GameModeBase.h"
+
+void UDP_PlacementWidget::CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap)
+{
+    ButtonsBox->ClearChildren();
+    AttributesSwitcher->ClearChildren();
+
+    for (const auto& [ObjectType, ObjectData] : ObjectsMap)
+    {
+        static int32 WidgetID{0};
+        ButtonsBox->AddChild(CreateButtonWidget(ObjectType, WidgetID));
+        WidgetID = (WidgetID + 1) % ObjectsMap.Num();
+        AttributesSwitcher->AddChild(CreateAttributesListWidget(ObjectType, ObjectData.Attributes));
+    }
+}
+
+void UDP_PlacementWidget::HideAttributes()
+{
+    AttributesSwitcher->SetVisibility(ESlateVisibility::Collapsed);
+}
 
 void UDP_PlacementWidget::NativeOnInitialized()
 {
@@ -14,51 +32,22 @@ void UDP_PlacementWidget::NativeOnInitialized()
 
     check(ButtonsBox);
     check(AttributesSwitcher);
-    check(FreeAllButton);
+    check(DestroyAllButton);
 
-    CreateWidgetsForObjects();
-
-    FreeAllButton->OnClicked.AddDynamic(this, &ThisClass::OnClickedFreeButton);
-    if (auto* GameMode = GetGameMode())
-    {
-        GameMode->OnObjectTypeChanged.AddUObject(this, &ThisClass::OnObjectTypeChanged);
-    }
+    DestroyAllButton->OnClicked.AddDynamic(this, &ThisClass::OnClickedDestroyAllButtonHandler);
 }
 
-ADP_GameModeBase* UDP_PlacementWidget::GetGameMode() const
-{
-    return GetWorld() ? GetWorld()->GetAuthGameMode<ADP_GameModeBase>() : nullptr;
-}
-
-void UDP_PlacementWidget::CreateWidgetsForObjects()
-{
-    ButtonsBox->ClearChildren();
-    AttributesSwitcher->ClearChildren();
-
-    if (auto* GameMode = GetGameMode())
-    {
-        const auto& ObjectsMap = GameMode->GetObjectsMap();
-        for (const auto& [ObjectType, ObjectData] : ObjectsMap)
-        {
-            static int32 WidgetID{0};
-            ButtonsBox->AddChild(CreateButtonWidget(ObjectType, ObjectData.Name, WidgetID));
-            WidgetID = (WidgetID + 1) % ObjectsMap.Num();
-            AttributesSwitcher->AddChild(CreateAttributesListWidget(ObjectType, ObjectData.AttributesMap));
-        }
-    }
-}
-
-UDP_ObjectButtonWidget* UDP_PlacementWidget::CreateButtonWidget(EObjectType ObjectType, const FText& ObjectName, int32 WidgetID)
+UDP_ObjectButtonWidget* UDP_PlacementWidget::CreateButtonWidget(EObjectType ObjectType, int32 WidgetID)
 {
     auto* ObjectButtonWidget = CreateWidget<UDP_ObjectButtonWidget>(GetWorld(), ObjectButtonWidgetClass);
     check(ObjectButtonWidget);
-    ObjectButtonWidget->Init(ObjectType, ObjectName, WidgetID);
-    ObjectButtonWidget->OnClickedObjectButton.AddUObject(this, &ThisClass::OnClickedObjectButton);
+    ObjectButtonWidget->Init(ObjectType, WidgetID);
+    ObjectButtonWidget->OnClickedObjectButton.AddUObject(this, &ThisClass::OnClickedObjectButtonHandler);
 
     return ObjectButtonWidget;
 }
 
-UDP_AttributesListWidget* UDP_PlacementWidget::CreateAttributesListWidget(EObjectType ObjectType, const FAttributesMap& Attributes)
+UDP_AttributesListWidget* UDP_PlacementWidget::CreateAttributesListWidget(EObjectType ObjectType, const TArray<EAttributeType>& Attributes)
 {
     auto* AttributesListWidget = CreateWidget<UDP_AttributesListWidget>(GetWorld(), AttributesListWidgetClass);
     check(AttributesListWidget);
@@ -68,7 +57,7 @@ UDP_AttributesListWidget* UDP_PlacementWidget::CreateAttributesListWidget(EObjec
     return AttributesListWidget;
 }
 
-void UDP_PlacementWidget::ResetCurrentObjectAttributes()
+void UDP_PlacementWidget::ResetCurrentAttributesList()
 {
     if (auto* AttributesListWidget = Cast<UDP_AttributesListWidget>(AttributesSwitcher->GetActiveWidget()))
     {
@@ -76,39 +65,20 @@ void UDP_PlacementWidget::ResetCurrentObjectAttributes()
     }
 }
 
-void UDP_PlacementWidget::OnClickedObjectButton(EObjectType ObjectType, int32 WidgetID)
+void UDP_PlacementWidget::OnClickedObjectButtonHandler(EObjectType ObjectType, int32 WidgetID)
 {
-    if (auto* GameMode = GetGameMode())
-    {
-        GameMode->SetCurrentObjectType(ObjectType);
-        GameMode->SetGameState(EGameState::Placement);
-
-        AttributesSwitcher->SetVisibility(ESlateVisibility::Visible);
-        AttributesSwitcher->SetActiveWidgetIndex(WidgetID);
-        ResetCurrentObjectAttributes();
-    }
+    OnObjectTypeChanged.Broadcast(ObjectType);
+    AttributesSwitcher->SetVisibility(ESlateVisibility::Visible);
+    AttributesSwitcher->SetActiveWidgetIndex(WidgetID);
+    ResetCurrentAttributesList();
 }
 
-void UDP_PlacementWidget::OnClickedFreeButton()
+void UDP_PlacementWidget::OnClickedDestroyAllButtonHandler()
 {
-    if (auto* GameMode = GetGameMode())
-    {
-        GameMode->SetGameState(EGameState::Standby);
-    }
-}
-
-void UDP_PlacementWidget::OnObjectTypeChanged(EObjectType ObjectType)
-{
-    if (ObjectType == EObjectType::None)
-    {
-        AttributesSwitcher->SetVisibility(ESlateVisibility::Collapsed);
-    }
+    OnDestroyAll.Broadcast();
 }
 
 void UDP_PlacementWidget::OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData)
 {
-    if (auto* GameMode = GetGameMode())
-    {
-        GameMode->AddCurrentObjectAttribute(AttributeType, AttributeData);
-    }
+    OnAttributeChanged.Broadcast(AttributeType, AttributeData);
 }

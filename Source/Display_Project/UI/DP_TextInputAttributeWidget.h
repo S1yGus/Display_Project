@@ -16,6 +16,7 @@ class DISPLAY_PROJECT_API UDP_TextInputAttributeWidget : public UDP_BaseAttribut
 public:
     void SetDefaultText(const FText& Text) { DefaultText = Text; };
 
+    virtual void Update(const FAttributeData& Data) override;
     virtual void Reset() override;
 
 protected:

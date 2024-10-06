@@ -8,6 +8,17 @@ uint64 UI::UniqueID()
     return ID++;
 }
 
+FText UI::GenerateUniqueObjectName(const FText& Name)
+{
+    const FText Format = NSLOCTEXT("UI", "ObjectNameFormat_Loc", "{0}_{1}");
+    return FText::FormatOrdered(Format, Name, LOCGEN_NUMBER_UNGROUPED(UniqueID(), ""));
+}
+
+FText UI::GetAdjustedDefaultText(EAttributeType Type, const FText& Text)
+{
+    return Type == EAttributeType::ObjectName ? UI::GenerateUniqueObjectName(Text) : Text;
+}
+
 FText UI::ObjectTypeToText(EObjectType Type)
 {
     switch (Type)
@@ -21,8 +32,19 @@ FText UI::ObjectTypeToText(EObjectType Type)
     }
 }
 
-FText UI::GenerateUniqueObjectName(const FText& Name)
+FText UI::AttributeTypeToText(EAttributeType Type)
 {
-    FText Format = NSLOCTEXT("UI", "ObjectNameFormat_Loc", "{0}_{1}");
-    return FText::FormatOrdered(Format, Name, LOCGEN_NUMBER_UNGROUPED(UniqueID(), ""));
+    switch (Type)
+    {
+        case EAttributeType::ObjectName:
+            return NSLOCTEXT("UI", "ObjectName_Loc", "Object name");
+        case EAttributeType::DisplayText:
+            return NSLOCTEXT("UI", "DisplayText_Loc", "Display text");
+        case EAttributeType::ButtonText:
+            return NSLOCTEXT("UI", "ButtonText_Loc", "Button text");
+        case EAttributeType::Display:
+            return NSLOCTEXT("UI", "Dispaly_Loc", "Display");
+        default:
+            return NSLOCTEXT("UI", "Unknown_Loc", "Unknown");
+    }
 }
