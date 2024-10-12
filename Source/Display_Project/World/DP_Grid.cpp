@@ -372,13 +372,13 @@ void ADP_Grid::OnSpawningHandler()
     }
     else if (PreviewObject->GetActorScale3D().Equals(FVector::One()))
     {
+        GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
         SpawnObject();
     }
 }
 
 void ADP_Grid::SpawnObject()
 {
-    GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
     auto Object = PreviewObject;
     PreviewObject = nullptr;
     Object->UpdatePreviewMode(false);

@@ -35,6 +35,7 @@ void ADP_GridController::BeginPlay()
         PC->OnUpdatePreviewLocation.AddUObject(this, &ThisClass::OnUpdatePreviewLocationHandler);
         PC->OnRequestObjectSpawn.AddUObject(this, &ThisClass::OnSpawnCurrentObjectHandler);
         PC->OnObjectSelected.AddUObject(this, &ThisClass::OnSelectHandler);
+        PC->UpdatePlayerLocation(Grid->GetActorLocation());
 
         if (auto* HUD = PC->GetHUD<ADP_HUD>())
         {
@@ -153,6 +154,8 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor, const FTransform
         SelectedObject->Select(SelectionTransform);
         if (auto* PC = GetWorld()->GetFirstPlayerController<ADP_PlayerController>())
         {
+            PC->UpdatePlayerLocation(SelectedObject->GetActorLocation());
+
             if (auto* HUD = PC->GetHUD<ADP_HUD>())
             {
                 HUD->Select(SelectedObject->GetObjectType(), SelectedObject->GetObjectName(), SelectedObject->GetObjectAttributes());
@@ -166,7 +169,10 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor, const FTransform
         {
             SelectedObject->Deselect();
         }
-
+        if (auto* PC = GetWorld()->GetFirstPlayerController<ADP_PlayerController>())
+        {
+            PC->UpdatePlayerLocation(Grid->GetActorLocation());
+        }
         SetGameState(EGameState::Interact);
     }
 }
@@ -174,6 +180,10 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor, const FTransform
 void ADP_GridController::OnDestroySelectedHandler()
 {
     Grid->Free(SelectedObject);
+    if (auto* PC = GetWorld()->GetFirstPlayerController<ADP_PlayerController>())
+    {
+        PC->UpdatePlayerLocation(Grid->GetActorLocation());
+    }
     SetGameState(EGameState::Interact);
 }
 

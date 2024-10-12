@@ -23,6 +23,7 @@ public:
     ADP_PlayerController();
 
     void UpdateGameState(EGameState NewGameState);
+    void UpdatePlayerLocation(const FVector& NewLocation);
 
     virtual void Tick(float DeltaSeconds) override;
 
@@ -36,15 +37,21 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputMappingContext> InputMapping;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
+    float UpdatePlayerLocationSpeed{6.0f};
+
     virtual void BeginPlay() override;
     virtual void SetupInputComponent() override;
 
 private:
     EGameState CurrentGameState{EGameState::Standby};
+    FVector TargetPlayerLocation{FVector::ZeroVector};
+    FTimerHandle UpdatePlayerLocationTimerHandle;
 
     void ObjectPlacementClick();
     void InteractClick();
 
     void OnClickHandler();
     void OnSelectHandler();
+    void OnUpdatePlayerLocationHandler();
 };
