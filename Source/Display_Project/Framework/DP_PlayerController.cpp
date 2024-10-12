@@ -9,6 +9,8 @@
 #define ECC_Node ETraceTypeQuery::TraceTypeQuery4
 #define ECC_Clickable ETraceTypeQuery::TraceTypeQuery3
 
+static constexpr float TimerRate{0.016f};
+
 ADP_PlayerController::ADP_PlayerController()
 {
     bShowMouseCursor = true;
@@ -18,6 +20,12 @@ ADP_PlayerController::ADP_PlayerController()
 void ADP_PlayerController::UpdateGameState(EGameState NewGameState)
 {
     CurrentGameState = NewGameState;
+}
+
+void ADP_PlayerController::UpdatePlayerLocation(const FVector& NewLocation)
+{
+    TargetPlayerLocation = NewLocation;
+    GetWorldTimerManager().SetTimer(UpdatePlayerLocationTimerHandle, this, &ThisClass::OnUpdatePlayerLocationHandler, TimerRate, true);
 }
 
 void ADP_PlayerController::Tick(float DeltaSeconds)
@@ -36,6 +44,10 @@ void ADP_PlayerController::Tick(float DeltaSeconds)
 void ADP_PlayerController::BeginPlay()
 {
     Super::BeginPlay();
+
+    check(ClickAction);
+    check(SelectAction);
+    check(InputMapping);
 
     SetInputMode(FInputModeGameAndUI().SetHideCursorDuringCapture(false));
 }
@@ -101,5 +113,20 @@ void ADP_PlayerController::OnSelectHandler()
     else
     {
         OnObjectSelected.Broadcast(nullptr, {});
+    }
+}
+
+void ADP_PlayerController::OnUpdatePlayerLocationHandler()
+{
+    if (auto* PlayerPawn = GetPawn())
+    {
+        if (PlayerPawn->GetActorLocation().Equals(TargetPlayerLocation))
+        {
+            GetWorldTimerManager().ClearTimer(UpdatePlayerLocationTimerHandle);
+        }
+        else
+        {
+            PlayerPawn->SetActorLocation(FMath::VInterpTo(PlayerPawn->GetActorLocation(), TargetPlayerLocation, TimerRate, UpdatePlayerLocationSpeed));
+        }
     }
 }

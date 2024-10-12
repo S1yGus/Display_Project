@@ -3,6 +3,7 @@
 #include "Framework/DP_GameModeBase.h"
 #include "Framework/DP_PlayerController.h"
 #include "Framework/DP_HUD.h"
+#include "Framework/DP_Player.h"
 #include "UObject/ConstructorHelpers.h"
 
 ADP_GameModeBase::ADP_GameModeBase()
@@ -17,5 +18,11 @@ ADP_GameModeBase::ADP_GameModeBase()
     if (HUD.Class)
     {
         HUDClass = HUD.Class;
+    }
+
+    static ConstructorHelpers::FClassFinder<ADP_Player> Player(TEXT("/Game/Framework/BP_Player"));
+    if (Player.Class)
+    {
+        DefaultPawnClass = Player.Class;
     }
 }
