@@ -9,6 +9,7 @@ UENUM()
 enum class EGameState : uint8
 {
     Standby = 0,
+    Welcome,
     Placement,
     Interact,
     Select

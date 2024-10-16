@@ -4,8 +4,10 @@
 #include "World/DP_Grid.h"
 #include "World/DP_Node.h"
 #include "World/DP_PlaceableActor.h"
+#include "World/DP_TextShifter.h"
 #include "Framework/DP_PlayerController.h"
 #include "Framework/DP_HUD.h"
+#include "Engine/TargetPoint.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogGridController, All, All)
 
@@ -35,7 +37,8 @@ void ADP_GridController::BeginPlay()
         PC->OnUpdatePreviewLocation.AddUObject(this, &ThisClass::OnUpdatePreviewLocationHandler);
         PC->OnRequestObjectSpawn.AddUObject(this, &ThisClass::OnSpawnCurrentObjectHandler);
         PC->OnObjectSelected.AddUObject(this, &ThisClass::OnSelectHandler);
-        PC->UpdatePlayerLocation(Grid->GetActorLocation());
+        PC->OnWelcomeScreenCompleted.AddUObject(this, &ThisClass::OnStartGameHandler);
+        PC->UpdatePlayerLocation(WelcomePoint->GetActorLocation());
 
         if (auto* HUD = PC->GetHUD<ADP_HUD>())
         {
@@ -47,7 +50,7 @@ void ADP_GridController::BeginPlay()
         }
     }
 
-    SetCurrentObjectType_Internal(EObjectType::None);
+    SetGameState_Internal(EGameState::Welcome);
 }
 
 void ADP_GridController::SpawnGrid()
@@ -109,6 +112,19 @@ void ADP_GridController::SetCurrentObjectType_Internal(EObjectType NewObjectType
         Grid->UpdateCurrentObjectClass(ObjectsMap[CurrentObjectType].Class);
         SetGameState(EGameState::Placement);
     }
+}
+
+void ADP_GridController::OnStartGameHandler()
+{
+    if (auto* PC = GetWorld()->GetFirstPlayerController<ADP_PlayerController>())
+    {
+        PC->UpdatePlayerLocation(Grid->GetActorLocation());
+    }
+    for (auto Text : WelcomeText)
+    {
+        Text->InitShift();
+    }
+    SetGameState(EGameState::Interact);
 }
 
 void ADP_GridController::OnUpdatePreviewLocationHandler(AActor* ReferenceActor)

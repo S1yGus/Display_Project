@@ -8,6 +8,8 @@
 #include "DP_GridController.generated.h"
 
 class ADP_Grid;
+class ATargetPoint;
+class ADP_TextShifter;
 
 UCLASS()
 class DISPLAY_PROJECT_API ADP_GridController : public AInfo
@@ -20,6 +22,12 @@ protected:
 
     UPROPERTY(EditAnywhere, Category = "Classes")
     TSubclassOf<ADP_Grid> GridClass;
+
+    UPROPERTY(EditAnywhere, Category = "Welcome")
+    TObjectPtr<ATargetPoint> WelcomePoint;
+
+    UPROPERTY(EditAnywhere, Category = "Welcome")
+    TArray<TObjectPtr<ADP_TextShifter>> WelcomeText;
 
     virtual void BeginPlay() override;
 
@@ -38,6 +46,7 @@ private:
     void SetCurrentObjectType(EObjectType NewObjectType);
     void SetCurrentObjectType_Internal(EObjectType NewObjectType);
 
+    void OnStartGameHandler();
     void OnUpdatePreviewLocationHandler(AActor* ReferenceActor);
     void OnSpawnCurrentObjectHandler();
     void OnObjectSpawnedHandler();

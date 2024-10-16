@@ -6,6 +6,10 @@
 
 void ADP_HUD::CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap)
 {
+    auto* WelcomeWidget = CreateWidget<UUserWidget>(GetWorld(), WelcomeWidgetClasses);
+    check(WelcomeWidget);
+    GameWidgets.Add(EGameState::Welcome, WelcomeWidget);
+
     auto* PlacementWidget = CreateWidget<UDP_PlacementWidget>(GetWorld(), PlacementWidgetClasses);
     check(PlacementWidget);
     PlacementWidget->OnObjectTypeChanged.AddUObject(this, &ThisClass::OnObjectTypeChangedHandler);
@@ -60,6 +64,15 @@ void ADP_HUD::Select(EObjectType ObjectType, const FString& ObjectName, const FA
     {
         SelectWidget->Select(ObjectType, ObjectName, Attributes);
     }
+}
+
+void ADP_HUD::BeginPlay()
+{
+    Super::BeginPlay();
+
+    check(WelcomeWidgetClasses);
+    check(PlacementWidgetClasses);
+    check(SelectWidgetClasses);
 }
 
 void ADP_HUD::OnObjectTypeChangedHandler(EObjectType ObjectType)

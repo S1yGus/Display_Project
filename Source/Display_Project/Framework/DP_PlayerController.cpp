@@ -9,7 +9,7 @@
 #define ECC_Node ETraceTypeQuery::TraceTypeQuery4
 #define ECC_Clickable ETraceTypeQuery::TraceTypeQuery3
 
-static constexpr float TimerRate{0.016f};
+static constexpr float UpdateLocationTimerRate{0.016f};
 
 ADP_PlayerController::ADP_PlayerController()
 {
@@ -20,12 +20,13 @@ ADP_PlayerController::ADP_PlayerController()
 void ADP_PlayerController::UpdateGameState(EGameState NewGameState)
 {
     CurrentGameState = NewGameState;
+    UpdateInputMappingContext();
 }
 
 void ADP_PlayerController::UpdatePlayerLocation(const FVector& NewLocation)
 {
     TargetPlayerLocation = NewLocation;
-    GetWorldTimerManager().SetTimer(UpdatePlayerLocationTimerHandle, this, &ThisClass::OnUpdatePlayerLocationHandler, TimerRate, true);
+    GetWorldTimerManager().SetTimer(UpdatePlayerLocationTimerHandle, this, &ThisClass::OnUpdatePlayerLocationHandler, UpdateLocationTimerRate, true);
 }
 
 void ADP_PlayerController::Tick(float DeltaSeconds)
@@ -47,7 +48,9 @@ void ADP_PlayerController::BeginPlay()
 
     check(ClickAction);
     check(SelectAction);
+    check(AnyKeyAction);
     check(InputMapping);
+    check(WelcomeInputMapping);
 
     SetInputMode(FInputModeGameAndUI().SetHideCursorDuringCapture(false));
 }
@@ -56,18 +59,31 @@ void ADP_PlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
 
-    if (const auto* LocalPlayer = Cast<ULocalPlayer>(Player))
-    {
-        if (auto* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(); InputSystem && InputMapping)
-        {
-            InputSystem->AddMappingContext(InputMapping, 0);
-        }
-    }
-
     if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent))
     {
         Input->BindAction(ClickAction, ETriggerEvent::Started, this, &ThisClass::OnClickHandler);
         Input->BindAction(SelectAction, ETriggerEvent::Started, this, &ThisClass::OnSelectHandler);
+        Input->BindAction(AnyKeyAction, ETriggerEvent::Started, this, &ThisClass::OnPressAnyKeyHandler);
+    }
+}
+
+void ADP_PlayerController::UpdateInputMappingContext()
+{
+    if (const auto* LocalPlayer = Cast<ULocalPlayer>(Player))
+    {
+        if (auto* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+        {
+            if (CurrentGameState == EGameState::Welcome)
+            {
+                InputSystem->RemoveMappingContext(InputMapping);
+                InputSystem->AddMappingContext(WelcomeInputMapping, 0);
+            }
+            else
+            {
+                InputSystem->RemoveMappingContext(WelcomeInputMapping);
+                InputSystem->AddMappingContext(InputMapping, 0);
+            }
+        }
     }
 }
 
@@ -116,6 +132,11 @@ void ADP_PlayerController::OnSelectHandler()
     }
 }
 
+void ADP_PlayerController::OnPressAnyKeyHandler()
+{
+    OnWelcomeScreenCompleted.Broadcast();
+}
+
 void ADP_PlayerController::OnUpdatePlayerLocationHandler()
 {
     if (auto* PlayerPawn = GetPawn())
@@ -126,7 +147,7 @@ void ADP_PlayerController::OnUpdatePlayerLocationHandler()
         }
         else
         {
-            PlayerPawn->SetActorLocation(FMath::VInterpTo(PlayerPawn->GetActorLocation(), TargetPlayerLocation, TimerRate, UpdatePlayerLocationSpeed));
+            PlayerPawn->SetActorLocation(FMath::VInterpTo(PlayerPawn->GetActorLocation(), TargetPlayerLocation, UpdateLocationTimerRate, UpdatePlayerLocationSpeed));
         }
     }
 }

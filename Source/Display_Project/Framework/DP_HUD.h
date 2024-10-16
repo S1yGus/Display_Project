@@ -25,10 +25,15 @@ public:
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
+    TSubclassOf<UUserWidget> WelcomeWidgetClasses;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<UUserWidget> PlacementWidgetClasses;
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<UUserWidget> SelectWidgetClasses;
+
+    virtual void BeginPlay() override;
 
 private:
     UPROPERTY()
