@@ -55,7 +55,7 @@ void ADP_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
     if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PlayerInputComponent))
     {
-        Input->BindAction(ZoomAction, ETriggerEvent::Started, this, &ThisClass::OnZoomHandler);
+        Input->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &ThisClass::OnZoomHandler);
         Input->BindAction(RotationAction, ETriggerEvent::Triggered, this, &ThisClass::OnRotationHandler);
         Input->BindAction(ResetRotationAction, ETriggerEvent::Started, this, &ThisClass::OnResetRotationHandler);
     }

@@ -19,6 +19,7 @@ public:
     FOnUpdatePreviewLocationSignature OnUpdatePreviewLocation;
     FOnRequestObjectSpawnSignature OnRequestObjectSpawn;
     FOnObjectSelectedSignature OnObjectSelected;
+    FOnWelcomeScreenCompletedSignature OnWelcomeScreenCompleted;
 
     ADP_PlayerController();
 
@@ -38,6 +39,12 @@ protected:
     TObjectPtr<UInputMappingContext> InputMapping;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UInputAction> AnyKeyAction;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UInputMappingContext> WelcomeInputMapping;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
     float UpdatePlayerLocationSpeed{6.0f};
 
     virtual void BeginPlay() override;
@@ -48,10 +55,13 @@ private:
     FVector TargetPlayerLocation{FVector::ZeroVector};
     FTimerHandle UpdatePlayerLocationTimerHandle;
 
+    void UpdateInputMappingContext();
+
     void ObjectPlacementClick();
     void InteractClick();
 
     void OnClickHandler();
     void OnSelectHandler();
+    void OnPressAnyKeyHandler();
     void OnUpdatePlayerLocationHandler();
 };
