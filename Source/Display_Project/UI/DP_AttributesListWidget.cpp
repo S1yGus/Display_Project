@@ -10,14 +10,12 @@
 #include "World/DP_Display_1.h"
 #include "DP_Utils.h"
 
-void UDP_AttributesListWidget::Init(EObjectType ObjectType, const TArray<EAttributeType>& Attributes)
+void UDP_AttributesListWidget::Init(EObjectType ObjectType, const TSet<EAttributeType>& Attributes)
 {
-    Type = ObjectType;
-
     AttributesBox->ClearChildren();
     for (const auto AttributeType : Attributes)
     {
-        AttributesBox->AddChild(CreateAttributeWidget(AttributeType));
+        AttributesBox->AddChild(CreateAttributeWidget(AttributeType, ObjectType));
     }
 }
 
@@ -58,13 +56,13 @@ void UDP_AttributesListWidget::NativeOnInitialized()
     check(AttributesBox);
 }
 
-TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateAttributeWidget(EAttributeType AttributeType)
+TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateAttributeWidget(EAttributeType AttributeType, EObjectType ObjectType)
 {
     TObjectPtr<UDP_BaseAttributeWidget> AttributeWidget;
     switch (AttributeType)
     {
         case EAttributeType::ObjectName:
-            AttributeWidget = CreateTextInputAttributeWidget(UI::ObjectTypeToText(Type));
+            AttributeWidget = CreateTextInputAttributeWidget(UI::ObjectTypeToText(ObjectType));
             break;
         case EAttributeType::DisplayText:
             [[fallthrough]];

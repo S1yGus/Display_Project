@@ -7,14 +7,19 @@
 #include "World/DP_PlaceableActor.h"
 #include "DP_CoreStructures.generated.h"
 
+class UTexture2D;
+
 USTRUCT()
 struct FObjectData
 {
     GENERATED_USTRUCT_BODY()
 
     UPROPERTY(EditAnywhere)
+    TObjectPtr<UTexture2D> Thumbnail;
+
+    UPROPERTY(EditAnywhere)
     TSubclassOf<ADP_PlaceableActor> Class;
 
     UPROPERTY(EditAnywhere)
-    TArray<EAttributeType> Attributes;
+    TSet<EAttributeType> Attributes;
 };

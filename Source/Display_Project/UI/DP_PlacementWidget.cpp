@@ -3,7 +3,7 @@
 #include "UI/DP_PlacementWidget.h"
 #include "UI/DP_ObjectButtonWidget.h"
 #include "UI/DP_AttributesListWidget.h"
-#include "Components/Button.h"
+#include "UI/DP_ButtonWidget.h"
 #include "Components/HorizontalBox.h"
 #include "Components/WidgetSwitcher.h"
 
@@ -14,16 +14,19 @@ void UDP_PlacementWidget::CreateWidgetsForObjects(const TMap<EObjectType, FObjec
 
     for (const auto& [ObjectType, ObjectData] : ObjectsMap)
     {
-        static int32 WidgetID{0};
-        ButtonsBox->AddChild(CreateButtonWidget(ObjectType, WidgetID));
-        WidgetID = (WidgetID + 1) % ObjectsMap.Num();
+        ButtonsBox->AddChild(CreateButtonWidget(ObjectType, ObjectData.Thumbnail));
         AttributesSwitcher->AddChild(CreateAttributesListWidget(ObjectType, ObjectData.Attributes));
+
+        static int32 ID{0};
+        TypeIDMap.Add(ObjectType, ID);
+        ID = (ID + 1) % ObjectsMap.Num();
     }
 }
 
-void UDP_PlacementWidget::HideAttributes()
+void UDP_PlacementWidget::DeselectPlacementObject()
 {
-    AttributesSwitcher->SetVisibility(ESlateVisibility::Collapsed);
+    AttributesSwitcher->SetVisibility(ESlateVisibility::Hidden);
+    UpdateObjectButtonsSelection(EObjectType::None);
 }
 
 void UDP_PlacementWidget::NativeOnInitialized()
@@ -34,20 +37,22 @@ void UDP_PlacementWidget::NativeOnInitialized()
     check(AttributesSwitcher);
     check(DestroyAllButton);
 
-    DestroyAllButton->OnClicked.AddDynamic(this, &ThisClass::OnClickedDestroyAllButtonHandler);
+    DestroyAllButton->OnClicked.AddUObject(this, &ThisClass::OnClickedDestroyAllButtonHandler);
+
+    DeselectPlacementObject();
 }
 
-UDP_ObjectButtonWidget* UDP_PlacementWidget::CreateButtonWidget(EObjectType ObjectType, int32 WidgetID)
+UDP_ObjectButtonWidget* UDP_PlacementWidget::CreateButtonWidget(EObjectType ObjectType, UTexture2D* Thumbnail)
 {
     auto* ObjectButtonWidget = CreateWidget<UDP_ObjectButtonWidget>(GetWorld(), ObjectButtonWidgetClass);
     check(ObjectButtonWidget);
-    ObjectButtonWidget->Init(ObjectType, WidgetID);
+    ObjectButtonWidget->Init(ObjectType, Thumbnail);
     ObjectButtonWidget->OnClickedObjectButton.AddUObject(this, &ThisClass::OnClickedObjectButtonHandler);
 
     return ObjectButtonWidget;
 }
 
-UDP_AttributesListWidget* UDP_PlacementWidget::CreateAttributesListWidget(EObjectType ObjectType, const TArray<EAttributeType>& Attributes)
+UDP_AttributesListWidget* UDP_PlacementWidget::CreateAttributesListWidget(EObjectType ObjectType, const TSet<EAttributeType>& Attributes)
 {
     auto* AttributesListWidget = CreateWidget<UDP_AttributesListWidget>(GetWorld(), AttributesListWidgetClass);
     check(AttributesListWidget);
@@ -65,12 +70,29 @@ void UDP_PlacementWidget::ResetCurrentAttributesList()
     }
 }
 
-void UDP_PlacementWidget::OnClickedObjectButtonHandler(EObjectType ObjectType, int32 WidgetID)
+void UDP_PlacementWidget::UpdateObjectButtonsSelection(EObjectType ObjectType)
+{
+    for (auto* Widget : ButtonsBox->GetAllChildren())
+    {
+        if (auto* ButtonWidget = Cast<UDP_ObjectButtonWidget>(Widget))
+        {
+            ButtonWidget->UpdateSelection(ObjectType);
+        }
+    }
+}
+
+void UDP_PlacementWidget::OnClickedObjectButtonHandler(EObjectType ObjectType)
 {
     OnObjectTypeChanged.Broadcast(ObjectType);
-    AttributesSwitcher->SetVisibility(ESlateVisibility::Visible);
-    AttributesSwitcher->SetActiveWidgetIndex(WidgetID);
-    ResetCurrentAttributesList();
+
+    if (TypeIDMap.Contains(ObjectType))
+    {
+        AttributesSwitcher->SetVisibility(ESlateVisibility::Visible);
+        AttributesSwitcher->SetActiveWidgetIndex(TypeIDMap[ObjectType]);
+        ResetCurrentAttributesList();
+    }
+    
+    UpdateObjectButtonsSelection(ObjectType);
 }
 
 void UDP_PlacementWidget::OnClickedDestroyAllButtonHandler()

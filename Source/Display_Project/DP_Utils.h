@@ -28,5 +28,6 @@ FText GenerateUniqueObjectName(const FText& Name);
 FText GetAdjustedDefaultText(EAttributeType Type, const FText& Text);
 FText ObjectTypeToText(EObjectType Type);
 FText AttributeTypeToText(EAttributeType Type);
+EWidgetType GameStateToWidgetType(EGameState GameState);
 
 }    // namespace UI

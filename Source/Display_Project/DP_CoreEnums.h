@@ -12,7 +12,8 @@ enum class EGameState : uint8
     Welcome,
     Placement,
     Interact,
-    Select
+    Select,
+    Warning
 };
 
 UENUM()
@@ -30,4 +31,11 @@ enum class EAttributeType : uint8
     DisplayText,
     ButtonText,
     Display
+};
+
+UENUM()
+enum class EWidgetType : uint8
+{
+    Welcome = 0,
+    Game
 };

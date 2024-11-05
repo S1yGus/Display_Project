@@ -10,9 +10,9 @@ DEFINE_LOG_CATEGORY_STATIC(LogGrid, All, All)
 
 static constexpr float SpawnTimerRate{0.016f};
 
-FORCEINLINE static bool IsEven(int32 Position)
+static bool IsEven(int32 Value)
 {
-    return Position % 2 == 0;
+    return Value % 2 == 0;
 }
 
 ADP_Grid::ADP_Grid()
