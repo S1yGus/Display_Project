@@ -8,8 +8,10 @@
 #include "DP_GridController.generated.h"
 
 class ADP_Grid;
-class ATargetPoint;
 class ADP_TextShifter;
+class ADP_PlayerController;
+class ADP_HUD;
+class ATargetPoint;
 
 UCLASS()
 class DISPLAY_PROJECT_API ADP_GridController : public AInfo
@@ -29,15 +31,31 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Welcome")
     TArray<TObjectPtr<ADP_TextShifter>> WelcomeText;
 
+    UPROPERTY(EditAnywhere, Category = "Welcome")
+    float WelcomeDelay{2.0f};
+
+    UPROPERTY(EditAnywhere, Category = "Warning")
+    FText QuitWarning;
+
+    UPROPERTY(EditAnywhere, Category = "Warning")
+    FText DestroyAllWarning;
+
     virtual void BeginPlay() override;
 
 private:
     EGameState CurrentGameState{EGameState::Standby};
+    EGameState PrevGameState{EGameState::Standby};
     EObjectType CurrentObjectType{EObjectType::None};
     UPROPERTY()
     TObjectPtr<ADP_Grid> Grid;
     UPROPERTY()
     TObjectPtr<ADP_PlaceableActor> SelectedObject;
+    FDeferredAction DeferredAction{nullptr};
+
+    FORCEINLINE ADP_PlayerController* GetPlayerController() const;
+    FORCEINLINE ADP_HUD* GetHUD() const;
+    FORCEINLINE void UpdatePlayerLocation(const FVector& Location);
+    FORCEINLINE void ShowWarning(const FText& WarningText, FDeferredAction&& Action);
 
     void SpawnGrid();
 
@@ -46,7 +64,7 @@ private:
     void SetCurrentObjectType(EObjectType NewObjectType);
     void SetCurrentObjectType_Internal(EObjectType NewObjectType);
 
-    void OnStartGameHandler();
+    void OnSwitchToGameHandler();
     void OnUpdatePreviewLocationHandler(AActor* ReferenceActor);
     void OnSpawnCurrentObjectHandler();
     void OnObjectSpawnedHandler();
@@ -54,4 +72,8 @@ private:
     void OnSelectHandler(AActor* SelectedActor, const FTransform& SelectionTransform);
     void OnDestroySelectedHandler();
     void OnDestroyAllHandler();
+    void OnQuitHandler();
+    void OnToggleScreenModeHandler();
+    void OnShowHelpHandler();
+    void OnWarningResponseHandler(bool bCondition);
 };

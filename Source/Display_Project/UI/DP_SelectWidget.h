@@ -7,8 +7,8 @@
 #include "DP_CoreTypes.h"
 #include "DP_SelectWidget.generated.h"
 
-class UButton;
 class UWidgetSwitcher;
+class UDP_ButtonWidget;
 class UDP_ObjectInfoWidget;
 
 UCLASS()
@@ -28,10 +28,10 @@ protected:
     TObjectPtr<UWidgetSwitcher> AttributesSwitcher;
 
     UPROPERTY(Meta = (BindWidget))
-    TObjectPtr<UButton> InspectButton;
+    TObjectPtr<UDP_ButtonWidget> InspectButton;
 
     UPROPERTY(Meta = (BindWidget))
-    TObjectPtr<UButton> DestroyButton;
+    TObjectPtr<UDP_ButtonWidget> DestroyButton;
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<UDP_ObjectInfoWidget> ObjectInfoWidgetClass;
@@ -41,9 +41,7 @@ protected:
 private:
     TMap<EObjectType, int32> TypeIDMap;
 
-    UFUNCTION()
     void OnClickedInspectButtonHandler();
-    UFUNCTION()
     void OnClickedDestroyButtonHandler();
     void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
 };

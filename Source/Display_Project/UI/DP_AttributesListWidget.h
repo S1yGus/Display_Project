@@ -18,7 +18,7 @@ class DISPLAY_PROJECT_API UDP_AttributesListWidget : public UUserWidget
 public:
     FOnAttributeChangedSignature OnAttributeChanged;
 
-    void Init(EObjectType ObjectType, const TArray<EAttributeType>& Attributes);
+    void Init(EObjectType ObjectType, const TSet<EAttributeType>& Attributes);
     void Reset();
     void Update(const FAttributesMap& Attributes);
 
@@ -35,9 +35,7 @@ protected:
     virtual void NativeOnInitialized() override;
 
 private:
-    EObjectType Type;
-
-    [[nodiscard]] TObjectPtr<UDP_BaseAttributeWidget> CreateAttributeWidget(EAttributeType AttributeType);
+    [[nodiscard]] TObjectPtr<UDP_BaseAttributeWidget> CreateAttributeWidget(EAttributeType AttributeType, EObjectType ObjectType);
     [[nodiscard]] TObjectPtr<UDP_BaseAttributeWidget> CreateTextInputAttributeWidget(const FText& DefaultText);
     [[nodiscard]] TObjectPtr<UDP_BaseAttributeWidget> CreateComboBoxAttributeWidget(FComboBoxDataUpdater&& UpdateFunc,
                                                                                     FComboBoxSelectedOptionGetter&& SelectedOptionGetter);

@@ -1,28 +1,31 @@
 // Display_Project, all rights reserved.
 
 #include "UI/DP_ObjectButtonWidget.h"
-#include "Components/Button.h"
-#include "Components/TextBlock.h"
-#include "DP_Utils.h"
+#include "UI/DP_ButtonWidget.h"
+#include "Components/Image.h"
 
-void UDP_ObjectButtonWidget::Init(EObjectType ObjectType, int32 WidgetID)
+void UDP_ObjectButtonWidget::Init(EObjectType ObjectType, UTexture2D* Thumbnail)
 {
-    ButtonText->SetText(UI::ObjectTypeToText(ObjectType));
+    Button->Init(Thumbnail);
     Type = ObjectType;
-    ID = WidgetID;
+}
+
+void UDP_ObjectButtonWidget::UpdateSelection(EObjectType ObjectType)
+{
+    FrameImage->SetVisibility(ObjectType == Type ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Hidden);
 }
 
 void UDP_ObjectButtonWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
 
+    check(FrameImage);
     check(Button);
-    check(ButtonText);
 
-    Button->OnClicked.AddDynamic(this, &ThisClass::OnClickedHandler);
+    Button->OnClicked.AddUObject(this, &ThisClass::OnClickedHandler);
 }
 
 void UDP_ObjectButtonWidget::OnClickedHandler()
 {
-    OnClickedObjectButton.Broadcast(Type, ID);
+    OnClickedObjectButton.Broadcast(Type);
 }

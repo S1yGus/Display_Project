@@ -7,12 +7,18 @@
 #include "DP_CoreStructures.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnObjectTypeChangedSignature, EObjectType);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnClickedObjectButtonSignature, EObjectType, int32);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnClickedObjectButtonSignature, EObjectType);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnAttributeChangedSignature, EAttributeType, FAttributeData);
-DECLARE_MULTICAST_DELEGATE(FOnRequestObjectSpawnSignature);
+DECLARE_MULTICAST_DELEGATE(FOnObjectSpawnSignature);
 DECLARE_MULTICAST_DELEGATE(FOnObjectSpawnedSignature);
 DECLARE_MULTICAST_DELEGATE(FOnDestroyAllSignature);
 DECLARE_MULTICAST_DELEGATE(FOnDestroySelectedSignature);
 DECLARE_MULTICAST_DELEGATE(FOnWelcomeScreenCompletedSignature);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnUpdatePreviewLocationSignature, AActor*);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectSelectedSignature, AActor*, const FTransform&);
+DECLARE_MULTICAST_DELEGATE(FOnFadeoutAnimationFinishedSignature);
+DECLARE_MULTICAST_DELEGATE(FOnClickedSignature);
+DECLARE_MULTICAST_DELEGATE(FOnQuitSignature);
+DECLARE_MULTICAST_DELEGATE(FOnToggleScreenModeSignature);
+DECLARE_MULTICAST_DELEGATE(FOnShowHelpSignature);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnWarningResponseSignature, bool);

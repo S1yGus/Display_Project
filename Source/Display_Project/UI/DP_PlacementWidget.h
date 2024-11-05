@@ -7,9 +7,9 @@
 #include "DP_CoreTypes.h"
 #include "DP_PlacementWidget.generated.h"
 
-class UButton;
 class UHorizontalBox;
 class UWidgetSwitcher;
+class UDP_ButtonWidget;
 class UDP_ObjectButtonWidget;
 class UDP_AttributesListWidget;
 
@@ -24,7 +24,7 @@ public:
     FOnDestroyAllSignature OnDestroyAll;
 
     void CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap);
-    void HideAttributes();
+    void DeselectPlacementObject();
 
 protected:
     UPROPERTY(Meta = (BindWidget))
@@ -34,7 +34,7 @@ protected:
     TObjectPtr<UWidgetSwitcher> AttributesSwitcher;
 
     UPROPERTY(Meta = (BindWidget))
-    TObjectPtr<UButton> DestroyAllButton;
+    TObjectPtr<UDP_ButtonWidget> DestroyAllButton;
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<UDP_ObjectButtonWidget> ObjectButtonWidgetClass;
@@ -45,12 +45,14 @@ protected:
     virtual void NativeOnInitialized() override;
 
 private:
-    FORCEINLINE UDP_ObjectButtonWidget* CreateButtonWidget(EObjectType ObjectType, int32 WidgetID);
-    FORCEINLINE UDP_AttributesListWidget* CreateAttributesListWidget(EObjectType ObjectType, const TArray<EAttributeType>& Attributes);
-    FORCEINLINE void ResetCurrentAttributesList();
+    TMap<EObjectType, int32> TypeIDMap;
 
-    UFUNCTION()
+    FORCEINLINE UDP_ObjectButtonWidget* CreateButtonWidget(EObjectType ObjectType, UTexture2D* Thumbnail);
+    FORCEINLINE UDP_AttributesListWidget* CreateAttributesListWidget(EObjectType ObjectType, const TSet<EAttributeType>& Attributes);
+    FORCEINLINE void ResetCurrentAttributesList();
+    FORCEINLINE void UpdateObjectButtonsSelection(EObjectType ObjectType);
+
     void OnClickedDestroyAllButtonHandler();
-    void OnClickedObjectButtonHandler(EObjectType ObjectType, int32 WidgetID);
+    void OnClickedObjectButtonHandler(EObjectType ObjectType);
     void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
 };

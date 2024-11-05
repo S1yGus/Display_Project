@@ -7,8 +7,9 @@
 #include "DP_CoreTypes.h"
 #include "DP_ObjectButtonWidget.generated.h"
 
-class UButton;
-class UTextBlock;
+class UDP_ButtonWidget;
+class UTexture2D;
+class UImage;
 
 UCLASS()
 class DISPLAY_PROJECT_API UDP_ObjectButtonWidget : public UUserWidget
@@ -18,21 +19,20 @@ class DISPLAY_PROJECT_API UDP_ObjectButtonWidget : public UUserWidget
 public:
     FOnClickedObjectButtonSignature OnClickedObjectButton;
 
-    void Init(EObjectType ObjectType, int32 WidgetID);
+    void Init(EObjectType ObjectType, UTexture2D* Thumbnail);
+    void UpdateSelection(EObjectType ObjectType);
 
 protected:
     UPROPERTY(Meta = (BindWidget))
-    TObjectPtr<UButton> Button;
+    TObjectPtr<UImage> FrameImage;
 
     UPROPERTY(Meta = (BindWidget))
-    TObjectPtr<UTextBlock> ButtonText;
+    TObjectPtr<UDP_ButtonWidget> Button;
 
     virtual void NativeOnInitialized() override;
 
 private:
     EObjectType Type;
-    int32 ID;
 
-    UFUNCTION()
     void OnClickedHandler();
 };

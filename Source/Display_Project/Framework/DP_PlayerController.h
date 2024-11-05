@@ -17,7 +17,7 @@ class DISPLAY_PROJECT_API ADP_PlayerController : public APlayerController
 
 public:
     FOnUpdatePreviewLocationSignature OnUpdatePreviewLocation;
-    FOnRequestObjectSpawnSignature OnRequestObjectSpawn;
+    FOnObjectSpawnSignature OnObjectSpawn;
     FOnObjectSelectedSignature OnObjectSelected;
     FOnWelcomeScreenCompletedSignature OnWelcomeScreenCompleted;
 
@@ -36,13 +36,16 @@ protected:
     TObjectPtr<UInputAction> SelectAction;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
-    TObjectPtr<UInputMappingContext> InputMapping;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> AnyKeyAction;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UInputMappingContext> GameInputMapping;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputMappingContext> WelcomeInputMapping;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UInputMappingContext> WarningInputMapping;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     float UpdatePlayerLocationSpeed{6.0f};
@@ -51,6 +54,8 @@ protected:
     virtual void SetupInputComponent() override;
 
 private:
+    UPROPERTY()
+    TObjectPtr<UInputMappingContext> CurrentInputMapping;
     EGameState CurrentGameState{EGameState::Standby};
     FVector TargetPlayerLocation{FVector::ZeroVector};
     FTimerHandle UpdatePlayerLocationTimerHandle;

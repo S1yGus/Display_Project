@@ -9,6 +9,7 @@
 
 class UDP_ObjectHeaderWidget;
 class UDP_AttributesListWidget;
+class UTexture2D;
 
 UCLASS()
 class DISPLAY_PROJECT_API UDP_ObjectInfoWidget : public UUserWidget
@@ -18,8 +19,8 @@ class DISPLAY_PROJECT_API UDP_ObjectInfoWidget : public UUserWidget
 public:
     FOnAttributeChangedSignature OnAttributeChanged;
 
-    void Init(EObjectType ObjectType, const TArray<EAttributeType>& Attributes);
-    void Select(const FString& ObjectName, const FAttributesMap& Attributes);
+    void Init(EObjectType ObjectType, UTexture2D* Thumbnail, const TSet<EAttributeType>& Attributes);
+    void UpdateAttributes(const FAttributesMap& Attributes);
 
 protected:
     UPROPERTY(Meta = (BindWidget))

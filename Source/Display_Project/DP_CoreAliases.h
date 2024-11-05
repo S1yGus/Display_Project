@@ -12,3 +12,4 @@ using FAttributeData = TVariant<FString, TObjectPtr<ADP_Display_1>>;
 using FAttributesMap = TMap<EAttributeType, FAttributeData>;
 using FComboBoxDataUpdater = TFunction<void(TObjectPtr<UComboBoxString>, TArray<FAttributeData>&)>;
 using FComboBoxSelectedOptionGetter = TFunction<FString(const FAttributeData&)>;
+using FDeferredAction = TFunction<void()>;

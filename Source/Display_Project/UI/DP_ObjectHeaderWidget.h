@@ -8,6 +8,8 @@
 #include "DP_ObjectHeaderWidget.generated.h"
 
 class UTextBlock;
+class UImage;
+class UTexture2D;
 
 UCLASS()
 class DISPLAY_PROJECT_API UDP_ObjectHeaderWidget : public UUserWidget
@@ -15,15 +17,14 @@ class DISPLAY_PROJECT_API UDP_ObjectHeaderWidget : public UUserWidget
     GENERATED_BODY()
 
 public:
-    void Init(EObjectType Type);
-    void UpdateObjectName(const FString& Name);
+    void Init(EObjectType Type, UTexture2D* InThumbnail);
 
 protected:
     UPROPERTY(Meta = (BindWidget))
     TObjectPtr<UTextBlock> ObjectType;
 
     UPROPERTY(Meta = (BindWidget))
-    TObjectPtr<UTextBlock> ObjectName;
+    TObjectPtr<UImage> Thumbnail;
 
     virtual void NativeOnInitialized() override;
 };

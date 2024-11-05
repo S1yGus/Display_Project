@@ -2,7 +2,7 @@
 
 #include "UI/DP_SelectWidget.h"
 #include "UI/DP_ObjectInfoWidget.h"
-#include "Components/Button.h"
+#include "UI/DP_ButtonWidget.h"
 #include "Components/WidgetSwitcher.h"
 
 void UDP_SelectWidget::CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap)
@@ -13,7 +13,7 @@ void UDP_SelectWidget::CreateWidgetsForObjects(const TMap<EObjectType, FObjectDa
     {
         auto* ObjectInfoWidget = CreateWidget<UDP_ObjectInfoWidget>(GetWorld(), ObjectInfoWidgetClass);
         check(ObjectInfoWidget);
-        ObjectInfoWidget->Init(ObjectType, ObjectData.Attributes);
+        ObjectInfoWidget->Init(ObjectType, ObjectData.Thumbnail, ObjectData.Attributes);
         ObjectInfoWidget->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
         AttributesSwitcher->AddChild(ObjectInfoWidget);
 
@@ -30,7 +30,7 @@ void UDP_SelectWidget::Select(EObjectType ObjectType, const FString& ObjectName,
         AttributesSwitcher->SetActiveWidgetIndex(TypeIDMap[ObjectType]);
         if (auto* ObjectInfoWidget = Cast<UDP_ObjectInfoWidget>(AttributesSwitcher->GetActiveWidget()))
         {
-            ObjectInfoWidget->Select(ObjectName, Attributes);
+            ObjectInfoWidget->UpdateAttributes(Attributes);
         }
     }
 }
@@ -43,8 +43,8 @@ void UDP_SelectWidget::NativeOnInitialized()
     check(DestroyButton);
     check(AttributesSwitcher);
 
-    InspectButton->OnClicked.AddDynamic(this, &ThisClass::OnClickedInspectButtonHandler);
-    DestroyButton->OnClicked.AddDynamic(this, &ThisClass::OnClickedDestroyButtonHandler);
+    InspectButton->OnClicked.AddUObject(this, &ThisClass::OnClickedInspectButtonHandler);
+    DestroyButton->OnClicked.AddUObject(this, &ThisClass::OnClickedDestroyButtonHandler);
 }
 
 void UDP_SelectWidget::OnClickedInspectButtonHandler()

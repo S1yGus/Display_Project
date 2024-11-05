@@ -49,8 +49,9 @@ void ADP_PlayerController::BeginPlay()
     check(ClickAction);
     check(SelectAction);
     check(AnyKeyAction);
-    check(InputMapping);
+    check(GameInputMapping);
     check(WelcomeInputMapping);
+    check(WarningInputMapping);
 
     SetInputMode(FInputModeGameAndUI().SetHideCursorDuringCapture(false));
 }
@@ -63,7 +64,7 @@ void ADP_PlayerController::SetupInputComponent()
     {
         Input->BindAction(ClickAction, ETriggerEvent::Started, this, &ThisClass::OnClickHandler);
         Input->BindAction(SelectAction, ETriggerEvent::Started, this, &ThisClass::OnSelectHandler);
-        Input->BindAction(AnyKeyAction, ETriggerEvent::Started, this, &ThisClass::OnPressAnyKeyHandler);
+        Input->BindAction(AnyKeyAction, ETriggerEvent::Triggered, this, &ThisClass::OnPressAnyKeyHandler);
     }
 }
 
@@ -73,23 +74,29 @@ void ADP_PlayerController::UpdateInputMappingContext()
     {
         if (auto* InputSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
         {
-            if (CurrentGameState == EGameState::Welcome)
+            InputSystem->RemoveMappingContext(CurrentInputMapping);
+
+            switch (CurrentGameState)
             {
-                InputSystem->RemoveMappingContext(InputMapping);
-                InputSystem->AddMappingContext(WelcomeInputMapping, 0);
+                case EGameState::Welcome:
+                    CurrentInputMapping = WelcomeInputMapping;
+                    break;
+                case EGameState::Warning:
+                    CurrentInputMapping = WarningInputMapping;
+                    break;
+                default:
+                    CurrentInputMapping = GameInputMapping;
+                    break;
             }
-            else
-            {
-                InputSystem->RemoveMappingContext(WelcomeInputMapping);
-                InputSystem->AddMappingContext(InputMapping, 0);
-            }
+
+            InputSystem->AddMappingContext(CurrentInputMapping, 0);
         }
     }
 }
 
 void ADP_PlayerController::ObjectPlacementClick()
 {
-    OnRequestObjectSpawn.Broadcast();
+    OnObjectSpawn.Broadcast();
 }
 
 void ADP_PlayerController::InteractClick()

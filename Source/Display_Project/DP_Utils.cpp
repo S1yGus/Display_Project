@@ -11,7 +11,7 @@ uint64 UI::UniqueID()
 FText UI::GenerateUniqueObjectName(const FText& Name)
 {
     const FText Format = NSLOCTEXT("UI", "ObjectNameFormat_Loc", "{0}_{1}");
-    return FText::FormatOrdered(Format, Name, LOCGEN_NUMBER_UNGROUPED(UniqueID(), ""));
+    return FText::FormatOrdered(Format, Name, LOCGEN_NUMBER_UNGROUPED(UI::UniqueID(), ""));
 }
 
 FText UI::GetAdjustedDefaultText(EAttributeType Type, const FText& Text)
@@ -37,7 +37,7 @@ FText UI::AttributeTypeToText(EAttributeType Type)
     switch (Type)
     {
         case EAttributeType::ObjectName:
-            return NSLOCTEXT("UI", "ObjectName_Loc", "Object name");
+            return NSLOCTEXT("UI", "ObjectName_Loc", "Name");
         case EAttributeType::DisplayText:
             return NSLOCTEXT("UI", "DisplayText_Loc", "Display text");
         case EAttributeType::ButtonText:
@@ -46,5 +46,26 @@ FText UI::AttributeTypeToText(EAttributeType Type)
             return NSLOCTEXT("UI", "Dispaly_Loc", "Display");
         default:
             return NSLOCTEXT("UI", "Unknown_Loc", "Unknown");
+    }
+}
+
+EWidgetType UI::GameStateToWidgetType(EGameState GameState)
+{
+    switch (GameState)
+    {
+        case EGameState::Welcome:
+            return EWidgetType::Welcome;
+        case EGameState::Standby:
+            [[fallthrough]];
+        case EGameState::Placement:
+            [[fallthrough]];
+        case EGameState::Interact:
+            [[fallthrough]];
+        case EGameState::Select:
+            [[fallthrough]];
+        case EGameState::Warning:
+            return EWidgetType::Game;
+        default:
+            return EWidgetType::Game;
     }
 }

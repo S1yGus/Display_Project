@@ -1,31 +1,33 @@
 // Display_Project, all rights reserved.
 
 #include "Framework/DP_HUD.h"
-#include "UI/DP_PlacementWidget.h"
-#include "UI/DP_SelectWidget.h"
+#include "UI/DP_BaseAnimatedWidget.h"
+#include "UI/DP_GameWidget.h"
+#include "UI/DP_AnimatedWidgetWithWarning.h"
+#include "DP_Utils.h"
 
 void ADP_HUD::CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap)
 {
-    auto* WelcomeWidget = CreateWidget<UUserWidget>(GetWorld(), WelcomeWidgetClasses);
+    auto* WelcomeWidget = CreateWidget<UDP_BaseAnimatedWidget>(GetWorld(), WelcomeWidgetClasses);
     check(WelcomeWidget);
-    GameWidgets.Add(EGameState::Welcome, WelcomeWidget);
+    WelcomeWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
+    Widgets.Add(EWidgetType::Welcome, WelcomeWidget);
 
-    auto* PlacementWidget = CreateWidget<UDP_PlacementWidget>(GetWorld(), PlacementWidgetClasses);
-    check(PlacementWidget);
-    PlacementWidget->OnObjectTypeChanged.AddUObject(this, &ThisClass::OnObjectTypeChangedHandler);
-    PlacementWidget->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
-    PlacementWidget->OnDestroyAll.AddUObject(this, &ThisClass::OnDestroyAllHandler);
-    PlacementWidget->CreateWidgetsForObjects(ObjectsMap);
-    GameWidgets.Add(EGameState::Interact, PlacementWidget);
+    auto* GameWidget = CreateWidget<UDP_GameWidget>(GetWorld(), GameWidgetClasses);
+    check(GameWidget);
+    GameWidget->OnObjectTypeChanged.AddUObject(this, &ThisClass::OnObjectTypeChangedHandler);
+    GameWidget->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
+    GameWidget->OnDestroyAll.AddUObject(this, &ThisClass::OnDestroyAllHandler);
+    GameWidget->OnDestroySelected.AddUObject(this, &ThisClass::OnDestroySelectedHandler);
+    GameWidget->OnQuit.AddUObject(this, &ThisClass::OnQuitHandler);
+    GameWidget->OnToggleScreenMode.AddUObject(this, &ThisClass::OnToggleScreenModeHandler);
+    GameWidget->OnShowHelp.AddUObject(this, &ThisClass::OnShowHelpHandler);
+    GameWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
+    GameWidget->OnWarningResponse.AddUObject(this, &ThisClass::OnWarningResponseHandler);
+    GameWidget->CreateWidgetsForObjects(ObjectsMap);
+    Widgets.Add(EWidgetType::Game, GameWidget);
 
-    auto* SelectWidget = CreateWidget<UDP_SelectWidget>(GetWorld(), SelectWidgetClasses);
-    check(SelectWidget);
-    SelectWidget->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
-    SelectWidget->OnDestroySelected.AddUObject(this, &ThisClass::OnDestroySelectedHandler);
-    SelectWidget->CreateWidgetsForObjects(ObjectsMap);
-    GameWidgets.Add(EGameState::Select, SelectWidget);
-
-    for (auto& [State, Widget] : GameWidgets)
+    for (auto& [Type, Widget] : Widgets)
     {
         Widget->AddToViewport();
         Widget->SetVisibility(ESlateVisibility::Collapsed);
@@ -34,36 +36,51 @@ void ADP_HUD::CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap)
 
 void ADP_HUD::ChangeCurrentWidget(EGameState GameState)
 {
-    if (CurrentWidget)
-    {
-        CurrentWidget->SetVisibility(ESlateVisibility::Collapsed);
-    }
+    CurrentWidgetType = UI::GameStateToWidgetType(GameState);
 
-    if (GameWidgets.Contains(GameState))
+    if (Widgets.Contains(CurrentWidgetType))
     {
-        CurrentWidget = GameWidgets[GameState];
-    }
+        HandleGameWidget(GameState);
 
-    if (CurrentWidget)
-    {
-        CurrentWidget->SetVisibility(ESlateVisibility::Visible);
+        if (CurrentWidget)
+        {
+            if (CurrentWidget != Widgets[CurrentWidgetType])
+            {
+                CurrentWidget->ShowFadeoutAnimation();
+            }
+        }
+        else
+        {
+            SetCurrentWidget();
+        }
     }
 }
 
-void ADP_HUD::HideWidgetAttributes()
+void ADP_HUD::DeselectPlacementObject()
 {
-    if (auto* PlacementWidget = Cast<UDP_PlacementWidget>(GameWidgets[EGameState::Interact]))
+    if (auto* GameWidget = GetGameWidget())
     {
-        PlacementWidget->HideAttributes();
+        GameWidget->DeselectPlacementObject();
     }
 }
 
 void ADP_HUD::Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes)
 {
-    if (auto* SelectWidget = Cast<UDP_SelectWidget>(GameWidgets[EGameState::Select]))
+    if (auto* GameWidget = GetGameWidget())
     {
-        SelectWidget->Select(ObjectType, ObjectName, Attributes);
+        GameWidget->Select(ObjectType, ObjectName, Attributes);
     }
+}
+
+bool ADP_HUD::ShowWarning(const FText& WarningText)
+{
+    if (auto* WidgetWithWarning = Cast<UDP_AnimatedWidgetWithWarning>(CurrentWidget))
+    {
+        WidgetWithWarning->ShowWarning(WarningText);
+        return true;
+    }
+
+    return false;
 }
 
 void ADP_HUD::BeginPlay()
@@ -71,8 +88,38 @@ void ADP_HUD::BeginPlay()
     Super::BeginPlay();
 
     check(WelcomeWidgetClasses);
-    check(PlacementWidgetClasses);
-    check(SelectWidgetClasses);
+    check(GameWidgetClasses);
+}
+
+UDP_GameWidget* ADP_HUD::GetGameWidget() const
+{
+    if (Widgets.Contains(EWidgetType::Game))
+    {
+        return Cast<UDP_GameWidget>(Widgets[EWidgetType::Game]);
+    }
+
+    return nullptr;
+}
+
+void ADP_HUD::SetCurrentWidget()
+{
+    CurrentWidget = Widgets[CurrentWidgetType];
+    if (CurrentWidget)
+    {
+        CurrentWidget->SetVisibility(ESlateVisibility::Visible);
+        CurrentWidget->ShowStartupAnimation();
+    }
+}
+
+void ADP_HUD::HandleGameWidget(EGameState GameState)
+{
+    if (CurrentWidgetType == EWidgetType::Game)
+    {
+        if (auto* GameWidget = GetGameWidget())
+        {
+            GameWidget->SwitchCurrentWidget(GameState);
+        }
+    }
 }
 
 void ADP_HUD::OnObjectTypeChangedHandler(EObjectType ObjectType)
@@ -93,4 +140,30 @@ void ADP_HUD::OnDestroyAllHandler()
 void ADP_HUD::OnDestroySelectedHandler()
 {
     OnDestroySelected.Broadcast();
+}
+
+void ADP_HUD::OnFadeoutAnimationFinishedHandler()
+{
+    CurrentWidget->SetVisibility(ESlateVisibility::Collapsed);
+    SetCurrentWidget();
+}
+
+void ADP_HUD::OnQuitHandler()
+{
+    OnQuit.Broadcast();
+}
+
+void ADP_HUD::OnToggleScreenModeHandler()
+{
+    OnToggleScreenMode.Broadcast();
+}
+
+void ADP_HUD::OnShowHelpHandler()
+{
+    OnShowHelp.Broadcast();
+}
+
+void ADP_HUD::OnWarningResponseHandler(bool bCondition)
+{
+    OnWarningResponse.Broadcast(bCondition);
 }
