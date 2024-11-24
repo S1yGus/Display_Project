@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "DP_CoreAliases.h"
 #include "DP_Player.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
+class ADP_PlaceableActor;
 struct FInputActionValue;
 
 UCLASS()
@@ -19,12 +21,18 @@ class DISPLAY_PROJECT_API ADP_Player : public APawn
 public:
     ADP_Player();
 
+    void StartInspect(TSubclassOf<ADP_PlaceableActor> Class, const FAttributesMap& Attributes);
+    void StopInspect();
+
 protected:
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<USpringArmComponent> SpringArmComponent;
 
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<UCameraComponent> CameraComponent;
+
+    UPROPERTY(VisibleAnywhere, Category = "Components")
+    TObjectPtr<USceneComponent> InspectionPoint;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> ZoomAction;
@@ -34,6 +42,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> ResetRotationAction;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UInputAction> InspectedObjectRotationAction;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input|Zoom")
     float MinArmLength{400.0f};
@@ -45,10 +56,13 @@ protected:
     float ZoomStep{200.0f};
 
     UPROPERTY(EditDefaultsOnly, Category = "Input|Zoom")
-    float ZoomSpeed{6.0f};
+    float ZoomingSpeed{6.0f};
 
     UPROPERTY(EditDefaultsOnly, Category = "Input|Rotation")
     float RotationSpeed{1.6f};
+
+    UPROPERTY(EditDefaultsOnly, Category = "Input|Rotation")
+    float InspectedObjectRotationSpeed{2.0f};
 
     UPROPERTY(EditDefaultsOnly, Category = "Input|Rotation")
     FRotator DefaultRotation{-90.0, 0.0, -90.0};
@@ -59,11 +73,33 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     float UIOffset{440.0f};
 
+    UPROPERTY(EditDefaultsOnly, Category = "Inspect")
+    FRotator InspectionPointDefaultRotation{0.0f, 90.0f, 90.0f};
+
+    UPROPERTY(EditDefaultsOnly, Category = "Inspect")
+    float InspectedObjectScalingSpeed{5.0f};
+
+    UPROPERTY(EditDefaultsOnly, Category = "Inspect")
+    float DOFSensorWidth{350.0f};
+
+    UPROPERTY(EditDefaultsOnly, Category = "Inspect")
+    float DOFSensorWidthChangingSpeed{10.0f};
+
     virtual void BeginPlay() override;
 
 private:
-    float TargetArmLength{0};
     FTimerHandle ZoomTimerHandle;
+    float TargetArmLength{0.0f};
+    float PrevTargetArmLength{0.0f};
+
+    UPROPERTY()
+    TObjectPtr<ADP_PlaceableActor> InspectedObject{nullptr};
+    FTimerHandle InspectedObjectScaleTimerHandle;
+    FVector InspectedObjectTargetScale{FVector::ZeroVector};
+    FScaleComplete OnScaleComplete{nullptr};
+
+    FTimerHandle DOFSensorWidthChangeTimerHandle;
+    float TargetDOFSensorWidth{0.0f};
 
     void UpdateSpringArmOffset(FViewport* Viewport, uint32 Value = 0);
 
@@ -73,4 +109,7 @@ private:
     void OnZoomingHandler();
     void OnRotationHandler(const FInputActionValue& Value);
     void OnResetRotationHandler();
+    void OnInspectedObjectRotationHandler(const FInputActionValue& Value);
+    void OnInspectedObjectScalingHandler();
+    void OnDOFSensorWidthChangingHandler();
 };

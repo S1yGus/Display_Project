@@ -24,6 +24,8 @@ public:
     FOnToggleScreenModeSignature OnToggleScreenMode;
     FOnShowHelpSignature OnShowHelp;
     FOnWarningResponseSignature OnWarningResponse;
+    FOnInspectSignature OnInspect;
+    FOnInspectCompletedSignature OnInspectCompleted;
 
     void CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap);
     void ChangeCurrentWidget(EGameState GameState);
@@ -38,6 +40,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<UDP_BaseAnimatedWidget> GameWidgetClasses;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Classes")
+    TSubclassOf<UDP_BaseAnimatedWidget> InspectWidgetClasses;
+
     virtual void BeginPlay() override;
 
 private:
@@ -47,7 +52,7 @@ private:
     TObjectPtr<UDP_BaseAnimatedWidget> CurrentWidget;
     EWidgetType CurrentWidgetType{EWidgetType::Welcome};
 
-    FORCEINLINE UDP_GameWidget* GetGameWidget() const;
+    [[nodiscard]] FORCEINLINE UDP_GameWidget* GetGameWidget() const;
     FORCEINLINE void SetCurrentWidget();
     FORCEINLINE void HandleGameWidget(EGameState GameState);
 
@@ -60,4 +65,6 @@ private:
     void OnToggleScreenModeHandler();
     void OnShowHelpHandler();
     void OnWarningResponseHandler(bool bCondition);
+    void OnInspectHandler();
+    void OnInspectCompletedHandler();
 };
