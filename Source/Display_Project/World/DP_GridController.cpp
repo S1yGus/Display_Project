@@ -6,6 +6,7 @@
 #include "World/DP_PlaceableActor.h"
 #include "World/DP_TextShifter.h"
 #include "Framework/DP_PlayerController.h"
+#include "Framework/DP_Player.h"
 #include "Framework/DP_HUD.h"
 #include "Engine/TargetPoint.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -52,6 +53,8 @@ void ADP_GridController::BeginPlay()
         HUD->OnToggleScreenMode.AddUObject(this, &ThisClass::OnToggleScreenModeHandler);
         HUD->OnShowHelp.AddUObject(this, &ThisClass::OnShowHelpHandler);
         HUD->OnWarningResponse.AddUObject(this, &ThisClass::OnWarningResponseHandler);
+        HUD->OnInspect.AddUObject(this, &ThisClass::OnInspectHandler);
+        HUD->OnInspectCompleted.AddUObject(this, &ThisClass::OnInspectCompletedHandler);
         HUD->CreateWidgets(ObjectsMap);
     }
 
@@ -68,6 +71,11 @@ void ADP_GridController::BeginPlay()
 ADP_PlayerController* ADP_GridController::GetPlayerController() const
 {
     return GetWorld() ? GetWorld()->GetFirstPlayerController<ADP_PlayerController>() : nullptr;
+}
+
+ADP_Player* ADP_GridController::GetPlayer() const
+{
+    return GetPlayerController() ? GetPlayerController()->GetPawn<ADP_Player>() : nullptr;
 }
 
 ADP_HUD* ADP_GridController::GetHUD() const
@@ -105,7 +113,7 @@ void ADP_GridController::SpawnGrid()
 {
     Grid = GetWorld()->SpawnActor<ADP_Grid>(GridClass, FVector{0.0, 0.0, GirdHeight}, FRotator::ZeroRotator);
     check(Grid);
-    Grid->OnObjectSpawned.AddUObject(this, &ThisClass::OnObjectSpawnedHandler);
+    Grid->OnObjectSpawnCompleted.AddUObject(this, &ThisClass::OnObjectSpawnCompletedHandler);
 }
 
 void ADP_GridController::SetGameState(EGameState NewGameState)
@@ -181,7 +189,7 @@ void ADP_GridController::OnSpawnCurrentObjectHandler()
     Grid->SpawnCurrentObject();
 }
 
-void ADP_GridController::OnObjectSpawnedHandler()
+void ADP_GridController::OnObjectSpawnCompletedHandler()
 {
     SetCurrentObjectType(EObjectType::None);
 }
@@ -280,5 +288,25 @@ void ADP_GridController::OnWarningResponseHandler(bool bCondition)
     {
         DeferredAction();
         DeferredAction = nullptr;
+    }
+}
+
+void ADP_GridController::OnInspectHandler()
+{
+    SetGameState(EGameState::Inspect);
+
+    if (auto* Player = GetPlayer())
+    {
+        Player->StartInspect(SelectedObject->GetClass(), SelectedObject->GetObjectAttributes());
+    }
+}
+
+void ADP_GridController::OnInspectCompletedHandler()
+{
+    SetGameState(PrevGameState);
+
+    if (auto* Player = GetPlayer())
+    {
+        Player->StopInspect();
     }
 }

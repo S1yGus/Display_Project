@@ -65,6 +65,8 @@ EWidgetType UI::GameStateToWidgetType(EGameState GameState)
             [[fallthrough]];
         case EGameState::Warning:
             return EWidgetType::Game;
+        case EGameState::Inspect:
+            return EWidgetType::Inspect;
         default:
             return EWidgetType::Game;
     }

@@ -19,6 +19,7 @@ class DISPLAY_PROJECT_API UDP_SelectWidget : public UUserWidget
 public:
     FOnAttributeChangedSignature OnAttributeChanged;
     FOnDestroySelectedSignature OnDestroySelected;
+    FOnInspectSignature OnInspect;
 
     void CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap);
     void Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes);

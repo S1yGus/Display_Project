@@ -26,6 +26,12 @@ void ADP_PlaceableActor::Init(FAttributesMap&& Attributes)
     UpdateAttributes();
 }
 
+void ADP_PlaceableActor::Init(const FAttributesMap& Attributes)
+{
+    AttributesMap = Attributes;
+    UpdateAttributes();
+}
+
 void ADP_PlaceableActor::UpdateAttribute(EAttributeType AttributeType, FAttributeData AttributeData)
 {
     SetAttribute(AttributeType, AttributeData);

@@ -13,7 +13,8 @@ enum class EGameState : uint8
     Placement,
     Interact,
     Select,
-    Warning
+    Warning,
+    Inspect
 };
 
 UENUM()
@@ -37,5 +38,6 @@ UENUM()
 enum class EWidgetType : uint8
 {
     Welcome = 0,
-    Game
+    Game,
+    Inspect
 };

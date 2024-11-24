@@ -52,6 +52,7 @@ void ADP_PlayerController::BeginPlay()
     check(GameInputMapping);
     check(WelcomeInputMapping);
     check(WarningInputMapping);
+    check(InspectInputMapping);
 
     SetInputMode(FInputModeGameAndUI().SetHideCursorDuringCapture(false));
 }
@@ -64,7 +65,7 @@ void ADP_PlayerController::SetupInputComponent()
     {
         Input->BindAction(ClickAction, ETriggerEvent::Started, this, &ThisClass::OnClickHandler);
         Input->BindAction(SelectAction, ETriggerEvent::Started, this, &ThisClass::OnSelectHandler);
-        Input->BindAction(AnyKeyAction, ETriggerEvent::Triggered, this, &ThisClass::OnPressAnyKeyHandler);
+        Input->BindAction(AnyKeyAction, ETriggerEvent::Started, this, &ThisClass::OnPressAnyKeyHandler);
     }
 }
 
@@ -83,6 +84,9 @@ void ADP_PlayerController::UpdateInputMappingContext()
                     break;
                 case EGameState::Warning:
                     CurrentInputMapping = WarningInputMapping;
+                    break;
+                case EGameState::Inspect:
+                    CurrentInputMapping = InspectInputMapping;
                     break;
                 default:
                     CurrentInputMapping = GameInputMapping;

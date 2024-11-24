@@ -20,7 +20,7 @@ class DISPLAY_PROJECT_API ADP_Grid : public AActor
     GENERATED_BODY()
 
 public:
-    FOnObjectSpawnedSignature OnObjectSpawned;
+    FOnObjectSpawnCompletedSignature OnObjectSpawnCompleted;
 
     ADP_Grid();
 

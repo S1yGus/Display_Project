@@ -407,5 +407,5 @@ void ADP_Grid::SpawnObject()
     }
 
     bIsSpawning = false;
-    OnObjectSpawned.Broadcast();
+    OnObjectSpawnCompleted.Broadcast();
 }

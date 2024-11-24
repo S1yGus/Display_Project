@@ -3,6 +3,7 @@
 #include "Framework/DP_HUD.h"
 #include "UI/DP_BaseAnimatedWidget.h"
 #include "UI/DP_GameWidget.h"
+#include "UI/DP_InspectWidget.h"
 #include "UI/DP_AnimatedWidgetWithWarning.h"
 #include "DP_Utils.h"
 
@@ -24,8 +25,15 @@ void ADP_HUD::CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap)
     GameWidget->OnShowHelp.AddUObject(this, &ThisClass::OnShowHelpHandler);
     GameWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
     GameWidget->OnWarningResponse.AddUObject(this, &ThisClass::OnWarningResponseHandler);
+    GameWidget->OnInspect.AddUObject(this, &ThisClass::OnInspectHandler);
     GameWidget->CreateWidgetsForObjects(ObjectsMap);
     Widgets.Add(EWidgetType::Game, GameWidget);
+
+    auto* InspectWidget = CreateWidget<UDP_InspectWidget>(GetWorld(), InspectWidgetClasses);
+    check(InspectWidget);
+    InspectWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
+    InspectWidget->OnInspectCompleted.AddUObject(this, &ThisClass::OnInspectCompletedHandler);
+    Widgets.Add(EWidgetType::Inspect, InspectWidget);
 
     for (auto& [Type, Widget] : Widgets)
     {
@@ -166,4 +174,14 @@ void ADP_HUD::OnShowHelpHandler()
 void ADP_HUD::OnWarningResponseHandler(bool bCondition)
 {
     OnWarningResponse.Broadcast(bCondition);
+}
+
+void ADP_HUD::OnInspectHandler()
+{
+    OnInspect.Broadcast();
+}
+
+void ADP_HUD::OnInspectCompletedHandler()
+{
+    OnInspectCompleted.Broadcast();
 }

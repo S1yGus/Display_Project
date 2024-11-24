@@ -24,6 +24,7 @@ public:
     [[nodiscard]] FIntPoint GetObjectSize() const { return Size; }
 
     void Init(FAttributesMap&& Attributes);
+    void Init(const FAttributesMap& Attributes);
     void UpdateAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
 
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Select")

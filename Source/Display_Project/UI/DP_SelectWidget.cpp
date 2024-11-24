@@ -49,7 +49,7 @@ void UDP_SelectWidget::NativeOnInitialized()
 
 void UDP_SelectWidget::OnClickedInspectButtonHandler()
 {
-    // TODO
+    OnInspect.Broadcast();
 }
 
 void UDP_SelectWidget::OnClickedDestroyButtonHandler()

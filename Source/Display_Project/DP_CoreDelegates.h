@@ -10,7 +10,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnObjectTypeChangedSignature, EObjectType);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnClickedObjectButtonSignature, EObjectType);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnAttributeChangedSignature, EAttributeType, FAttributeData);
 DECLARE_MULTICAST_DELEGATE(FOnObjectSpawnSignature);
-DECLARE_MULTICAST_DELEGATE(FOnObjectSpawnedSignature);
+DECLARE_MULTICAST_DELEGATE(FOnObjectSpawnCompletedSignature);
 DECLARE_MULTICAST_DELEGATE(FOnDestroyAllSignature);
 DECLARE_MULTICAST_DELEGATE(FOnDestroySelectedSignature);
 DECLARE_MULTICAST_DELEGATE(FOnWelcomeScreenCompletedSignature);
@@ -22,3 +22,5 @@ DECLARE_MULTICAST_DELEGATE(FOnQuitSignature);
 DECLARE_MULTICAST_DELEGATE(FOnToggleScreenModeSignature);
 DECLARE_MULTICAST_DELEGATE(FOnShowHelpSignature);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnWarningResponseSignature, bool);
+DECLARE_MULTICAST_DELEGATE(FOnInspectSignature)
+DECLARE_MULTICAST_DELEGATE(FOnInspectCompletedSignature)

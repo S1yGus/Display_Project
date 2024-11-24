@@ -48,6 +48,9 @@ protected:
     TObjectPtr<UInputMappingContext> WarningInputMapping;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
+    TObjectPtr<UInputMappingContext> InspectInputMapping;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Input")
     float UpdatePlayerLocationSpeed{6.0f};
 
     virtual void BeginPlay() override;

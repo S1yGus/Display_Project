@@ -6,6 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "World/DP_PlaceableActor.h"
+#include "Kismet/KismetMathLibrary.h"
 
 constexpr static float TimerRate{0.016f};
 
@@ -27,8 +29,76 @@ ADP_Player::ADP_Player()
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
     check(CameraComponent);
+    CameraComponent->PostProcessSettings.bOverride_DepthOfFieldSensorWidth = true;
     CameraComponent->bOverrideAspectRatioAxisConstraint = true;
     CameraComponent->SetupAttachment(SpringArmComponent);
+
+    InspectionPoint = CreateDefaultSubobject<USceneComponent>("InspectionPoint");
+    check(InspectionPoint);
+    InspectionPoint->SetupAttachment(CameraComponent);
+}
+
+void ADP_Player::StartInspect(TSubclassOf<ADP_PlaceableActor> Class, const FAttributesMap& Attributes)
+{
+    InspectionPoint->SetRelativeRotation(InspectionPointDefaultRotation);
+
+    // Spawn
+    InspectedObject = GetWorld() ? GetWorld()->SpawnActor<ADP_PlaceableActor>(Class) : nullptr;
+    check(InspectedObject);
+    InspectedObject->Init(Attributes);
+    InspectedObject->AttachToComponent(InspectionPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+    // Scale
+    InspectedObject->SetActorScale3D(FVector::ZeroVector);
+    InspectedObjectTargetScale = FVector{1.0};
+    if (!GetWorldTimerManager().IsTimerActive(InspectedObjectScaleTimerHandle))
+    {
+        GetWorldTimerManager().SetTimer(InspectedObjectScaleTimerHandle, this, &ThisClass::OnInspectedObjectScalingHandler, TimerRate, true);
+    }
+
+    // Zoom
+    PrevTargetArmLength = SpringArmComponent->TargetArmLength;
+    TargetArmLength = MaxArmLength;
+    if (!GetWorldTimerManager().IsTimerActive(ZoomTimerHandle))
+    {
+        GetWorldTimerManager().SetTimer(ZoomTimerHandle, this, &ThisClass::OnZoomingHandler, TimerRate, true);
+    }
+
+    // DOF
+    TargetDOFSensorWidth = DOFSensorWidth;
+    if (!GetWorldTimerManager().IsTimerActive(DOFSensorWidthChangeTimerHandle))
+    {
+        GetWorldTimerManager().SetTimer(DOFSensorWidthChangeTimerHandle, this, &ThisClass::OnDOFSensorWidthChangingHandler, TimerRate, true);
+    }
+}
+
+void ADP_Player::StopInspect()
+{
+    // Scale
+    InspectedObjectTargetScale = FVector::ZeroVector;
+    if (!GetWorldTimerManager().IsTimerActive(InspectedObjectScaleTimerHandle))
+    {
+        GetWorldTimerManager().SetTimer(InspectedObjectScaleTimerHandle, this, &ThisClass::OnInspectedObjectScalingHandler, TimerRate, true);
+    }
+    OnScaleComplete = [this]()
+    {
+        InspectedObject->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+        InspectedObject->Destroy();
+    };
+
+    // Zoom
+    TargetArmLength = PrevTargetArmLength;
+    if (!GetWorldTimerManager().IsTimerActive(ZoomTimerHandle))
+    {
+        GetWorldTimerManager().SetTimer(ZoomTimerHandle, this, &ThisClass::OnZoomingHandler, TimerRate, true);
+    }
+
+    // DOF
+    TargetDOFSensorWidth = 0.0f;
+    if (!GetWorldTimerManager().IsTimerActive(DOFSensorWidthChangeTimerHandle))
+    {
+        GetWorldTimerManager().SetTimer(DOFSensorWidthChangeTimerHandle, this, &ThisClass::OnDOFSensorWidthChangingHandler, TimerRate, true);
+    }
 }
 
 void ADP_Player::BeginPlay()
@@ -38,6 +108,7 @@ void ADP_Player::BeginPlay()
     check(ZoomAction);
     check(RotationAction);
     check(ResetRotationAction);
+    check(InspectedObjectRotationAction);
 
     TargetArmLength = SpringArmComponent->TargetArmLength;
 
@@ -58,6 +129,7 @@ void ADP_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
         Input->BindAction(ZoomAction, ETriggerEvent::Triggered, this, &ThisClass::OnZoomHandler);
         Input->BindAction(RotationAction, ETriggerEvent::Triggered, this, &ThisClass::OnRotationHandler);
         Input->BindAction(ResetRotationAction, ETriggerEvent::Started, this, &ThisClass::OnResetRotationHandler);
+        Input->BindAction(InspectedObjectRotationAction, ETriggerEvent::Triggered, this, &ThisClass::OnInspectedObjectRotationHandler);
     }
 }
 
@@ -79,7 +151,7 @@ void ADP_Player::OnZoomingHandler()
     }
     else
     {
-        SpringArmComponent->TargetArmLength = FMath::FInterpTo(SpringArmComponent->TargetArmLength, TargetArmLength, TimerRate, ZoomSpeed);
+        SpringArmComponent->TargetArmLength = FMath::FInterpTo(SpringArmComponent->TargetArmLength, TargetArmLength, TimerRate, ZoomingSpeed);
         if (GEngine && GEngine->GameViewport)
         {
             UpdateSpringArmOffset(GEngine->GameViewport->Viewport);
@@ -90,9 +162,15 @@ void ADP_Player::OnZoomingHandler()
 void ADP_Player::OnRotationHandler(const FInputActionValue& Value)
 {
     const auto AxisValue = Value.Get<FVector2D>();
+
     if (SpringArmComponent->GetRelativeRotation().Pitch < RotationPitchThreshold || AxisValue.Y < 0.0)
     {
         SpringArmComponent->AddLocalRotation(FRotator{AxisValue.Y * RotationSpeed, 0.0, 0.0});
+        if (SpringArmComponent->GetRelativeRotation().Pitch > RotationPitchThreshold)
+        {
+            const FRotator RotationThreshold{RotationPitchThreshold, SpringArmComponent->GetRelativeRotation().Yaw, SpringArmComponent->GetRelativeRotation().Roll};
+            SpringArmComponent->SetRelativeRotation(RotationThreshold);
+        }
     }
     SpringArmComponent->AddWorldRotation(FRotator{0.0, AxisValue.X * RotationSpeed, 0.0});
 }
@@ -100,6 +178,48 @@ void ADP_Player::OnRotationHandler(const FInputActionValue& Value)
 void ADP_Player::OnResetRotationHandler()
 {
     SpringArmComponent->SetWorldRotation(DefaultRotation);
+}
+
+void ADP_Player::OnInspectedObjectRotationHandler(const FInputActionValue& Value)
+{
+    const FVector2D AxisValue = Value.Get<FVector2D>();
+
+    InspectionPoint->AddRelativeRotation(FQuat(FVector(0.0f, 0.0f, 1.0f), FMath::DegreesToRadians(AxisValue.X * InspectedObjectRotationSpeed)));
+    InspectionPoint->AddRelativeRotation(FQuat(FVector(0.0f, -1.0f, 0.0f), FMath::DegreesToRadians(AxisValue.Y * InspectedObjectRotationSpeed)));
+}
+
+void ADP_Player::OnInspectedObjectScalingHandler()
+{
+    if (InspectedObject->GetActorScale3D().Equals(InspectedObjectTargetScale, UE_KINDA_SMALL_NUMBER))
+    {
+        GetWorldTimerManager().ClearTimer(InspectedObjectScaleTimerHandle);
+
+        if (OnScaleComplete)
+        {
+            OnScaleComplete();
+            OnScaleComplete = nullptr;
+        }
+    }
+    else
+    {
+        InspectedObject->SetActorScale3D(FMath::VInterpConstantTo(InspectedObject->GetActorScale3D(),    //
+                                                                  InspectedObjectTargetScale,            //
+                                                                  TimerRate,                             //
+                                                                  InspectedObjectScalingSpeed));
+    }
+}
+
+void ADP_Player::OnDOFSensorWidthChangingHandler()
+{
+    auto& DepthOfFieldSensorWidth = CameraComponent->PostProcessSettings.DepthOfFieldSensorWidth;
+    if (FMath::IsNearlyEqual(DepthOfFieldSensorWidth, TargetDOFSensorWidth, UE_KINDA_SMALL_NUMBER))
+    {
+        GetWorldTimerManager().ClearTimer(DOFSensorWidthChangeTimerHandle);
+    }
+    else
+    {
+        DepthOfFieldSensorWidth = FMath::FInterpTo(DepthOfFieldSensorWidth, TargetDOFSensorWidth, TimerRate, DOFSensorWidthChangingSpeed);
+    }
 }
 
 void ADP_Player::UpdateSpringArmOffset(FViewport* Viewport, uint32 Value)

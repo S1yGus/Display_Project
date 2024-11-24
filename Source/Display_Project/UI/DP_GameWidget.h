@@ -25,6 +25,7 @@ public:
     FOnQuitSignature OnQuit;
     FOnToggleScreenModeSignature OnToggleScreenMode;
     FOnShowHelpSignature OnShowHelp;
+    FOnInspectSignature OnInspect;
 
     void CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap);
     void SwitchCurrentWidget(EGameState GameState);
@@ -54,4 +55,5 @@ private:
     void OnQuitHandler();
     void OnToggleScreenModeHandler();
     void OnShowHelpHandler();
+    void OnInspectHandler();
 };

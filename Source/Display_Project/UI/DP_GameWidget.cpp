@@ -52,6 +52,7 @@ void UDP_GameWidget::NativeOnInitialized()
 
     SelectWidget->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
     SelectWidget->OnDestroySelected.AddUObject(this, &ThisClass::OnDestroySelectedHandler);
+    SelectWidget->OnInspect.AddUObject(this, &ThisClass::OnInspectHandler);
 
     ControlPanelWidget->OnQuit.AddUObject(this, &ThisClass::OnQuitHandler);
     ControlPanelWidget->OnToggleScreenMode.AddUObject(this, &ThisClass::OnToggleScreenModeHandler);
@@ -91,4 +92,9 @@ void UDP_GameWidget::OnToggleScreenModeHandler()
 void UDP_GameWidget::OnShowHelpHandler()
 {
     OnShowHelp.Broadcast();
+}
+
+void UDP_GameWidget::OnInspectHandler()
+{
+    OnInspect.Broadcast();
 }

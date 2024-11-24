@@ -10,6 +10,7 @@
 class ADP_Grid;
 class ADP_TextShifter;
 class ADP_PlayerController;
+class ADP_Player;
 class ADP_HUD;
 class ATargetPoint;
 
@@ -52,8 +53,9 @@ private:
     TObjectPtr<ADP_PlaceableActor> SelectedObject;
     FDeferredAction DeferredAction{nullptr};
 
-    FORCEINLINE ADP_PlayerController* GetPlayerController() const;
-    FORCEINLINE ADP_HUD* GetHUD() const;
+    [[nodiscard]] FORCEINLINE ADP_PlayerController* GetPlayerController() const;
+    [[nodiscard]] FORCEINLINE ADP_Player* GetPlayer() const;
+    [[nodiscard]] FORCEINLINE ADP_HUD* GetHUD() const;
     FORCEINLINE void UpdatePlayerLocation(const FVector& Location);
     FORCEINLINE void ShowWarning(const FText& WarningText, FDeferredAction&& Action);
 
@@ -67,7 +69,7 @@ private:
     void OnSwitchToGameHandler();
     void OnUpdatePreviewLocationHandler(AActor* ReferenceActor);
     void OnSpawnCurrentObjectHandler();
-    void OnObjectSpawnedHandler();
+    void OnObjectSpawnCompletedHandler();
     void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
     void OnSelectHandler(AActor* SelectedActor, const FTransform& SelectionTransform);
     void OnDestroySelectedHandler();
@@ -76,4 +78,6 @@ private:
     void OnToggleScreenModeHandler();
     void OnShowHelpHandler();
     void OnWarningResponseHandler(bool bCondition);
+    void OnInspectHandler();
+    void OnInspectCompletedHandler();
 };
