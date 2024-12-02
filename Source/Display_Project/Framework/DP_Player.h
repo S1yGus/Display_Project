@@ -80,7 +80,7 @@ protected:
     float InspectedObjectScalingSpeed{5.0f};
 
     UPROPERTY(EditDefaultsOnly, Category = "Inspect")
-    float DOFSensorWidth{350.0f};
+    float DOFSensorWidth{365.0f};
 
     UPROPERTY(EditDefaultsOnly, Category = "Inspect")
     float DOFSensorWidthChangingSpeed{10.0f};
@@ -100,10 +100,15 @@ private:
 
     FTimerHandle DOFSensorWidthChangeTimerHandle;
     float TargetDOFSensorWidth{0.0f};
-
-    void UpdateSpringArmOffset(FViewport* Viewport, uint32 Value = 0);
+    float TargetFocalDistance{0.0f};
+    FDOFSensorWidthChangeComplete OnDOFSensorWidthChangeComplete{nullptr};
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+    FORCEINLINE void UpdateSpringArmOffset(FViewport* Viewport, uint32 Value = 0);
+    FORCEINLINE void ScaleInspectedObject(FVector TargetScale, FScaleComplete&& OnComplete = nullptr);
+    FORCEINLINE void SetSpringArmLength(float TargetLength);
+    FORCEINLINE void ChangeDOFSensorWidth(float TargetSensorWidth, FDOFSensorWidthChangeComplete&& OnComplete = nullptr);
 
     void OnZoomHandler(const FInputActionValue& Value);
     void OnZoomingHandler();

@@ -206,7 +206,7 @@ void ADP_GridController::OnAttributeChangedHandler(EAttributeType AttributeType,
     }
 }
 
-void ADP_GridController::OnSelectHandler(AActor* SelectedActor, const FTransform& SelectionTransform)
+void ADP_GridController::OnSelectHandler(AActor* SelectedActor)
 {
     if (CurrentGameState == EGameState::Placement)
     {
@@ -219,7 +219,7 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor, const FTransform
             SelectedObject->Deselect();
         }
         SelectedObject = PlaceableActor;
-        SelectedObject->Select(SelectionTransform);
+        SelectedObject->Select();
 
         if (auto* HUD = GetHUD())
         {

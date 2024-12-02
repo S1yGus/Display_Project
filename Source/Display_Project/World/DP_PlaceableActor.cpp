@@ -1,6 +1,7 @@
 // Display_Project, all rights reserved.
 
 #include "World/DP_PlaceableActor.h"
+#include "Components/DP_FXComponent.h"
 #include "DP_CoreStructures.h"
 
 ADP_PlaceableActor::ADP_PlaceableActor()
@@ -9,6 +10,8 @@ ADP_PlaceableActor::ADP_PlaceableActor()
 
     RootComponent = CreateDefaultSubobject<USceneComponent>("Root");
     check(RootComponent);
+
+    FXComponent = CreateDefaultSubobject<UDP_FXComponent>("FXComponent");
 }
 
 FString ADP_PlaceableActor::GetObjectName() const
@@ -36,6 +39,11 @@ void ADP_PlaceableActor::UpdateAttribute(EAttributeType AttributeType, FAttribut
 {
     SetAttribute(AttributeType, AttributeData);
     UpdateAttributes();
+}
+
+void ADP_PlaceableActor::Interact(const FTransform& InteractionTransform)
+{
+    FXComponent->MakeInteractFX(InteractionTransform);
 }
 
 void ADP_PlaceableActor::UpdateAttributes()

@@ -13,6 +13,8 @@ ADP_Button::ADP_Button()
 
 void ADP_Button::Interact(const FTransform& InteractionTransform)
 {
+    Super::Interact(InteractionTransform);
+
     if (!bIsInteracting)
     {
         if (IsValid(Display))

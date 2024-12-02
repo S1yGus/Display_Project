@@ -3,7 +3,6 @@
 #include "Framework/DP_PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Interfaces/DP_InteractiveInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 #define ECC_Node ETraceTypeQuery::TraceTypeQuery4
@@ -107,9 +106,9 @@ void ADP_PlayerController::InteractClick()
 {
     if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Clickable, false, HitResult))
     {
-        if (auto* ClickableActor = Cast<IDP_InteractiveInterface>(HitResult.GetActor()))
+        if (auto* PlaceableActor = Cast<ADP_PlaceableActor>(HitResult.GetActor()))
         {
-            ClickableActor->Interact(FTransform{HitResult.ImpactNormal.Rotation(), HitResult.ImpactPoint});
+            PlaceableActor->Interact(FTransform{HitResult.ImpactNormal.Rotation(), HitResult.ImpactPoint});
         }
     }
 }
@@ -135,11 +134,11 @@ void ADP_PlayerController::OnSelectHandler()
 {
     if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Clickable, false, HitResult))
     {
-        OnObjectSelected.Broadcast(HitResult.GetActor(), FTransform{HitResult.ImpactNormal.Rotation(), HitResult.ImpactPoint});
+        OnObjectSelected.Broadcast(HitResult.GetActor());
     }
     else
     {
-        OnObjectSelected.Broadcast(nullptr, {});
+        OnObjectSelected.Broadcast(nullptr);
     }
 }
 

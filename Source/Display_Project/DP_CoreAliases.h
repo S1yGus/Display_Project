@@ -14,3 +14,4 @@ using FComboBoxDataUpdater = TFunction<void(TObjectPtr<UComboBoxString>, TArray<
 using FComboBoxSelectedOptionGetter = TFunction<FString(const FAttributeData&)>;
 using FDeferredAction = TFunction<void()>;
 using FScaleComplete = TFunction<void()>;
+using FDOFSensorWidthChangeComplete = TFunction<void()>;

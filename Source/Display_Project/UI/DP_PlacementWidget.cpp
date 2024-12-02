@@ -91,7 +91,7 @@ void UDP_PlacementWidget::OnClickedObjectButtonHandler(EObjectType ObjectType)
         AttributesSwitcher->SetActiveWidgetIndex(TypeIDMap[ObjectType]);
         ResetCurrentAttributesList();
     }
-    
+
     UpdateObjectButtonsSelection(ObjectType);
 }
 

@@ -71,7 +71,7 @@ private:
     void OnSpawnCurrentObjectHandler();
     void OnObjectSpawnCompletedHandler();
     void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
-    void OnSelectHandler(AActor* SelectedActor, const FTransform& SelectionTransform);
+    void OnSelectHandler(AActor* SelectedActor);
     void OnDestroySelectedHandler();
     void OnDestroyAllHandler();
     void OnQuitHandler();
