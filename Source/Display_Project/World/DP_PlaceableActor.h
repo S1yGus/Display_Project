@@ -9,6 +9,7 @@
 #include "DP_PlaceableActor.generated.h"
 
 class UMaterialInterface;
+class UDP_FXComponent;
 
 UCLASS(Abstract)
 class DISPLAY_PROJECT_API ADP_PlaceableActor : public AActor
@@ -27,8 +28,10 @@ public:
     void Init(const FAttributesMap& Attributes);
     void UpdateAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
 
+    virtual void Interact(const FTransform& InteractionTransform);
+
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Select")
-    void Select(const FTransform& SelectionTransform);
+    void Select();
 
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Select")
     void Deselect();
@@ -40,6 +43,9 @@ public:
     void UpdatePreviewMaterial(UMaterialInterface* PreviewMaterial);
 
 protected:
+    UPROPERTY(VisibleAnywhere, Category = "Components")
+    TObjectPtr<UDP_FXComponent> FXComponent;
+
     EObjectType Type{EObjectType::None};
     FAttributesMap AttributesMap;
 

@@ -22,7 +22,7 @@ ADP_Grid::ADP_Grid()
 
 void ADP_Grid::SpawnCurrentObject()
 {
-    if (IsValid(PreviewObject) && CanSpawn())
+    if (IsValid(PreviewObject) && CanSpawn() && !bIsSpawning)
     {
         bIsSpawning = true;
         TargetPreviewScale = MaxPreviewScale;

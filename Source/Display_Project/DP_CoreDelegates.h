@@ -15,7 +15,7 @@ DECLARE_MULTICAST_DELEGATE(FOnDestroyAllSignature);
 DECLARE_MULTICAST_DELEGATE(FOnDestroySelectedSignature);
 DECLARE_MULTICAST_DELEGATE(FOnWelcomeScreenCompletedSignature);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnUpdatePreviewLocationSignature, AActor*);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectSelectedSignature, AActor*, const FTransform&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnObjectSelectedSignature, AActor*);
 DECLARE_MULTICAST_DELEGATE(FOnFadeoutAnimationFinishedSignature);
 DECLARE_MULTICAST_DELEGATE(FOnClickedSignature);
 DECLARE_MULTICAST_DELEGATE(FOnQuitSignature);
