@@ -59,12 +59,6 @@ protected:
     float ZoomingSpeed{6.0f};
 
     UPROPERTY(EditDefaultsOnly, Category = "Input|Rotation")
-    float RotationSpeed{1.6f};
-
-    UPROPERTY(EditDefaultsOnly, Category = "Input|Rotation")
-    float InspectedObjectRotationSpeed{2.0f};
-
-    UPROPERTY(EditDefaultsOnly, Category = "Input|Rotation")
     FRotator DefaultRotation{-90.0, 0.0, -90.0};
 
     UPROPERTY(EditDefaultsOnly, Category = "Input|Rotation")

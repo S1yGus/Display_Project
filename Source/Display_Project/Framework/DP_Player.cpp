@@ -1,6 +1,7 @@
 // Display_Project, all rights reserved.
 
 #include "Framework/DP_Player.h"
+#include "Framework/DP_GameUserSettings.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
@@ -188,16 +189,20 @@ void ADP_Player::OnRotationHandler(const FInputActionValue& Value)
 {
     const auto AxisValue = Value.Get<FVector2D>();
 
-    if (SpringArmComponent->GetRelativeRotation().Pitch < RotationPitchThreshold || AxisValue.Y < 0.0)
+    if (auto* GameUserSettings = UDP_GameUserSettings::Get())
     {
-        SpringArmComponent->AddLocalRotation(FRotator{AxisValue.Y * RotationSpeed, 0.0, 0.0});
-        if (SpringArmComponent->GetRelativeRotation().Pitch > RotationPitchThreshold)
+        const auto RotationSpeed = GameUserSettings->GetRotationSpeed();
+        if (SpringArmComponent->GetRelativeRotation().Pitch < RotationPitchThreshold || AxisValue.Y < 0.0)
         {
-            const FRotator RotationThreshold{RotationPitchThreshold, SpringArmComponent->GetRelativeRotation().Yaw, SpringArmComponent->GetRelativeRotation().Roll};
-            SpringArmComponent->SetRelativeRotation(RotationThreshold);
+            SpringArmComponent->AddLocalRotation(FRotator{AxisValue.Y * RotationSpeed, 0.0, 0.0});
+            if (SpringArmComponent->GetRelativeRotation().Pitch > RotationPitchThreshold)
+            {
+                const FRotator RotationThreshold{RotationPitchThreshold, SpringArmComponent->GetRelativeRotation().Yaw, SpringArmComponent->GetRelativeRotation().Roll};
+                SpringArmComponent->SetRelativeRotation(RotationThreshold);
+            }
         }
+        SpringArmComponent->AddWorldRotation(FRotator{0.0, AxisValue.X * RotationSpeed, 0.0});
     }
-    SpringArmComponent->AddWorldRotation(FRotator{0.0, AxisValue.X * RotationSpeed, 0.0});
 }
 
 void ADP_Player::OnResetRotationHandler()
@@ -209,8 +214,12 @@ void ADP_Player::OnInspectedObjectRotationHandler(const FInputActionValue& Value
 {
     const FVector2D AxisValue = Value.Get<FVector2D>();
 
-    InspectionPoint->AddRelativeRotation(FQuat(FVector(0.0f, 0.0f, 1.0f), FMath::DegreesToRadians(AxisValue.X * InspectedObjectRotationSpeed)));
-    InspectionPoint->AddRelativeRotation(FQuat(FVector(0.0f, 1.0f, 0.0f), FMath::DegreesToRadians(AxisValue.Y * InspectedObjectRotationSpeed)));
+    if (auto* GameUserSettings = UDP_GameUserSettings::Get())
+    {
+        const auto RotationSpeed = GameUserSettings->GetRotationSpeed();
+        InspectionPoint->AddRelativeRotation(FQuat(FVector(0.0f, 0.0f, 1.0f), FMath::DegreesToRadians(AxisValue.X * RotationSpeed)));
+        InspectionPoint->AddRelativeRotation(FQuat(FVector(0.0f, 1.0f, 0.0f), FMath::DegreesToRadians(AxisValue.Y * RotationSpeed)));
+    }
 }
 
 void ADP_Player::OnInspectedObjectScalingHandler()

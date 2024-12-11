@@ -14,7 +14,8 @@ enum class EGameState : uint8
     Interact,
     Select,
     Warning,
-    Inspect
+    Inspect,
+    Options
 };
 
 UENUM()
@@ -39,5 +40,16 @@ enum class EWidgetType : uint8
 {
     Welcome = 0,
     Game,
-    Inspect
+    Inspect,
+    Options
+};
+
+UENUM()
+enum class EVideoQuality : uint8
+{
+    Low = 0,
+    Medium,
+    High,
+    Epic,
+    Cinematic
 };

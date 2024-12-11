@@ -56,6 +56,7 @@ void UDP_GameWidget::NativeOnInitialized()
 
     ControlPanelWidget->OnQuit.AddUObject(this, &ThisClass::OnQuitHandler);
     ControlPanelWidget->OnToggleScreenMode.AddUObject(this, &ThisClass::OnToggleScreenModeHandler);
+    ControlPanelWidget->OnShowOptions.AddUObject(this, &ThisClass::OnShowOptionsHandler);
     ControlPanelWidget->OnShowHelp.AddUObject(this, &ThisClass::OnShowHelpHandler);
 }
 
@@ -87,6 +88,11 @@ void UDP_GameWidget::OnQuitHandler()
 void UDP_GameWidget::OnToggleScreenModeHandler()
 {
     OnToggleScreenMode.Broadcast();
+}
+
+void UDP_GameWidget::OnShowOptionsHandler()
+{
+    OnShowOptions.Broadcast();
 }
 
 void UDP_GameWidget::OnShowHelpHandler()
