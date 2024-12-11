@@ -22,12 +22,18 @@ public:
     FOnDestroyAllSignature OnDestroyAll;
     FOnQuitSignature OnQuit;
     FOnToggleScreenModeSignature OnToggleScreenMode;
+    FOnShowOptionsSignature OnShowOptions;
+    FOnStopShowingOptionsSignature OnStopShowingOptions;
+    FOnVideoQualityChangedSignature OnVideoQualityChanged;
+    FOnRotationSpeedChangedSignature OnRotationSpeedChanged;
+    FOnSoundVolumeChangedSignature OnSoundVolumeChanged;
     FOnShowHelpSignature OnShowHelp;
     FOnWarningResponseSignature OnWarningResponse;
     FOnInspectSignature OnInspect;
     FOnInspectCompletedSignature OnInspectCompleted;
 
-    void CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap);
+    void CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap, const FVideoQualityOptionsData& VideoQualityOptionsData, float RotationSpeedNormalized,
+                       float SoundVolume);
     void ChangeCurrentWidget(EGameState GameState);
     void DeselectPlacementObject();
     void Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes);
@@ -43,6 +49,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<UDP_BaseAnimatedWidget> InspectWidgetClasses;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Classes")
+    TSubclassOf<UDP_BaseAnimatedWidget> OptionsWidgetClasses;
+
     virtual void BeginPlay() override;
 
 private:
@@ -53,6 +62,12 @@ private:
     EWidgetType CurrentWidgetType{EWidgetType::Welcome};
 
     [[nodiscard]] FORCEINLINE UDP_GameWidget* GetGameWidget() const;
+
+    FORCEINLINE void CreateWelcomeWidget();
+    FORCEINLINE void CreateGameWidget(const TMap<EObjectType, FObjectData>& ObjectsMap);
+    FORCEINLINE void CreateInspectWidget();
+    FORCEINLINE void CreateOptionsWidget(const FVideoQualityOptionsData& VideoQualityOptionsData, float RotationSpeedNormalized, float SoundVolume);
+
     FORCEINLINE void SetCurrentWidget();
     FORCEINLINE void HandleGameWidget(EGameState GameState);
 
@@ -63,6 +78,11 @@ private:
     void OnFadeoutAnimationFinishedHandler();
     void OnQuitHandler();
     void OnToggleScreenModeHandler();
+    void OnShowOptionsHandler();
+    void OnStopShowingOptionsHandler();
+    void OnVideoQualityChangedHandler(EVideoQuality VideoQuality);
+    void OnRotationSpeedChangedHandler(float RotationSpeedNormalized);
+    void OnSoundVolumeChangedHandler(float SoundVolume);
     void OnShowHelpHandler();
     void OnWarningResponseHandler(bool bCondition);
     void OnInspectHandler();

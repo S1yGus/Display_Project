@@ -67,6 +67,8 @@ EWidgetType UI::GameStateToWidgetType(EGameState GameState)
             return EWidgetType::Game;
         case EGameState::Inspect:
             return EWidgetType::Inspect;
+        case EGameState::Options:
+            return EWidgetType::Options;
         default:
             return EWidgetType::Game;
     }

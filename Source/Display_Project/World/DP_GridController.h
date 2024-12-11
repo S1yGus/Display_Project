@@ -59,7 +59,10 @@ private:
     FORCEINLINE void UpdatePlayerLocation(const FVector& Location);
     FORCEINLINE void ShowWarning(const FText& WarningText, FDeferredAction&& Action);
 
-    void SpawnGrid();
+    FORCEINLINE void SetupPlayerController();
+    FORCEINLINE void SetupHUD();
+    FORCEINLINE void SpawnGrid();
+    FORCEINLINE void InitWelcomeState();
 
     void SetGameState(EGameState NewGameState);
     void SetGameState_Internal(EGameState NewGameState);
@@ -76,6 +79,11 @@ private:
     void OnDestroyAllHandler();
     void OnQuitHandler();
     void OnToggleScreenModeHandler();
+    void OnShowOptionsHandler();
+    void OnStopShowingOptionsHandler();
+    void OnVideoQualityChangedHandler(EVideoQuality VideoQuality);
+    void OnRotationSpeedChangedHandler(float RotationSpeedNormalized);
+    void OnSoundVolumeChangedHandler(float SoundVolume);
     void OnShowHelpHandler();
     void OnWarningResponseHandler(bool bCondition);
     void OnInspectHandler();

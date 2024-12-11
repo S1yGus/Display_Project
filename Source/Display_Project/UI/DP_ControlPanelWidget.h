@@ -17,6 +17,7 @@ class DISPLAY_PROJECT_API UDP_ControlPanelWidget : public UUserWidget
 public:
     FOnQuitSignature OnQuit;
     FOnToggleScreenModeSignature OnToggleScreenMode;
+    FOnShowOptionsSignature OnShowOptions;
     FOnShowHelpSignature OnShowHelp;
 
 protected:
@@ -27,6 +28,9 @@ protected:
     TObjectPtr<UDP_ControlPanelButtonWidget> ToggleScreenModeButton;
 
     UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UDP_ControlPanelButtonWidget> OptionsButton;
+
+    UPROPERTY(meta = (BindWidget))
     TObjectPtr<UDP_ControlPanelButtonWidget> HelpButton;
 
     virtual void NativeOnInitialized() override;
@@ -34,5 +38,6 @@ protected:
 private:
     void OnQuitHandler();
     void OnToggleScreenModeHandler();
+    void OnShowOptionsHandler();
     void OnShowHelpHandler();
 };

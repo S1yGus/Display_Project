@@ -8,6 +8,7 @@
 #include "Framework/DP_PlayerController.h"
 #include "Framework/DP_Player.h"
 #include "Framework/DP_HUD.h"
+#include "Framework/DP_GameUserSettings.h"
 #include "Engine/TargetPoint.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -23,7 +24,7 @@ void ADP_GridController::BeginPlay()
     const UEnum* ObjectEnum = StaticEnum<EObjectType>();
     for (int32 i = 0; i < ObjectEnum->NumEnums() - 1; ++i)
     {
-        auto CurrentType = static_cast<EObjectType>(i);
+        const auto CurrentType = static_cast<EObjectType>(i);
         if (CurrentType != EObjectType::None)
         {
             check(ObjectsMap.Contains(CurrentType));
@@ -32,40 +33,10 @@ void ADP_GridController::BeginPlay()
     }
 #endif    // WITH_EDITOR
 
+    SetupPlayerController();
+    SetupHUD();
     SpawnGrid();
-
-    if (auto* PC = GetPlayerController())
-    {
-        PC->OnUpdatePreviewLocation.AddUObject(this, &ThisClass::OnUpdatePreviewLocationHandler);
-        PC->OnObjectSpawn.AddUObject(this, &ThisClass::OnSpawnCurrentObjectHandler);
-        PC->OnObjectSelected.AddUObject(this, &ThisClass::OnSelectHandler);
-        PC->OnWelcomeScreenCompleted.AddUObject(this, &ThisClass::OnSwitchToGameHandler);
-        PC->UpdatePlayerLocation(WelcomePoint->GetActorLocation());
-    }
-
-    if (auto* HUD = GetHUD())
-    {
-        HUD->OnObjectTypeChanged.AddUObject(this, &ThisClass::SetCurrentObjectType);
-        HUD->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
-        HUD->OnDestroySelected.AddUObject(this, &ThisClass::OnDestroySelectedHandler);
-        HUD->OnDestroyAll.AddUObject(this, &ThisClass::OnDestroyAllHandler);
-        HUD->OnQuit.AddUObject(this, &ThisClass::OnQuitHandler);
-        HUD->OnToggleScreenMode.AddUObject(this, &ThisClass::OnToggleScreenModeHandler);
-        HUD->OnShowHelp.AddUObject(this, &ThisClass::OnShowHelpHandler);
-        HUD->OnWarningResponse.AddUObject(this, &ThisClass::OnWarningResponseHandler);
-        HUD->OnInspect.AddUObject(this, &ThisClass::OnInspectHandler);
-        HUD->OnInspectCompleted.AddUObject(this, &ThisClass::OnInspectCompletedHandler);
-        HUD->CreateWidgets(ObjectsMap);
-    }
-
-    FTimerHandle WelcomeTimerHandle;
-    GetWorldTimerManager().SetTimer(
-        WelcomeTimerHandle,
-        [this]()
-        {
-            SetGameState_Internal(EGameState::Welcome);
-        },
-        WelcomeDelay, false);
+    InitWelcomeState();
 }
 
 ADP_PlayerController* ADP_GridController::GetPlayerController() const
@@ -109,11 +80,65 @@ void ADP_GridController::ShowWarning(const FText& WarningText, FDeferredAction&&
     }
 }
 
+void ADP_GridController::SetupPlayerController()
+{
+    if (auto* PC = GetPlayerController())
+    {
+        PC->OnUpdatePreviewLocation.AddUObject(this, &ThisClass::OnUpdatePreviewLocationHandler);
+        PC->OnObjectSpawn.AddUObject(this, &ThisClass::OnSpawnCurrentObjectHandler);
+        PC->OnObjectSelected.AddUObject(this, &ThisClass::OnSelectHandler);
+        PC->OnWelcomeScreenCompleted.AddUObject(this, &ThisClass::OnSwitchToGameHandler);
+        PC->UpdatePlayerLocation(WelcomePoint->GetActorLocation());
+    }
+}
+
+void ADP_GridController::SetupHUD()
+{
+    if (auto* HUD = GetHUD())
+    {
+        HUD->OnObjectTypeChanged.AddUObject(this, &ThisClass::SetCurrentObjectType);
+        HUD->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
+        HUD->OnDestroySelected.AddUObject(this, &ThisClass::OnDestroySelectedHandler);
+        HUD->OnDestroyAll.AddUObject(this, &ThisClass::OnDestroyAllHandler);
+        HUD->OnQuit.AddUObject(this, &ThisClass::OnQuitHandler);
+        HUD->OnToggleScreenMode.AddUObject(this, &ThisClass::OnToggleScreenModeHandler);
+        HUD->OnShowOptions.AddUObject(this, &ThisClass::OnShowOptionsHandler);
+        HUD->OnStopShowingOptions.AddUObject(this, &ThisClass::OnStopShowingOptionsHandler);
+        HUD->OnShowHelp.AddUObject(this, &ThisClass::OnShowHelpHandler);
+        HUD->OnWarningResponse.AddUObject(this, &ThisClass::OnWarningResponseHandler);
+        HUD->OnInspect.AddUObject(this, &ThisClass::OnInspectHandler);
+        HUD->OnInspectCompleted.AddUObject(this, &ThisClass::OnInspectCompletedHandler);
+        HUD->OnVideoQualityChanged.AddUObject(this, &ThisClass::OnVideoQualityChangedHandler);
+        HUD->OnRotationSpeedChanged.AddUObject(this, &ThisClass::OnRotationSpeedChangedHandler);
+        HUD->OnSoundVolumeChanged.AddUObject(this, &ThisClass::OnSoundVolumeChangedHandler);
+
+        if (const auto* GameUserSettings = UDP_GameUserSettings::Get())
+        {
+            HUD->CreateWidgets(ObjectsMap,                                        //
+                               GameUserSettings->GetVideoQualityOptionsData(),    //
+                               GameUserSettings->GetRotationSpeedNormalized(),    //
+                               GameUserSettings->GetSoundVolume());
+        }
+    }
+}
+
 void ADP_GridController::SpawnGrid()
 {
     Grid = GetWorld()->SpawnActor<ADP_Grid>(GridClass, FVector{0.0, 0.0, GirdHeight}, FRotator::ZeroRotator);
     check(Grid);
     Grid->OnObjectSpawnCompleted.AddUObject(this, &ThisClass::OnObjectSpawnCompletedHandler);
+}
+
+void ADP_GridController::InitWelcomeState()
+{
+    FTimerHandle WelcomeTimerHandle;
+    GetWorldTimerManager().SetTimer(
+        WelcomeTimerHandle,
+        [this]()
+        {
+            SetGameState_Internal(EGameState::Welcome);
+        },
+        WelcomeDelay, false);
 }
 
 void ADP_GridController::SetGameState(EGameState NewGameState)
@@ -271,7 +296,44 @@ void ADP_GridController::OnQuitHandler()
 
 void ADP_GridController::OnToggleScreenModeHandler()
 {
-    // TODO
+    if (auto* GameUserSettings = UDP_GameUserSettings::Get())
+    {
+        GameUserSettings->ToggleScreenMode();
+    }
+}
+
+void ADP_GridController::OnShowOptionsHandler()
+{
+    SetGameState(EGameState::Options);
+}
+
+void ADP_GridController::OnStopShowingOptionsHandler()
+{
+    SetGameState(PrevGameState);
+}
+
+void ADP_GridController::OnVideoQualityChangedHandler(EVideoQuality VideoQuality)
+{
+    if (auto* GameUserSettings = UDP_GameUserSettings::Get())
+    {
+        GameUserSettings->SetVideoQuality(VideoQuality);
+    }
+}
+
+void ADP_GridController::OnRotationSpeedChangedHandler(float RotationSpeedNormalized)
+{
+    if (auto* GameUserSettings = UDP_GameUserSettings::Get())
+    {
+        GameUserSettings->SetRotationSpeed(RotationSpeedNormalized);
+    }
+}
+
+void ADP_GridController::OnSoundVolumeChangedHandler(float SoundVolume)
+{
+    if (auto* GameUserSettings = UDP_GameUserSettings::Get())
+    {
+        GameUserSettings->SetSoundVolume(SoundVolume);
+    }
 }
 
 void ADP_GridController::OnShowHelpHandler()

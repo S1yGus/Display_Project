@@ -23,3 +23,12 @@ struct FObjectData
     UPROPERTY(EditAnywhere)
     TSet<EAttributeType> Attributes;
 };
+
+USTRUCT()
+struct FVideoQualityOptionsData
+{
+    GENERATED_USTRUCT_BODY()
+
+    TArray<FString> VideoQualityOptions;
+    FString CurrentVideoQualityOption;
+};

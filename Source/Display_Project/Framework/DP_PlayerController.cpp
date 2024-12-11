@@ -50,7 +50,7 @@ void ADP_PlayerController::BeginPlay()
     check(AnyKeyAction);
     check(GameInputMapping);
     check(WelcomeInputMapping);
-    check(WarningInputMapping);
+    check(NoInputMapping);
     check(InspectInputMapping);
 
     SetInputMode(FInputModeGameAndUI().SetHideCursorDuringCapture(false));
@@ -81,8 +81,10 @@ void ADP_PlayerController::UpdateInputMappingContext()
                 case EGameState::Welcome:
                     CurrentInputMapping = WelcomeInputMapping;
                     break;
+                case EGameState::Options:
+                    [[fallthrough]];
                 case EGameState::Warning:
-                    CurrentInputMapping = WarningInputMapping;
+                    CurrentInputMapping = NoInputMapping;
                     break;
                 case EGameState::Inspect:
                     CurrentInputMapping = InspectInputMapping;

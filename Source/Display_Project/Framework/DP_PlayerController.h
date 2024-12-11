@@ -45,7 +45,7 @@ protected:
     TObjectPtr<UInputMappingContext> WelcomeInputMapping;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
-    TObjectPtr<UInputMappingContext> WarningInputMapping;
+    TObjectPtr<UInputMappingContext> NoInputMapping;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputMappingContext> InspectInputMapping;
