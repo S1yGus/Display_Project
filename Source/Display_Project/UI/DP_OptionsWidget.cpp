@@ -53,5 +53,5 @@ void UDP_OptionsWidget::OnSoundVolumeChangedHandler()
 
 void UDP_OptionsWidget::OnClickedBackButtonHandler()
 {
-    OnStopShowingOptions.Broadcast();
+    OnBack.Broadcast();
 }

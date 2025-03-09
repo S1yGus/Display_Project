@@ -12,6 +12,7 @@ ADP_PlaceableActor::ADP_PlaceableActor()
     check(RootComponent);
 
     FXComponent = CreateDefaultSubobject<UDP_FXComponent>("FXComponent");
+    check(FXComponent);
 }
 
 FString ADP_PlaceableActor::GetObjectName() const
@@ -23,15 +24,17 @@ FString ADP_PlaceableActor::GetObjectName() const
     return GetName();
 }
 
-void ADP_PlaceableActor::Init(FAttributesMap&& Attributes)
+void ADP_PlaceableActor::Init(FAttributesMap&& Attributes, FGuid&& InGuid)
 {
     AttributesMap = MoveTemp(Attributes);
+    Guid = MoveTemp(InGuid);
     UpdateAttributes();
 }
 
-void ADP_PlaceableActor::Init(const FAttributesMap& Attributes)
+void ADP_PlaceableActor::Init(const FAttributesMap& Attributes, const FGuid& InGuid)
 {
     AttributesMap = Attributes;
+    Guid = InGuid;
     UpdateAttributes();
 }
 
@@ -41,13 +44,13 @@ void ADP_PlaceableActor::UpdateAttribute(EAttributeType AttributeType, FAttribut
     UpdateAttributes();
 }
 
+void ADP_PlaceableActor::UpdateAttributes()
+{
+}
+
 void ADP_PlaceableActor::Interact(const FTransform& InteractionTransform)
 {
     FXComponent->MakeInteractFX(InteractionTransform);
-}
-
-void ADP_PlaceableActor::UpdateAttributes()
-{
 }
 
 void ADP_PlaceableActor::SetAttribute(EAttributeType AttributeType, FAttributeData AttributeData)

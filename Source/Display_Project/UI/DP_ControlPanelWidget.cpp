@@ -10,11 +10,13 @@ void UDP_ControlPanelWidget::NativeOnInitialized()
     check(QuitButton);
     check(ToggleScreenModeButton);
     check(OptionsButton);
+    check(SaveAndLoadButton);
     check(HelpButton);
 
     QuitButton->OnClicked.AddUObject(this, &ThisClass::OnQuitHandler);
     ToggleScreenModeButton->OnClicked.AddUObject(this, &ThisClass::OnToggleScreenModeHandler);
     OptionsButton->OnClicked.AddUObject(this, &ThisClass::OnShowOptionsHandler);
+    SaveAndLoadButton->OnClicked.AddUObject(this, &ThisClass::OnShowSaveAndLoadHandler);
     HelpButton->OnClicked.AddUObject(this, &ThisClass::OnShowHelpHandler);
 }
 
@@ -31,6 +33,11 @@ void UDP_ControlPanelWidget::OnToggleScreenModeHandler()
 void UDP_ControlPanelWidget::OnShowOptionsHandler()
 {
     OnShowOptions.Broadcast();
+}
+
+void UDP_ControlPanelWidget::OnShowSaveAndLoadHandler()
+{
+    OnShowSaveAndLoad.Broadcast();
 }
 
 void UDP_ControlPanelWidget::OnShowHelpHandler()

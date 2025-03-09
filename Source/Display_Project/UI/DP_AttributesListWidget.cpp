@@ -80,16 +80,16 @@ TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateAttributeWid
                         if (auto* DisplayActor = Cast<ADP_Display_1>(Actor))
                         {
                             FAttributeData Data;
-                            Data.Set<TObjectPtr<ADP_Display_1>>(DisplayActor);
+                            Data.Set<FGuid>(DisplayActor->GetObjectGuid());
                             AttributeData.Emplace(Data);
                             ComboBox->AddOption(DisplayActor->GetObjectName());
                         }
                     }
                 },
-                [](const FAttributeData& Data)
+                [this](const FAttributeData& Data)
                 {
-                    auto Display = Data.Get<TObjectPtr<ADP_Display_1>>();
-                    return Display->GetObjectName();
+                    const auto* Display = DP::GetPlaceableActorByGuid<ADP_Display_1>(GetWorld(), Data.Get<FGuid>());
+                    return Display ? Display->GetObjectName() : "";
                 });
             break;
         default:

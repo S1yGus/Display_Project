@@ -29,12 +29,15 @@ void ADP_Display_1::UpdateAttributes()
 
     if (AttributesMap.Contains(EAttributeType::DisplayText))
     {
-        RefreshText(AttributesMap[EAttributeType::DisplayText].Get<FString>().ToUpper());
+        RefreshText(AttributesMap[EAttributeType::DisplayText].Get<FString>());
     }
 }
 
 void ADP_Display_1::RefreshText(const FString& Text)
 {
-    DisplayText = Text.ToUpper();
-    ScrollingAlgorithm->RefreshText(DisplayText);
+    if (IsValid(ScrollingAlgorithm))
+    {
+        DisplayText = Text.ToUpper();
+        ScrollingAlgorithm->RefreshText(DisplayText);
+    }
 }

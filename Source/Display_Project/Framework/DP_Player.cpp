@@ -50,7 +50,7 @@ void ADP_Player::StartInspect(TSubclassOf<ADP_PlaceableActor> Class, const FAttr
     }
     InspectedObject = GetWorld() ? GetWorld()->SpawnActor<ADP_PlaceableActor>(Class) : nullptr;
     check(InspectedObject);
-    InspectedObject->Init(Attributes);
+    InspectedObject->Init(Attributes, FGuid(0, 0, 0, 0));
     InspectedObject->AttachToComponent(InspectionPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
     // Scale

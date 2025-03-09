@@ -7,7 +7,6 @@
 #include "DP_Node.generated.h"
 
 class UBoxComponent;
-class ADP_PlaceableActor;
 
 UCLASS()
 class DISPLAY_PROJECT_API ADP_Node : public AActor
@@ -17,7 +16,7 @@ class DISPLAY_PROJECT_API ADP_Node : public AActor
 public:
     ADP_Node();
 
-    void Occupy(ADP_PlaceableActor* NewOccupiedObject);
+    void Occupy(const FGuid& Guid);
     void Free();
     [[nodiscard]] bool IsOccupied() const;
     void UpdateCollisionScale(const FVector& CollisionSize);
@@ -30,8 +29,7 @@ protected:
     void UpdateOccupiedState(bool bOccupiedState);
 
 private:
-    UPROPERTY()
-    TObjectPtr<ADP_PlaceableActor> OccupiedObject;
+    FGuid OccupyingGuid;
     UPROPERTY()
     TObjectPtr<ADP_Node> LeftNode;
     UPROPERTY()

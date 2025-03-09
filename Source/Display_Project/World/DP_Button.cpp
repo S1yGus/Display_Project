@@ -2,6 +2,7 @@
 
 #include "World/DP_Button.h"
 #include "World/DP_Display_1.h"
+#include "DP_Utils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogButton, All, All)
 
@@ -49,6 +50,6 @@ void ADP_Button::UpdateAttributes()
     }
     if (AttributesMap.Contains(EAttributeType::Display))
     {
-        Display = AttributesMap[EAttributeType::Display].Get<TObjectPtr<ADP_Display_1>>();
+        Display = DP::GetPlaceableActorByGuid<ADP_Display_1>(GetWorld(), AttributesMap[EAttributeType::Display].Get<FGuid>());
     }
 }

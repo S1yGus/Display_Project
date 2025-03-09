@@ -1,6 +1,24 @@
 // Display_Project, all rights reserved.
 
 #include "DP_Utils.h"
+#include "Kismet/GameplayStatics.h"
+#include "World/DP_PlaceableActor.h"
+
+AActor* DP::GetPlaceableActorByGuid(const UObject* WorldContextObject, const FGuid& Guid)
+{
+    TArray<AActor*> FoundActors;
+    UGameplayStatics::GetAllActorsOfClass(WorldContextObject, ADP_PlaceableActor::StaticClass(), FoundActors);
+    auto** FoundActor = FoundActors.FindByPredicate(
+        [&Guid](auto* Actor)
+        {
+            if (auto* PlaceableActor = Cast<ADP_PlaceableActor>(Actor))
+            {
+                return PlaceableActor->GetObjectGuid() == Guid;
+            }
+            return false;
+        });
+    return FoundActor ? *FoundActor : nullptr;
+}
 
 uint64 UI::UniqueID()
 {
@@ -62,14 +80,14 @@ EWidgetType UI::GameStateToWidgetType(EGameState GameState)
         case EGameState::Interact:
             [[fallthrough]];
         case EGameState::Select:
-            [[fallthrough]];
-        case EGameState::Warning:
             return EWidgetType::Game;
         case EGameState::Inspect:
             return EWidgetType::Inspect;
         case EGameState::Options:
             return EWidgetType::Options;
+        case EGameState::SaveAndLoad:
+            return EWidgetType::SaveAndLoad;
         default:
-            return EWidgetType::Game;
+            return EWidgetType::None;
     }
 }

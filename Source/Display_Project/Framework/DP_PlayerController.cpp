@@ -84,6 +84,8 @@ void ADP_PlayerController::UpdateInputMappingContext()
                 case EGameState::Options:
                     [[fallthrough]];
                 case EGameState::Warning:
+                    [[fallthrough]];
+                case EGameState::SaveAndLoad:
                     CurrentInputMapping = NoInputMapping;
                     break;
                 case EGameState::Inspect:

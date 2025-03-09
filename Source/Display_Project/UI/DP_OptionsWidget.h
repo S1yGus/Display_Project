@@ -18,7 +18,7 @@ class DISPLAY_PROJECT_API UDP_OptionsWidget : public UDP_BaseAnimatedWidget
     GENERATED_BODY()
 
 public:
-    FOnStopShowingOptionsSignature OnStopShowingOptions;
+    FOnBackSignature OnBack;
     FOnVideoQualityChangedSignature OnVideoQualityChanged;
     FOnRotationSpeedChangedSignature OnRotationSpeedChanged;
     FOnSoundVolumeChangedSignature OnSoundVolumeChanged;

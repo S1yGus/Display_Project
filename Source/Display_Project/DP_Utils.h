@@ -18,6 +18,14 @@ FString EnumToString(T EnumValue)
     return FString("Invalid");
 }
 
+AActor* GetPlaceableActorByGuid(const UObject* WorldContextObject, const FGuid& Guid);
+
+template <class T>
+T* GetPlaceableActorByGuid(const UObject* WorldContextObject, const FGuid& Guid)
+{
+    return Cast<T>(GetPlaceableActorByGuid(WorldContextObject, Guid));
+}
+
 }    // namespace DP
 
 namespace UI

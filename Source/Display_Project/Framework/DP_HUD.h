@@ -9,6 +9,7 @@
 
 class UDP_BaseAnimatedWidget;
 class UDP_GameWidget;
+class UDP_SaveAndLoadWidget;
 
 UCLASS()
 class DISPLAY_PROJECT_API ADP_HUD : public AHUD
@@ -23,10 +24,14 @@ public:
     FOnQuitSignature OnQuit;
     FOnToggleScreenModeSignature OnToggleScreenMode;
     FOnShowOptionsSignature OnShowOptions;
-    FOnStopShowingOptionsSignature OnStopShowingOptions;
+    FOnBackSignature OnBack;
     FOnVideoQualityChangedSignature OnVideoQualityChanged;
     FOnRotationSpeedChangedSignature OnRotationSpeedChanged;
     FOnSoundVolumeChangedSignature OnSoundVolumeChanged;
+    FOnShowSaveAndLoadSignature OnShowSaveAndLoad;
+    FOnSaveSignature OnSave;
+    FOnLoadSignature OnLoad;
+    FOnDeleteSaveSignature OnDeleteSave;
     FOnShowHelpSignature OnShowHelp;
     FOnWarningResponseSignature OnWarningResponse;
     FOnInspectSignature OnInspect;
@@ -35,6 +40,7 @@ public:
     void CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap, const FVideoQualityOptionsData& VideoQualityOptionsData, float RotationSpeedNormalized,
                        float SoundVolume);
     void ChangeCurrentWidget(EGameState GameState);
+    void UpdateSaves(const TArray<FSaveRecordMetaData>& SaveRecordsMetaData);
     void DeselectPlacementObject();
     void Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes);
     bool ShowWarning(const FText& WarningText);
@@ -52,6 +58,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<UDP_BaseAnimatedWidget> OptionsWidgetClasses;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Classes")
+    TSubclassOf<UDP_BaseAnimatedWidget> SaveAndLoadWidgetClasses;
+
     virtual void BeginPlay() override;
 
 private:
@@ -62,11 +71,13 @@ private:
     EWidgetType CurrentWidgetType{EWidgetType::Welcome};
 
     [[nodiscard]] FORCEINLINE UDP_GameWidget* GetGameWidget() const;
+    [[nodiscard]] FORCEINLINE UDP_SaveAndLoadWidget* GetSaveAndLoadWidget() const;
 
     FORCEINLINE void CreateWelcomeWidget();
     FORCEINLINE void CreateGameWidget(const TMap<EObjectType, FObjectData>& ObjectsMap);
     FORCEINLINE void CreateInspectWidget();
     FORCEINLINE void CreateOptionsWidget(const FVideoQualityOptionsData& VideoQualityOptionsData, float RotationSpeedNormalized, float SoundVolume);
+    FORCEINLINE void CreateSaveAndLoadWidget();
 
     FORCEINLINE void SetCurrentWidget();
     FORCEINLINE void HandleGameWidget(EGameState GameState);
@@ -79,10 +90,14 @@ private:
     void OnQuitHandler();
     void OnToggleScreenModeHandler();
     void OnShowOptionsHandler();
-    void OnStopShowingOptionsHandler();
+    void OnBackHandler();
     void OnVideoQualityChangedHandler(EVideoQuality VideoQuality);
     void OnRotationSpeedChangedHandler(float RotationSpeedNormalized);
     void OnSoundVolumeChangedHandler(float SoundVolume);
+    void OnShowSaveAndLoadHandler();
+    void OnSaveHandler(const FText& SaveName);
+    void OnLoadHandler(const FGuid& Guid);
+    void OnDeleteSaveHandler(const FGuid& Guid);
     void OnShowHelpHandler();
     void OnWarningResponseHandler(bool bCondition);
     void OnInspectHandler();

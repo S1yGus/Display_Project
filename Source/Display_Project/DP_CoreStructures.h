@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DP_CoreEnums.h"
+#include "DP_CoreAliases.h"
 #include "World/DP_PlaceableActor.h"
 #include "DP_CoreStructures.generated.h"
 
@@ -25,10 +26,82 @@ struct FObjectData
 };
 
 USTRUCT()
+struct FBytesAttribute
+{
+    GENERATED_USTRUCT_BODY()
+
+    void Sterilize(const FAttributeData& InAttributeData);
+    void Deserialize(FAttributeData& OutAttributeData) const;
+
+private:
+    UPROPERTY()
+    TArray<uint8> Bytes;
+};
+
+USTRUCT()
+struct FObjectSaveData
+{
+    GENERATED_USTRUCT_BODY()
+
+    UPROPERTY()
+    EObjectType Type;
+
+    UPROPERTY()
+    FGuid Guid;
+
+    UPROPERTY()
+    FTransform Transform;
+
+    void SterilizeAttributes(const FAttributesMap& InAttributes);
+    void DeserializeAttributes(FAttributesMap& OutAttributes) const;
+
+private:
+    UPROPERTY()
+    TMap<EAttributeType, FBytesAttribute> Attributes;
+};
+
+USTRUCT()
 struct FVideoQualityOptionsData
 {
     GENERATED_USTRUCT_BODY()
 
     TArray<FString> VideoQualityOptions;
+
     FString CurrentVideoQualityOption;
+};
+
+USTRUCT()
+struct FSaveRecordMetaData
+{
+    GENERATED_USTRUCT_BODY()
+
+    UPROPERTY()
+    FText Name;
+
+    UPROPERTY()
+    FGuid Guid;
+};
+
+USTRUCT()
+struct FSaveRecordData
+{
+    GENERATED_USTRUCT_BODY()
+
+    UPROPERTY()
+    TArray<FObjectSaveData> ObjectData;
+
+    UPROPERTY()
+    TArray<FGuid> NodesState;
+};
+
+USTRUCT()
+struct FSaveRecord
+{
+    GENERATED_USTRUCT_BODY()
+
+    UPROPERTY()
+    FSaveRecordMetaData MetaData;
+
+    UPROPERTY()
+    FSaveRecordData Data;
 };

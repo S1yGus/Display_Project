@@ -18,6 +18,7 @@ public:
     FOnQuitSignature OnQuit;
     FOnToggleScreenModeSignature OnToggleScreenMode;
     FOnShowOptionsSignature OnShowOptions;
+    FOnShowSaveAndLoadSignature OnShowSaveAndLoad;
     FOnShowHelpSignature OnShowHelp;
 
 protected:
@@ -31,6 +32,9 @@ protected:
     TObjectPtr<UDP_ControlPanelButtonWidget> OptionsButton;
 
     UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UDP_ControlPanelButtonWidget> SaveAndLoadButton;
+
+    UPROPERTY(meta = (BindWidget))
     TObjectPtr<UDP_ControlPanelButtonWidget> HelpButton;
 
     virtual void NativeOnInitialized() override;
@@ -39,5 +43,6 @@ private:
     void OnQuitHandler();
     void OnToggleScreenModeHandler();
     void OnShowOptionsHandler();
+    void OnShowSaveAndLoadHandler();
     void OnShowHelpHandler();
 };

@@ -5,6 +5,8 @@
 #include "Framework/DP_HUD.h"
 #include "Framework/DP_Player.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Save/DP_GameSave.h"
+#include "Kismet/GameplayStatics.h"
 
 ADP_GameModeBase::ADP_GameModeBase()
 {
@@ -25,4 +27,69 @@ ADP_GameModeBase::ADP_GameModeBase()
     {
         DefaultPawnClass = Player.Class;
     }
+}
+
+bool ADP_GameModeBase::AddSaveRecord(FSaveRecord&& SaveRecord)
+{
+    if (GameSave)
+    {
+        GameSave->AddSaveRecord(MoveTemp(SaveRecord));
+        return UGameplayStatics::SaveGameToSlot(GameSave, GameSaveSlotName, 0);
+    }
+
+    return false;
+}
+
+bool ADP_GameModeBase::DeleteSaveRecord(const FGuid& Guid)
+{
+    if (GameSave)
+    {
+        if (GameSave->DeleteSaveRecord(Guid))
+        {
+            return UGameplayStatics::SaveGameToSlot(GameSave, GameSaveSlotName, 0);
+        }
+    }
+
+    return false;
+}
+
+TOptional<FSaveRecord> ADP_GameModeBase::GetSaveRecord(const FGuid& Guid) const
+{
+    if (GameSave)
+    {
+        return GameSave->GetSaveRecord(Guid);
+    }
+
+    return NullOpt;
+}
+
+TArray<FSaveRecordMetaData> ADP_GameModeBase::GetSaveRecordsMetaData() const
+{
+    if (GameSave)
+    {
+        return GameSave->GetSaveRecordsMetaData();
+    }
+
+    return {};
+}
+
+void ADP_GameModeBase::StartPlay()
+{
+    Super::StartPlay();
+
+    CheckGameSave();
+}
+
+void ADP_GameModeBase::CheckGameSave()
+{
+    if (UGameplayStatics::DoesSaveGameExist(GameSaveSlotName, 0))
+    {
+        GameSave = Cast<UDP_GameSave>(UGameplayStatics::LoadGameFromSlot(GameSaveSlotName, 0));
+    }
+    else
+    {
+        GameSave = Cast<UDP_GameSave>(UGameplayStatics::CreateSaveGameObject(UDP_GameSave::StaticClass()));
+    }
+
+    check(GameSave);
 }
