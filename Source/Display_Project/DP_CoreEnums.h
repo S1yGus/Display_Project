@@ -15,7 +15,8 @@ enum class EGameState : uint8
     Select,
     Warning,
     Inspect,
-    Options
+    Options,
+    SaveAndLoad
 };
 
 UENUM()
@@ -38,10 +39,12 @@ enum class EAttributeType : uint8
 UENUM()
 enum class EWidgetType : uint8
 {
-    Welcome = 0,
+    None = 0,
+    Welcome,
     Game,
     Inspect,
-    Options
+    Options,
+    SaveAndLoad
 };
 
 UENUM()

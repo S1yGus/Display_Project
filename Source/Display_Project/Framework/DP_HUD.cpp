@@ -5,6 +5,7 @@
 #include "UI/DP_GameWidget.h"
 #include "UI/DP_InspectWidget.h"
 #include "UI/DP_OptionsWidget.h"
+#include "UI/DP_SaveAndLoadWidget.h"
 #include "UI/DP_AnimatedWidgetWithWarning.h"
 #include "DP_Utils.h"
 
@@ -17,6 +18,7 @@ void ADP_HUD::CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap,   
     CreateGameWidget(ObjectsMap);
     CreateInspectWidget();
     CreateOptionsWidget(VideoQualityOptionsData, RotationSpeedNormalized, SoundVolume);
+    CreateSaveAndLoadWidget();
 
     for (auto& [Type, Widget] : Widgets)
     {
@@ -44,6 +46,14 @@ void ADP_HUD::ChangeCurrentWidget(EGameState GameState)
         {
             SetCurrentWidget();
         }
+    }
+}
+
+void ADP_HUD::UpdateSaves(const TArray<FSaveRecordMetaData>& SaveRecordsMetaData)
+{
+    if (auto* SaveAndLoadWidget = GetSaveAndLoadWidget())
+    {
+        SaveAndLoadWidget->UpdateSaves(SaveRecordsMetaData);
     }
 }
 
@@ -80,6 +90,9 @@ void ADP_HUD::BeginPlay()
 
     check(WelcomeWidgetClasses);
     check(GameWidgetClasses);
+    check(InspectWidgetClasses);
+    check(OptionsWidgetClasses);
+    check(SaveAndLoadWidgetClasses);
 }
 
 UDP_GameWidget* ADP_HUD::GetGameWidget() const
@@ -87,6 +100,16 @@ UDP_GameWidget* ADP_HUD::GetGameWidget() const
     if (Widgets.Contains(EWidgetType::Game))
     {
         return Cast<UDP_GameWidget>(Widgets[EWidgetType::Game]);
+    }
+
+    return nullptr;
+}
+
+UDP_SaveAndLoadWidget* ADP_HUD::GetSaveAndLoadWidget() const
+{
+    if (Widgets.Contains(EWidgetType::SaveAndLoad))
+    {
+        return Cast<UDP_SaveAndLoadWidget>(Widgets[EWidgetType::SaveAndLoad]);
     }
 
     return nullptr;
@@ -111,6 +134,7 @@ void ADP_HUD::CreateGameWidget(const TMap<EObjectType, FObjectData>& ObjectsMap)
     GameWidget->OnQuit.AddUObject(this, &ThisClass::OnQuitHandler);
     GameWidget->OnToggleScreenMode.AddUObject(this, &ThisClass::OnToggleScreenModeHandler);
     GameWidget->OnShowOptions.AddUObject(this, &ThisClass::OnShowOptionsHandler);
+    GameWidget->OnShowSaveAndLoad.AddUObject(this, &ThisClass::OnShowSaveAndLoadHandler);
     GameWidget->OnShowHelp.AddUObject(this, &ThisClass::OnShowHelpHandler);
     GameWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
     GameWidget->OnWarningResponse.AddUObject(this, &ThisClass::OnWarningResponseHandler);
@@ -132,13 +156,26 @@ void ADP_HUD::CreateOptionsWidget(const FVideoQualityOptionsData& VideoQualityOp
 {
     auto* OptionsWidget = CreateWidget<UDP_OptionsWidget>(GetWorld(), OptionsWidgetClasses);
     check(OptionsWidget);
-    OptionsWidget->OnStopShowingOptions.AddUObject(this, &ThisClass::OnStopShowingOptionsHandler);
+    OptionsWidget->OnBack.AddUObject(this, &ThisClass::OnBackHandler);
     OptionsWidget->OnVideoQualityChanged.AddUObject(this, &ThisClass::OnVideoQualityChangedHandler);
     OptionsWidget->OnRotationSpeedChanged.AddUObject(this, &ThisClass::OnRotationSpeedChangedHandler);
     OptionsWidget->OnSoundVolumeChanged.AddUObject(this, &ThisClass::OnSoundVolumeChangedHandler);
     OptionsWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
     OptionsWidget->Init(VideoQualityOptionsData, RotationSpeedNormalized, SoundVolume);
     Widgets.Add(EWidgetType::Options, OptionsWidget);
+}
+
+void ADP_HUD::CreateSaveAndLoadWidget()
+{
+    auto* SaveAndLoadWidget = CreateWidget<UDP_SaveAndLoadWidget>(GetWorld(), SaveAndLoadWidgetClasses);
+    check(SaveAndLoadWidget);
+    SaveAndLoadWidget->OnBack.AddUObject(this, &ThisClass::OnBackHandler);
+    SaveAndLoadWidget->OnSave.AddUObject(this, &ThisClass::OnSaveHandler);
+    SaveAndLoadWidget->OnLoad.AddUObject(this, &ThisClass::OnLoadHandler);
+    SaveAndLoadWidget->OnDeleteSave.AddUObject(this, &ThisClass::OnDeleteSaveHandler);
+    SaveAndLoadWidget->OnWarningResponse.AddUObject(this, &ThisClass::OnWarningResponseHandler);
+    SaveAndLoadWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
+    Widgets.Add(EWidgetType::SaveAndLoad, SaveAndLoadWidget);
 }
 
 void ADP_HUD::SetCurrentWidget()
@@ -203,9 +240,9 @@ void ADP_HUD::OnShowOptionsHandler()
     OnShowOptions.Broadcast();
 }
 
-void ADP_HUD::OnStopShowingOptionsHandler()
+void ADP_HUD::OnBackHandler()
 {
-    OnStopShowingOptions.Broadcast();
+    OnBack.Broadcast();
 }
 
 void ADP_HUD::OnVideoQualityChangedHandler(EVideoQuality VideoQuality)
@@ -221,6 +258,26 @@ void ADP_HUD::OnRotationSpeedChangedHandler(float RotationSpeedNormalized)
 void ADP_HUD::OnSoundVolumeChangedHandler(float SoundVolume)
 {
     OnSoundVolumeChanged.Broadcast(SoundVolume);
+}
+
+void ADP_HUD::OnShowSaveAndLoadHandler()
+{
+    OnShowSaveAndLoad.Broadcast();
+}
+
+void ADP_HUD::OnSaveHandler(const FText& SaveName)
+{
+    OnSave.Broadcast(SaveName);
+}
+
+void ADP_HUD::OnLoadHandler(const FGuid& Guid)
+{
+    OnLoad.Broadcast(Guid);
+}
+
+void ADP_HUD::OnDeleteSaveHandler(const FGuid& Guid)
+{
+    OnDeleteSave.Broadcast(Guid);
 }
 
 void ADP_HUD::OnShowHelpHandler()

@@ -2,7 +2,7 @@
 
 #include "World/DP_Node.h"
 #include "Components/BoxComponent.h"
-#include "World/DP_PlaceableActor.h"
+#include "DP_Utils.h"
 
 #define ECC_Node ECollisionChannel::ECC_GameTraceChannel2
 
@@ -19,26 +19,28 @@ ADP_Node::ADP_Node()
     BoxCollision->SetupAttachment(GetRootComponent());
 }
 
-void ADP_Node::Occupy(ADP_PlaceableActor* NewOccupiedObject)
+void ADP_Node::Occupy(const FGuid& Guid)
 {
-    OccupiedObject = NewOccupiedObject;
-
-    UpdateOccupiedState(true);
+    OccupyingGuid = Guid;
+    UpdateOccupiedState(OccupyingGuid.IsValid());
 }
 
 void ADP_Node::Free()
 {
-    if (IsValid(OccupiedObject))
-    {
-        OccupiedObject->Destroy();
-    }
+    if (!OccupyingGuid.IsValid())
+        return;
 
+    if (auto* OccupyingObject = DP::GetPlaceableActorByGuid(GetWorld(), OccupyingGuid); IsValid(OccupyingObject))
+    {
+        OccupyingObject->Destroy();
+    }
+    OccupyingGuid.Invalidate();
     UpdateOccupiedState(false);
 }
 
 bool ADP_Node::IsOccupied() const
 {
-    return IsValid(OccupiedObject);
+    return OccupyingGuid.IsValid();
 }
 
 void ADP_Node::UpdateCollisionScale(const FVector& CollisionSize)

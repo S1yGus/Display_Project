@@ -12,8 +12,6 @@ class ADP_Node;
 class ADP_Panel;
 class UMaterialInterface;
 
-using FOccupiedNodesMap = TMap<TObjectPtr<ADP_PlaceableActor>, TSet<TObjectPtr<ADP_Node>>>;
-
 UCLASS()
 class DISPLAY_PROJECT_API ADP_Grid : public AActor
 {
@@ -26,7 +24,12 @@ public:
 
     void SpawnCurrentObject();
     void UpdatePreviewLocation(ADP_Node* ReferenceNode);
-    void Free(TObjectPtr<ADP_PlaceableActor> Object);
+    void SetPanelLabel(const FText& Label);
+
+    [[nodiscard]] TArray<FGuid> GetNodesState() const;
+    void UpdateNodesState(const TArray<FGuid>& NodesState);
+
+    void Free(const FGuid& Guid);
     void FreeAll();
 
     void UpdateCurrentObjectClass(UClass* ObjectClass);
@@ -65,6 +68,8 @@ protected:
 private:
     UClass* CurrentObjectClass;
     FAttributesMap CurrentObjectAttributesMap;
+    UPROPERTY()
+    TArray<TObjectPtr<ADP_Node>> Nodes;
     FOccupiedNodesMap OccupiedNodesMap;
     UPROPERTY()
     TObjectPtr<ADP_Node> SelectedNode;
@@ -72,6 +77,8 @@ private:
     TObjectPtr<ADP_Node> CurrentValidNode;
     UPROPERTY()
     TObjectPtr<ADP_PlaceableActor> PreviewObject;
+    UPROPERTY()
+    TObjectPtr<ADP_Panel> Panel;
     FTimerHandle SpawnTimerHandle;
     FVector TargetPreviewScale;
     bool bIsValidArea{true};
@@ -84,7 +91,7 @@ private:
     bool SpawnPreview(const FTransform& SpawnTransform);
     FORCEINLINE void DestroyPreview();
     void UpdatePreviewMaterial();
-    [[nodiscard]] TOptional<ADP_Node*> GetValidPreviewNode(ADP_Node* Node, const FIntPoint& ObjectSize);
+    FORCEINLINE [[nodiscard]] TOptional<ADP_Node*> GetValidPreviewNode(ADP_Node* Node, const FIntPoint& ObjectSize);
     FORCEINLINE [[nodiscard]] ADP_Node* GetValidPreviewNodeX(ADP_Node* Node, int32 ObjectSizeX);
     FORCEINLINE [[nodiscard]] ADP_Node* GetValidPreviewNodeY(ADP_Node* Node, int32 ObjectSizeY);
     bool ForEachNodeInArea(ADP_Node* StartNode, const FIntPoint& ObjectSize, TSet<TObjectPtr<ADP_Node>>& OutTraversedNodes, TFunction<bool(ADP_Node*)>&& Func);

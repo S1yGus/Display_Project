@@ -12,6 +12,7 @@ class ADP_TextShifter;
 class ADP_PlayerController;
 class ADP_Player;
 class ADP_HUD;
+class ADP_GameModeBase;
 class ATargetPoint;
 
 UCLASS()
@@ -41,6 +42,12 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Warning")
     FText DestroyAllWarning;
 
+    UPROPERTY(EditAnywhere, Category = "Warning")
+    FText LoadWarning;
+
+    UPROPERTY(EditAnywhere, Category = "Warning")
+    FText DeleteSaveWarning;
+
     virtual void BeginPlay() override;
 
 private:
@@ -56,13 +63,17 @@ private:
     [[nodiscard]] FORCEINLINE ADP_PlayerController* GetPlayerController() const;
     [[nodiscard]] FORCEINLINE ADP_Player* GetPlayer() const;
     [[nodiscard]] FORCEINLINE ADP_HUD* GetHUD() const;
+    [[nodiscard]] FORCEINLINE ADP_GameModeBase* GetGameMode() const;
+
     FORCEINLINE void UpdatePlayerLocation(const FVector& Location);
     FORCEINLINE void ShowWarning(const FText& WarningText, FDeferredAction&& Action);
+    FORCEINLINE void UpdateUISaveRecords();
 
     FORCEINLINE void SetupPlayerController();
     FORCEINLINE void SetupHUD();
     FORCEINLINE void SpawnGrid();
     FORCEINLINE void InitWelcomeState();
+    FORCEINLINE void SpawnObjectsFromSave(const TArray<FObjectSaveData>& SaveObjectData);
 
     void SetGameState(EGameState NewGameState);
     void SetGameState_Internal(EGameState NewGameState);
@@ -80,10 +91,14 @@ private:
     void OnQuitHandler();
     void OnToggleScreenModeHandler();
     void OnShowOptionsHandler();
-    void OnStopShowingOptionsHandler();
+    void OnBackHandler();
     void OnVideoQualityChangedHandler(EVideoQuality VideoQuality);
     void OnRotationSpeedChangedHandler(float RotationSpeedNormalized);
     void OnSoundVolumeChangedHandler(float SoundVolume);
+    void OnShowSaveAndLoadHandler();
+    void OnSaveHandler(const FText& SaveName);
+    void OnLoadHandler(const FGuid& Guid);
+    void OnDeleteSaveHandler(const FGuid& Guid);
     void OnShowHelpHandler();
     void OnWarningResponseHandler(bool bCondition);
     void OnInspectHandler();

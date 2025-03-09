@@ -25,6 +25,7 @@ public:
     FOnQuitSignature OnQuit;
     FOnToggleScreenModeSignature OnToggleScreenMode;
     FOnShowOptionsSignature OnShowOptions;
+    FOnShowSaveAndLoadSignature OnShowSaveAndLoad;
     FOnShowHelpSignature OnShowHelp;
     FOnInspectSignature OnInspect;
 
@@ -56,6 +57,7 @@ private:
     void OnQuitHandler();
     void OnToggleScreenModeHandler();
     void OnShowOptionsHandler();
+    void OnShowSaveAndLoadHandler();
     void OnShowHelpHandler();
     void OnInspectHandler();
 };

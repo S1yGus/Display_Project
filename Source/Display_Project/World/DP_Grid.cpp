@@ -18,6 +18,8 @@ static bool IsEven(int32 Value)
 ADP_Grid::ADP_Grid()
 {
     PrimaryActorTick.bCanEverTick = false;
+
+    Nodes.Reserve(GridSize.X * GridSize.Y);
 }
 
 void ADP_Grid::SpawnCurrentObject()
@@ -52,29 +54,62 @@ void ADP_Grid::UpdatePreviewLocation(ADP_Node* ReferenceNode)
     UpdatePreviewMaterial();
 }
 
-void ADP_Grid::Free(TObjectPtr<ADP_PlaceableActor> Object)
+void ADP_Grid::SetPanelLabel(const FText& Label)
 {
-    if (OccupiedNodesMap.Contains(Object))
+    Panel->SetLabel(Label);
+}
+
+TArray<FGuid> ADP_Grid::GetNodesState() const
+{
+    TArray<FGuid> NodesState;
+    NodesState.Reserve(Nodes.Num());
+    return Algo::Accumulate(Nodes, NodesState,
+                            [](auto&& Array, const auto& Node)
+                            {
+                                Array.Add(Node->OccupyingGuid);
+                                return MoveTemp(Array);
+                            });
+}
+
+void ADP_Grid::UpdateNodesState(const TArray<FGuid>& NodesState)
+{
+    for (int32 i = 0; i < Nodes.Num() && i < NodesState.Num(); ++i)
     {
-        for (auto Node : OccupiedNodesMap[Object])
+        if (const auto& Guid = NodesState[i]; Guid.IsValid())
+        {
+            Nodes[i]->Occupy(Guid);
+            if (!OccupiedNodesMap.Contains(Guid))
+            {
+                OccupiedNodesMap.Add(Guid);
+            }
+            OccupiedNodesMap[Guid].Add(Nodes[i]);
+        }
+    }
+}
+
+void ADP_Grid::Free(const FGuid& Guid)
+{
+    if (OccupiedNodesMap.Contains(Guid))
+    {
+        for (auto& Node : OccupiedNodesMap[Guid])
         {
             Node->Free();
         }
-        OccupiedNodesMap.Remove(Object);
+        OccupiedNodesMap.Remove(Guid);
     }
     else
     {
-        UE_LOG(LogGrid, Warning, TEXT("Object pointer with name %s was not found in the occupied nodes map!"), *Object->GetName());
+        UE_LOG(LogGrid, Warning, TEXT("Object pointer with guid %s was not found in the occupied nodes map!"), *Guid.ToString());
     }
 }
 
 void ADP_Grid::FreeAll()
 {
-    for (auto& [Object, Nodes] : OccupiedNodesMap)
+    for (auto& [Guid, OccupiedNodes] : OccupiedNodesMap)
     {
-        for (auto Node : Nodes)
+        for (auto& OccupiedNode : OccupiedNodes)
         {
-            Node->Free();
+            OccupiedNode->Free();
         }
     }
     OccupiedNodesMap.Empty();
@@ -110,9 +145,6 @@ void ADP_Grid::Init()
         return;
 
     check(NodeClass);
-
-    TArray<TObjectPtr<ADP_Node>> Nodes;
-    Nodes.Reserve(GridSize.X * GridSize.Y);
 
     const auto StartSpawnLocation = FVector{-(GridSize.X - 1) * NodeSize.X / 2, -(GridSize.Y - 1) * NodeSize.Y / 2, 0.0};
     for (int32 y = 0; y < GridSize.Y; ++y)
@@ -160,7 +192,7 @@ void ADP_Grid::SpawnPanel()
     if (!GetWorld() || !PanelClass)
         return;
 
-    auto* Panel = GetWorld()->SpawnActor<ADP_Panel>(PanelClass, FTransform::Identity * GetActorTransform());
+    Panel = GetWorld()->SpawnActor<ADP_Panel>(PanelClass, FTransform::Identity * GetActorTransform());
     check(Panel);
 }
 
@@ -356,7 +388,7 @@ bool ADP_Grid::Occupy(ADP_Node* StartNode, ADP_PlaceableActor* Object, TSet<TObj
                              {
                                  if (Node)
                                  {
-                                     Node->Occupy(Object);
+                                     Node->Occupy(Object->GetObjectGuid());
                                  }
                                  return true;
                              });
@@ -382,14 +414,14 @@ void ADP_Grid::SpawnObject()
     auto Object = PreviewObject;
     PreviewObject = nullptr;
     Object->UpdatePreviewMode(false);
-    Object->Init(MoveTemp(CurrentObjectAttributesMap));
+    Object->Init(MoveTemp(CurrentObjectAttributesMap), FGuid::NewGuid());
 
     TSet<TObjectPtr<ADP_Node>> TraversedNodes;
     const FIntPoint ObjectSize = Object->GetObjectSize();
     TraversedNodes.Reserve(ObjectSize.X * ObjectSize.Y);
     if (Occupy(CurrentValidNode, Object, TraversedNodes))
     {
-        OccupiedNodesMap.Add(Object, TraversedNodes);
+        OccupiedNodesMap.Add(Object->GetObjectGuid(), TraversedNodes);
     }
     else
     {

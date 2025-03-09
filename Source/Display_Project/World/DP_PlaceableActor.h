@@ -23,10 +23,12 @@ public:
     [[nodiscard]] FString GetObjectName() const;
     [[nodiscard]] const FAttributesMap& GetObjectAttributes() const { return AttributesMap; };
     [[nodiscard]] FIntPoint GetObjectSize() const { return Size; }
+    [[nodiscard]] FGuid GetObjectGuid() const { return Guid; }
 
-    void Init(FAttributesMap&& Attributes);
-    void Init(const FAttributesMap& Attributes);
+    void Init(FAttributesMap&& Attributes, FGuid&& InGuid);
+    void Init(const FAttributesMap& Attributes, const FGuid& InGuid);
     void UpdateAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
+    virtual void UpdateAttributes();
 
     virtual void Interact(const FTransform& InteractionTransform);
 
@@ -46,14 +48,14 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<UDP_FXComponent> FXComponent;
 
-    EObjectType Type{EObjectType::None};
-    FAttributesMap AttributesMap;
-
     UPROPERTY(EditDefaultsOnly, Category = "Settings", Meta = (ClampMin = "0"))
     FIntPoint Size{1};
 
-    virtual void UpdateAttributes();
+    EObjectType Type{EObjectType::None};
+    FAttributesMap AttributesMap;
 
 private:
+    FGuid Guid;
+
     void SetAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
 };

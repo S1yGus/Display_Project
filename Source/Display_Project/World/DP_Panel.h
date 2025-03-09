@@ -14,6 +14,8 @@ class DISPLAY_PROJECT_API ADP_Panel : public AActor
 public:
     ADP_Panel();
 
+    void SetLabel(const FText& NewLabel);
+
 protected:
     UPROPERTY(VisibleDefaultsOnly, Category = "Components")
     TObjectPtr<UStaticMeshComponent> PanelMesh;
@@ -25,13 +27,13 @@ protected:
     int32 ScrewNum{4};
 
     UPROPERTY(EditDefaultsOnly, Category = "Settings")
-    FString PanelText;
+    FText Label;
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<AActor> ScrewClass;
 
     UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Settings")
-    void SetPanelText(const FString& Text);
+    void UpdatePanelLabel(const FText& NewLabel);
 
     virtual void BeginPlay() override;
 

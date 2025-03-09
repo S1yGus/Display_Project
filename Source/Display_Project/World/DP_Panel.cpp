@@ -14,13 +14,18 @@ ADP_Panel::ADP_Panel()
     PanelMesh->SetupAttachment(GetRootComponent());
 }
 
+void ADP_Panel::SetLabel(const FText& NewLabel)
+{
+    Label = NewLabel;
+    UpdatePanelLabel(Label);
+}
+
 void ADP_Panel::BeginPlay()
 {
     Super::BeginPlay();
 
     SpawnScrews();
-
-    SetPanelText(PanelText);
+    UpdatePanelLabel(Label);
 }
 
 void ADP_Panel::SpawnScrews()
