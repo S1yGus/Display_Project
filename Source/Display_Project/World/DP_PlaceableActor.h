@@ -45,7 +45,7 @@ public:
     void UpdatePreviewMaterial(UMaterialInterface* PreviewMaterial);
 
 protected:
-    UPROPERTY(VisibleAnywhere, Category = "Components")
+    UPROPERTY(VisibleDefaultsOnly, Category = "Components")
     TObjectPtr<UDP_FXComponent> FXComponent;
 
     UPROPERTY(EditDefaultsOnly, Category = "Settings", Meta = (ClampMin = "0"))

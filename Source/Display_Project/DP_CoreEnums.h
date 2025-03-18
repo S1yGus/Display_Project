@@ -9,6 +9,7 @@ UENUM()
 enum class EGameState : uint8
 {
     Standby = 0,
+    Preload,
     Welcome,
     Placement,
     Interact,
@@ -40,6 +41,7 @@ UENUM()
 enum class EWidgetType : uint8
 {
     None = 0,
+    Preload,
     Welcome,
     Game,
     Inspect,

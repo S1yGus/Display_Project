@@ -88,11 +88,12 @@ void ADP_HUD::BeginPlay()
 {
     Super::BeginPlay();
 
-    check(WelcomeWidgetClasses);
-    check(GameWidgetClasses);
-    check(InspectWidgetClasses);
-    check(OptionsWidgetClasses);
-    check(SaveAndLoadWidgetClasses);
+    check(PreloadWidgetClass);
+    check(WelcomeWidgetClass);
+    check(GameWidgetClass);
+    check(InspectWidgetClass);
+    check(OptionsWidgetClass);
+    check(SaveAndLoadWidgetClass);
 }
 
 UDP_GameWidget* ADP_HUD::GetGameWidget() const
@@ -115,9 +116,17 @@ UDP_SaveAndLoadWidget* ADP_HUD::GetSaveAndLoadWidget() const
     return nullptr;
 }
 
+void ADP_HUD::CreatePreloadWidget()
+{
+    auto* PreloadWidget = CreateWidget<UDP_BaseAnimatedWidget>(GetWorld(), PreloadWidgetClass);
+    check(PreloadWidget);
+    PreloadWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
+    Widgets.Add(EWidgetType::Preload, PreloadWidget);
+}
+
 void ADP_HUD::CreateWelcomeWidget()
 {
-    auto* WelcomeWidget = CreateWidget<UDP_BaseAnimatedWidget>(GetWorld(), WelcomeWidgetClasses);
+    auto* WelcomeWidget = CreateWidget<UDP_BaseAnimatedWidget>(GetWorld(), WelcomeWidgetClass);
     check(WelcomeWidget);
     WelcomeWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
     Widgets.Add(EWidgetType::Welcome, WelcomeWidget);
@@ -125,7 +134,7 @@ void ADP_HUD::CreateWelcomeWidget()
 
 void ADP_HUD::CreateGameWidget(const TMap<EObjectType, FObjectData>& ObjectsMap)
 {
-    auto* GameWidget = CreateWidget<UDP_GameWidget>(GetWorld(), GameWidgetClasses);
+    auto* GameWidget = CreateWidget<UDP_GameWidget>(GetWorld(), GameWidgetClass);
     check(GameWidget);
     GameWidget->OnObjectTypeChanged.AddUObject(this, &ThisClass::OnObjectTypeChangedHandler);
     GameWidget->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
@@ -145,7 +154,7 @@ void ADP_HUD::CreateGameWidget(const TMap<EObjectType, FObjectData>& ObjectsMap)
 
 void ADP_HUD::CreateInspectWidget()
 {
-    auto* InspectWidget = CreateWidget<UDP_InspectWidget>(GetWorld(), InspectWidgetClasses);
+    auto* InspectWidget = CreateWidget<UDP_InspectWidget>(GetWorld(), InspectWidgetClass);
     check(InspectWidget);
     InspectWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
     InspectWidget->OnInspectCompleted.AddUObject(this, &ThisClass::OnInspectCompletedHandler);
@@ -154,7 +163,7 @@ void ADP_HUD::CreateInspectWidget()
 
 void ADP_HUD::CreateOptionsWidget(const FVideoQualityOptionsData& VideoQualityOptionsData, float RotationSpeedNormalized, float SoundVolume)
 {
-    auto* OptionsWidget = CreateWidget<UDP_OptionsWidget>(GetWorld(), OptionsWidgetClasses);
+    auto* OptionsWidget = CreateWidget<UDP_OptionsWidget>(GetWorld(), OptionsWidgetClass);
     check(OptionsWidget);
     OptionsWidget->OnBack.AddUObject(this, &ThisClass::OnBackHandler);
     OptionsWidget->OnVideoQualityChanged.AddUObject(this, &ThisClass::OnVideoQualityChangedHandler);
@@ -167,7 +176,7 @@ void ADP_HUD::CreateOptionsWidget(const FVideoQualityOptionsData& VideoQualityOp
 
 void ADP_HUD::CreateSaveAndLoadWidget()
 {
-    auto* SaveAndLoadWidget = CreateWidget<UDP_SaveAndLoadWidget>(GetWorld(), SaveAndLoadWidgetClasses);
+    auto* SaveAndLoadWidget = CreateWidget<UDP_SaveAndLoadWidget>(GetWorld(), SaveAndLoadWidgetClass);
     check(SaveAndLoadWidget);
     SaveAndLoadWidget->OnBack.AddUObject(this, &ThisClass::OnBackHandler);
     SaveAndLoadWidget->OnSave.AddUObject(this, &ThisClass::OnSaveHandler);

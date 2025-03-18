@@ -8,6 +8,8 @@
 #include "AudioThread.h"
 #include "DP_Utils.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogUserSettings, All, All)
+
 namespace
 {
 
@@ -23,6 +25,20 @@ void FillVideoQualityOptions(FVideoQualityOptionsData& VideoQualityOptionsData)
     {
         const auto CurrentQuality = static_cast<EVideoQuality>(i);
         VideoQualityOptionsData.VideoQualityOptions.Add(DP::EnumToString(CurrentQuality));
+    }
+}
+
+void SetMSAALevel(int32 MSAASamples)
+{
+    if (MSAASamples != 0 && MSAASamples != 1 && MSAASamples != 2 && MSAASamples != 4 && MSAASamples != 8)
+    {
+        UE_LOG(LogUserSettings, Warning, TEXT("Invalid MSAA value: %d. Use 0, 1, 2, 4, or 8."), MSAASamples);
+        return;
+    }
+
+    if (auto* MSAACount = IConsoleManager::Get().FindConsoleVariable(TEXT("r.MSAACount")))
+    {
+        MSAACount->Set(MSAASamples);
     }
 }
 
@@ -51,6 +67,26 @@ void UDP_GameUserSettings::ToggleScreenMode()
 
 void UDP_GameUserSettings::SetVideoQuality(EVideoQuality Quality)
 {
+    switch (Quality)
+    {
+        case EVideoQuality::Low:
+            SetMSAALevel(0);
+            break;
+        case EVideoQuality::Medium:
+            SetMSAALevel(2);
+            break;
+        case EVideoQuality::High:
+            SetMSAALevel(4);
+            break;
+        case EVideoQuality::Epic:
+            [[fallthrough]];
+        case EVideoQuality::Cinematic:
+            SetMSAALevel(8);
+            break;
+        default:
+            break;
+    }
+
     const auto Value = static_cast<int32>(Quality);
     SetViewDistanceQuality(Value);
     SetAntiAliasingQuality(Value);

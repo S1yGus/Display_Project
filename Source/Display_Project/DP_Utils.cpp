@@ -71,6 +71,8 @@ EWidgetType UI::GameStateToWidgetType(EGameState GameState)
 {
     switch (GameState)
     {
+        case EGameState::Preload:
+            return EWidgetType::Preload;
         case EGameState::Welcome:
             return EWidgetType::Welcome;
         case EGameState::Standby:

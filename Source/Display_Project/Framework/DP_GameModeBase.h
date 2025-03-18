@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "DP_CoreStructures.h"
+#include "DP_CoreTypes.h"
 #include "DP_GameModeBase.generated.h"
 
 class UDP_GameSave;
@@ -15,6 +15,8 @@ class DISPLAY_PROJECT_API ADP_GameModeBase : public AGameModeBase
     GENERATED_BODY()
 
 public:
+    FOnAssetsPreloadCompletedSignature OnAssetsPreloadCompleted;
+
     ADP_GameModeBase();
 
     bool AddSaveRecord(FSaveRecord&& SaveRecord);
@@ -28,9 +30,14 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Settings")
     FString GameSaveSlotName{"GameSave"};
 
+    UPROPERTY(EditAnywhere, Category = "Preload")
+    TArray<FSoftObjectPath> AssetsToPreload;
+
 private:
     UPROPERTY()
     TObjectPtr<UDP_GameSave> GameSave;
 
     void CheckGameSave();
+    void PreloadAssets();
+    void OnAssetsPreloadCompletedHandler();
 };
