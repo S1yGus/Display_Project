@@ -47,19 +47,22 @@ public:
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
-    TSubclassOf<UDP_BaseAnimatedWidget> WelcomeWidgetClasses;
+    TSubclassOf<UDP_BaseAnimatedWidget> PreloadWidgetClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
-    TSubclassOf<UDP_BaseAnimatedWidget> GameWidgetClasses;
+    TSubclassOf<UDP_BaseAnimatedWidget> WelcomeWidgetClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
-    TSubclassOf<UDP_BaseAnimatedWidget> InspectWidgetClasses;
+    TSubclassOf<UDP_BaseAnimatedWidget> GameWidgetClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
-    TSubclassOf<UDP_BaseAnimatedWidget> OptionsWidgetClasses;
+    TSubclassOf<UDP_BaseAnimatedWidget> InspectWidgetClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
-    TSubclassOf<UDP_BaseAnimatedWidget> SaveAndLoadWidgetClasses;
+    TSubclassOf<UDP_BaseAnimatedWidget> OptionsWidgetClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Classes")
+    TSubclassOf<UDP_BaseAnimatedWidget> SaveAndLoadWidgetClass;
 
     virtual void BeginPlay() override;
 
@@ -73,6 +76,7 @@ private:
     [[nodiscard]] FORCEINLINE UDP_GameWidget* GetGameWidget() const;
     [[nodiscard]] FORCEINLINE UDP_SaveAndLoadWidget* GetSaveAndLoadWidget() const;
 
+    FORCEINLINE void CreatePreloadWidget();
     FORCEINLINE void CreateWelcomeWidget();
     FORCEINLINE void CreateGameWidget(const TMap<EObjectType, FObjectData>& ObjectsMap);
     FORCEINLINE void CreateInspectWidget();

@@ -7,6 +7,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Save/DP_GameSave.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/AssetManager.h"
 
 ADP_GameModeBase::ADP_GameModeBase()
 {
@@ -78,6 +79,7 @@ void ADP_GameModeBase::StartPlay()
     Super::StartPlay();
 
     CheckGameSave();
+    PreloadAssets();
 }
 
 void ADP_GameModeBase::CheckGameSave()
@@ -92,4 +94,22 @@ void ADP_GameModeBase::CheckGameSave()
     }
 
     check(GameSave);
+}
+
+void ADP_GameModeBase::PreloadAssets()
+{
+    if (!AssetsToPreload.IsEmpty())
+    {
+        UAssetManager::GetStreamableManager().RequestAsyncLoad(AssetsToPreload,
+                                                               FStreamableDelegate::CreateUObject(this, &ADP_GameModeBase::OnAssetsPreloadCompletedHandler));
+    }
+    else
+    {
+        OnAssetsPreloadCompletedHandler();
+    }
+}
+
+void ADP_GameModeBase::OnAssetsPreloadCompletedHandler()
+{
+    OnAssetsPreloadCompleted.Broadcast();
 }

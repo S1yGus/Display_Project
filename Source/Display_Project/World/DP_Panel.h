@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "DP_Panel.generated.h"
 
+class UWidgetComponent;
+
 UCLASS()
 class DISPLAY_PROJECT_API ADP_Panel : public AActor
 {
@@ -14,11 +16,23 @@ class DISPLAY_PROJECT_API ADP_Panel : public AActor
 public:
     ADP_Panel();
 
-    void SetLabel(const FText& NewLabel);
+    void SetLabel(const FString& NewLabel);
 
 protected:
     UPROPERTY(VisibleDefaultsOnly, Category = "Components")
     TObjectPtr<UStaticMeshComponent> PanelMesh;
+
+    UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+    TObjectPtr<UWidgetComponent> WidgetComponent;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Settings")
+    FString Label;
+
+    UPROPERTY(EditAnywhere, Category = "Settings", Meta = (ClampMin = "0"))
+    int32 MaxLabelLength{42};
+
+    UPROPERTY(EditDefaultsOnly, Category = "Classes")
+    TSubclassOf<AActor> ScrewClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "Settings")
     FString ScrewSocketNamePattern{"Screw_"};
@@ -26,17 +40,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Settings")
     int32 ScrewNum{4};
 
-    UPROPERTY(EditDefaultsOnly, Category = "Settings")
-    FText Label;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Classes")
-    TSubclassOf<AActor> ScrewClass;
-
-    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Settings")
-    void UpdatePanelLabel(const FText& NewLabel);
-
     virtual void BeginPlay() override;
 
 private:
     void SpawnScrews();
+    void UpdateLabel(const FString& NewLabel);
 };

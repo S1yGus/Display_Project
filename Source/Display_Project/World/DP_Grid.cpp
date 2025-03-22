@@ -56,7 +56,7 @@ void ADP_Grid::UpdatePreviewLocation(ADP_Node* ReferenceNode)
 
 void ADP_Grid::SetPanelLabel(const FText& Label)
 {
-    Panel->SetLabel(Label);
+    Panel->SetLabel(Label.ToString());
 }
 
 TArray<FGuid> ADP_Grid::GetNodesState() const
@@ -202,7 +202,7 @@ bool ADP_Grid::SpawnPreview(const FTransform& SpawnTransform)
     {
         PreviewObject = GetWorld()->SpawnActor<ADP_PlaceableActor>(CurrentObjectClass, SpawnTransform);
         check(PreviewObject);
-        PreviewObject->UpdatePreviewMode(true);
+        PreviewObject->SetPreviewMode(true);
 
         return true;
     }
@@ -226,7 +226,7 @@ void ADP_Grid::DestroyPreview()
 
 void ADP_Grid::UpdatePreviewMaterial()
 {
-    PreviewObject->UpdatePreviewMaterial(CanSpawn() ? ValidPreviewMaterial : InvalidPreviewMaterial);
+    PreviewObject->UpdateMaterial(CanSpawn() ? ValidPreviewMaterial : InvalidPreviewMaterial);
 }
 
 TOptional<ADP_Node*> ADP_Grid::GetValidPreviewNode(ADP_Node* Node, const FIntPoint& ObjectSize)
@@ -413,7 +413,7 @@ void ADP_Grid::SpawnObject()
 {
     auto Object = PreviewObject;
     PreviewObject = nullptr;
-    Object->UpdatePreviewMode(false);
+    Object->SetPreviewMode(false);
     Object->Init(MoveTemp(CurrentObjectAttributesMap), FGuid::NewGuid());
 
     TSet<TObjectPtr<ADP_Node>> TraversedNodes;

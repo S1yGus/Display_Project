@@ -8,6 +8,7 @@
 #include "DP_Button.generated.h"
 
 class ADP_Display_1;
+class UWidgetComponent;
 
 UCLASS()
 class DISPLAY_PROJECT_API ADP_Button : public ADP_PlaceableActor
@@ -19,25 +20,39 @@ public:
 
     virtual void Interact(const FTransform& InteractionTransform) override;
 
-    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Settings")
-    void SetButtonText(const FString& Text);
-
 protected:
-    UPROPERTY(EditAnywhere, Category = "Settings")
-    FString ButtonText;
+    UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+    TObjectPtr<UWidgetComponent> WidgetComponent;
 
     UPROPERTY(EditAnywhere, Category = "Settings")
-    FString DisplayText;
+    FString Label;
+
+    UPROPERTY(EditAnywhere, Category = "Settings", Meta = (ClampMin = "0"))
+    int32 MaxLabelLength{3};
 
     UPROPERTY(EditAnywhere, Category = "Settings")
-    TObjectPtr<ADP_Display_1> Display;
+    TObjectPtr<ADP_Display_1> LinkedDisplay;
 
-    UPROPERTY(BlueprintReadWrite)
-    bool bIsInteracting{false};
+    UPROPERTY(EditAnywhere, Category = "Settings")
+    FString LinkedDisplayText;
 
-    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interact")
-    void OnInteract();
+    UPROPERTY(EditAnywhere, Category = "Animation")
+    FVector AnimationAmplitude{0.0, 0.0, -22.0};
+
+    UPROPERTY(EditAnywhere, Category = "Animation", Meta = (ClampMin = "0.0"))
+    float AnimationSpeed{14.0f};
 
     virtual void BeginPlay() override;
     virtual void UpdateAttributes() override;
+
+private:
+    FTimerHandle AnimationTimerHandle;
+    FVector OriginalMeshRelativeLocation;
+    FVector TargetMeshRelativeLocation;
+    bool bIsInteracting{false};
+
+    void UpdateLabel(const FString& NewLabel);
+    void UpdateLinkedDisplayText();
+    void AnimateButton();
+    void OnButtonAnimation();
 };

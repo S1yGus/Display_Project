@@ -58,8 +58,8 @@ FText UI::AttributeTypeToText(EAttributeType Type)
             return NSLOCTEXT("UI", "ObjectName_Loc", "Name");
         case EAttributeType::DisplayText:
             return NSLOCTEXT("UI", "DisplayText_Loc", "Display text");
-        case EAttributeType::ButtonText:
-            return NSLOCTEXT("UI", "ButtonText_Loc", "Button text");
+        case EAttributeType::ButtonLabel:
+            return NSLOCTEXT("UI", "ButtonLabel_Loc", "Button label");
         case EAttributeType::Display:
             return NSLOCTEXT("UI", "Dispaly_Loc", "Display");
         default:
@@ -71,6 +71,8 @@ EWidgetType UI::GameStateToWidgetType(EGameState GameState)
 {
     switch (GameState)
     {
+        case EGameState::Preload:
+            return EWidgetType::Preload;
         case EGameState::Welcome:
             return EWidgetType::Welcome;
         case EGameState::Standby:

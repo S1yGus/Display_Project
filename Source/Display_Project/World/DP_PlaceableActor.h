@@ -11,6 +11,13 @@
 class UMaterialInterface;
 class UDP_FXComponent;
 
+namespace PlaceableActor
+{
+
+void SetMeshPreviewMode(bool bEnabled, UStaticMeshComponent* Mesh, const TArray<UMaterialInterface*>& DefaultMeshMaterials);
+
+}    // namespace PlaceableActor
+
 UCLASS(Abstract)
 class DISPLAY_PROJECT_API ADP_PlaceableActor : public AActor
 {
@@ -29,33 +36,33 @@ public:
     void Init(const FAttributesMap& Attributes, const FGuid& InGuid);
     void UpdateAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
     virtual void UpdateAttributes();
-
+    virtual void SetPreviewMode(bool bEnabled);
+    virtual void UpdateMaterial(UMaterialInterface* Material);
     virtual void Interact(const FTransform& InteractionTransform);
-
-    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Select")
-    void Select();
-
-    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Select")
-    void Deselect();
-
-    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Preview")
-    void UpdatePreviewMode(bool bEnabled);
-
-    UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Preview")
-    void UpdatePreviewMaterial(UMaterialInterface* PreviewMaterial);
+    virtual void SetSelected(bool bSelected);
 
 protected:
-    UPROPERTY(VisibleAnywhere, Category = "Components")
+    UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+    TObjectPtr<UStaticMeshComponent> MeshComponent;
+
+    UPROPERTY(VisibleDefaultsOnly, Category = "Components")
     TObjectPtr<UDP_FXComponent> FXComponent;
 
     UPROPERTY(EditDefaultsOnly, Category = "Settings", Meta = (ClampMin = "0"))
     FIntPoint Size{1};
 
+    UPROPERTY(EditDefaultsOnly, Category = "Materials")
+    TObjectPtr<UMaterialInterface> OverlayMaterial;
+
     EObjectType Type{EObjectType::None};
     FAttributesMap AttributesMap;
 
+    virtual void BeginPlay() override;
+
 private:
     FGuid Guid;
+    UPROPERTY()
+    TArray<UMaterialInterface*> DefaultMeshMaterials;
 
     void SetAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
 };

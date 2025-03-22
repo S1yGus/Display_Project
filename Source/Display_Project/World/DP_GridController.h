@@ -52,7 +52,7 @@ protected:
 
 private:
     EGameState CurrentGameState{EGameState::Standby};
-    EGameState PrevGameState{EGameState::Standby};
+    TArray<EGameState> PrevGameStates;
     EObjectType CurrentObjectType{EObjectType::None};
     UPROPERTY()
     TObjectPtr<ADP_Grid> Grid;
@@ -69,6 +69,7 @@ private:
     FORCEINLINE void ShowWarning(const FText& WarningText, FDeferredAction&& Action);
     FORCEINLINE void UpdateUISaveRecords();
 
+    FORCEINLINE void SetupGameMode();
     FORCEINLINE void SetupPlayerController();
     FORCEINLINE void SetupHUD();
     FORCEINLINE void SpawnGrid();
@@ -76,6 +77,7 @@ private:
     FORCEINLINE void SpawnObjectsFromSave(const TArray<FObjectSaveData>& SaveObjectData);
 
     void SetGameState(EGameState NewGameState);
+    void SetPrevGameState();
     void SetGameState_Internal(EGameState NewGameState);
     void SetCurrentObjectType(EObjectType NewObjectType);
     void SetCurrentObjectType_Internal(EObjectType NewObjectType);
@@ -103,4 +105,5 @@ private:
     void OnWarningResponseHandler(bool bCondition);
     void OnInspectHandler();
     void OnInspectCompletedHandler();
+    void OnAssetsPreloadCompletedHandler();
 };

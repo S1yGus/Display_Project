@@ -1,6 +1,9 @@
 // Display_Project, all rights reserved.
 
 #include "World/DP_Panel.h"
+#include "UI/DP_TextWidget.h"
+#include "Components/WidgetComponent.h"
+#include "Kismet/KismetStringLibrary.h"
 
 ADP_Panel::ADP_Panel()
 {
@@ -11,13 +14,18 @@ ADP_Panel::ADP_Panel()
 
     PanelMesh = CreateDefaultSubobject<UStaticMeshComponent>("PanelMesh");
     check(PanelMesh);
-    PanelMesh->SetupAttachment(GetRootComponent());
+    PanelMesh->SetupAttachment(RootComponent);
+
+    WidgetComponent = CreateDefaultSubobject<UWidgetComponent>("ButtonText");
+    check(WidgetComponent);
+    WidgetComponent->SetCastShadow(false);
+    WidgetComponent->SetupAttachment(PanelMesh);
 }
 
-void ADP_Panel::SetLabel(const FText& NewLabel)
+void ADP_Panel::SetLabel(const FString& NewLabel)
 {
     Label = NewLabel;
-    UpdatePanelLabel(Label);
+    UpdateLabel(Label);
 }
 
 void ADP_Panel::BeginPlay()
@@ -25,7 +33,7 @@ void ADP_Panel::BeginPlay()
     Super::BeginPlay();
 
     SpawnScrews();
-    UpdatePanelLabel(Label);
+    UpdateLabel(Label);
 }
 
 void ADP_Panel::SpawnScrews()
@@ -38,5 +46,14 @@ void ADP_Panel::SpawnScrews()
         check(Screw);
         const FAttachmentTransformRules AttachmentRule(EAttachmentRule::SnapToTarget, false);
         Screw->AttachToComponent(PanelMesh, AttachmentRule, FName{ScrewSocketNamePattern + FString::FromInt(i)});
+    }
+}
+
+void ADP_Panel::UpdateLabel(const FString& NewLabel)
+{
+    if (auto* TextWidget = Cast<UDP_TextWidget>(WidgetComponent->GetWidget()))
+    {
+        const auto NewPanelLabel = UKismetStringLibrary::GetSubstring(NewLabel, 0, MaxLabelLength);
+        TextWidget->SetText(FText::FromString(NewPanelLabel));
     }
 }

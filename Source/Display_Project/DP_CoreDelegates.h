@@ -34,3 +34,4 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnSaveSignature, const FText&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnLoadSignature, const FGuid&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnDeleteSaveSignature, const FGuid&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSelectedSaveRecordSignature, const FGuid&);
+DECLARE_MULTICAST_DELEGATE(FOnAssetsPreloadCompletedSignature);

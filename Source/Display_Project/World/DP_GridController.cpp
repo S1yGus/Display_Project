@@ -58,12 +58,12 @@ void ADP_GridController::BeginPlay()
     }
 #endif    // WITH_EDITOR
 
-    CurrentGameState = EGameState::Interact;
+    SetGameState_Internal(EGameState::Preload);
 
+    SetupGameMode();
     SetupPlayerController();
     SetupHUD();
     SpawnGrid();
-    InitWelcomeState();
 }
 
 ADP_PlayerController* ADP_GridController::GetPlayerController() const
@@ -102,12 +102,9 @@ void ADP_GridController::ShowWarning(const FText& WarningText, FDeferredAction&&
 
         if (HUD->ShowWarning(WarningText))
         {
-            if (auto* PC = GetPlayerController())
-            {
-                PC->UpdateGameState(EGameState::Warning);
-            }
+            SetGameState(EGameState::Warning);
         }
-        else
+        else if (DeferredAction)
         {
             DeferredAction();
             DeferredAction = nullptr;
@@ -123,6 +120,14 @@ void ADP_GridController::UpdateUISaveRecords()
         {
             HUD->UpdateSaves(GameMode->GetSaveRecordsMetaData());
         }
+    }
+}
+
+void ADP_GridController::SetupGameMode()
+{
+    if (auto* GameMode = GetGameMode())
+    {
+        GameMode->OnAssetsPreloadCompleted.AddUObject(this, &ThisClass::OnAssetsPreloadCompletedHandler);
     }
 }
 
@@ -220,15 +225,31 @@ void ADP_GridController::SpawnObjectsFromSave(const TArray<FObjectSaveData>& Sav
 
 void ADP_GridController::SetGameState(EGameState NewGameState)
 {
-    if (CurrentGameState == NewGameState)
+    if (NewGameState == CurrentGameState)
         return;
+
+    if (NewGameState == EGameState::Interact)
+    {
+        PrevGameStates.Empty();
+    }
+    else
+    {
+        PrevGameStates.Add(CurrentGameState);
+    }
 
     SetGameState_Internal(NewGameState);
 }
 
+void ADP_GridController::SetPrevGameState()
+{
+    if (!PrevGameStates.IsEmpty())
+    {
+        SetGameState_Internal(PrevGameStates.Pop());
+    }
+}
+
 void ADP_GridController::SetGameState_Internal(EGameState NewGameState)
 {
-    PrevGameState = CurrentGameState;
     CurrentGameState = NewGameState;
 
     if (auto* PC = GetPlayerController())
@@ -272,7 +293,7 @@ void ADP_GridController::SetCurrentObjectType_Internal(EObjectType NewObjectType
 
 void ADP_GridController::OnSwitchToGameHandler()
 {
-    SetGameState(PrevGameState);
+    SetGameState(EGameState::Interact);
     UpdatePlayerLocation(SelectedObject ? SelectedObject->GetActorLocation() : Grid->GetActorLocation());
 
     for (auto Text : WelcomeText)
@@ -318,10 +339,10 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor)
     {
         if (SelectedObject)
         {
-            SelectedObject->Deselect();
+            SelectedObject->SetSelected(false);
         }
         SelectedObject = PlaceableActor;
-        SelectedObject->Select();
+        SelectedObject->SetSelected(true);
 
         if (auto* HUD = GetHUD())
         {
@@ -335,7 +356,7 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor)
     {
         if (SelectedObject)
         {
-            SelectedObject->Deselect();
+            SelectedObject->SetSelected(false);
             SelectedObject = nullptr;
         }
 
@@ -386,7 +407,7 @@ void ADP_GridController::OnShowOptionsHandler()
 
 void ADP_GridController::OnBackHandler()
 {
-    SetGameState(PrevGameState);
+    SetPrevGameState();
 }
 
 void ADP_GridController::OnVideoQualityChangedHandler(EVideoQuality VideoQuality)
@@ -451,7 +472,7 @@ void ADP_GridController::OnLoadHandler(const FGuid& Guid)
                             Grid->UpdateNodesState(Data.NodesState);
                             Grid->SetPanelLabel(MetaData.Name);
                             SpawnObjectsFromSave(Data.ObjectData);
-                            SetGameState(PrevGameState);
+                            SetGameState(EGameState::Interact);
                         }
                     }
                 });
@@ -480,10 +501,7 @@ void ADP_GridController::OnShowHelpHandler()
 
 void ADP_GridController::OnWarningResponseHandler(bool bCondition)
 {
-    if (auto* PC = GetPlayerController())
-    {
-        PC->UpdateGameState(CurrentGameState);
-    }
+    SetPrevGameState();
 
     if (DeferredAction && bCondition)
     {
@@ -504,10 +522,15 @@ void ADP_GridController::OnInspectHandler()
 
 void ADP_GridController::OnInspectCompletedHandler()
 {
-    SetGameState(PrevGameState);
+    SetPrevGameState();
 
     if (auto* Player = GetPlayer())
     {
         Player->StopInspect();
     }
+}
+
+void ADP_GridController::OnAssetsPreloadCompletedHandler()
+{
+    InitWelcomeState();
 }
