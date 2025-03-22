@@ -33,7 +33,7 @@ enum class EAttributeType : uint8
 {
     ObjectName = 0,
     DisplayText,
-    ButtonText,
+    ButtonLabel,
     Display
 };
 

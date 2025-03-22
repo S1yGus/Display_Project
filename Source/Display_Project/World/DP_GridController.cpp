@@ -339,10 +339,10 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor)
     {
         if (SelectedObject)
         {
-            SelectedObject->Deselect();
+            SelectedObject->SetSelected(false);
         }
         SelectedObject = PlaceableActor;
-        SelectedObject->Select();
+        SelectedObject->SetSelected(true);
 
         if (auto* HUD = GetHUD())
         {
@@ -356,7 +356,7 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor)
     {
         if (SelectedObject)
         {
-            SelectedObject->Deselect();
+            SelectedObject->SetSelected(false);
             SelectedObject = nullptr;
         }
 

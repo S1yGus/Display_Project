@@ -66,7 +66,7 @@ TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateAttributeWid
             break;
         case EAttributeType::DisplayText:
             [[fallthrough]];
-        case EAttributeType::ButtonText:
+        case EAttributeType::ButtonLabel:
             AttributeWidget = CreateTextInputAttributeWidget(FText::GetEmpty());
             break;
         case EAttributeType::Display:

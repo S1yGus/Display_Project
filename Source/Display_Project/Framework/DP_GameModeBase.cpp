@@ -98,7 +98,15 @@ void ADP_GameModeBase::CheckGameSave()
 
 void ADP_GameModeBase::PreloadAssets()
 {
-    UAssetManager::GetStreamableManager().RequestAsyncLoad(AssetsToPreload, FStreamableDelegate::CreateUObject(this, &ADP_GameModeBase::OnAssetsPreloadCompletedHandler));
+    if (!AssetsToPreload.IsEmpty())
+    {
+        UAssetManager::GetStreamableManager().RequestAsyncLoad(AssetsToPreload,
+                                                               FStreamableDelegate::CreateUObject(this, &ADP_GameModeBase::OnAssetsPreloadCompletedHandler));
+    }
+    else
+    {
+        OnAssetsPreloadCompletedHandler();
+    }
 }
 
 void ADP_GameModeBase::OnAssetsPreloadCompletedHandler()

@@ -14,7 +14,13 @@ class DISPLAY_PROJECT_API ADP_Display_8 : public ADP_Display_1
 public:
     ADP_Display_8();
 
+    virtual void SetPreviewMode(bool bEnabled) override;
+    virtual void UpdateMaterial(UMaterialInterface* Material) override;
+
 protected:
+    UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+    TObjectPtr<UStaticMeshComponent> GlassMesh;
+
     UPROPERTY(VisibleDefaultsOnly, Category = "Components")
     TObjectPtr<UDP_Segment> Segment_2;
 
@@ -35,4 +41,10 @@ protected:
 
     UPROPERTY(VisibleDefaultsOnly, Category = "Components")
     TObjectPtr<UDP_Segment> Segment_8;
+
+    virtual void BeginPlay() override;
+
+private:
+    UPROPERTY()
+    TArray<UMaterialInterface*> DefaultGlassMaterials;
 };
