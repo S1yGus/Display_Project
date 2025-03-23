@@ -64,5 +64,6 @@ private:
     UPROPERTY()
     TArray<UMaterialInterface*> DefaultMeshMaterials;
 
+    FORCEINLINE void CollectDefaultMeshMaterials();
     void SetAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
 };

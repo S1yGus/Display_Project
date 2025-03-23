@@ -93,6 +93,11 @@ void ADP_PlaceableActor::BeginPlay()
 {
     Super::BeginPlay();
 
+    CollectDefaultMeshMaterials();
+}
+
+void ADP_PlaceableActor::CollectDefaultMeshMaterials()
+{
     DefaultMeshMaterials.Reserve(MeshComponent->GetNumMaterials());
     for (int32 i = 0; i < MeshComponent->GetNumMaterials(); ++i)
     {

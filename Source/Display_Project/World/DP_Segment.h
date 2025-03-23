@@ -3,22 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/WidgetComponent.h"
+#include "GameFramework/Actor.h"
 #include "Interfaces/DP_SegmentInterface.h"
 #include "DP_Segment.generated.h"
 
+class UWidgetComponent;
 class UDP_TextWidget;
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class DISPLAY_PROJECT_API UDP_Segment : public UWidgetComponent, public IDP_SegmentInterface
+UCLASS()
+class DISPLAY_PROJECT_API ADP_Segment : public AActor, public IDP_SegmentInterface
 {
     GENERATED_BODY()
 
 public:
-    UDP_Segment();
+    ADP_Segment();
 
     virtual void Set(TCHAR Character) override;
     virtual void Clear() override;
+    virtual void Teardown() override;
+
+protected:
+    UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+    TObjectPtr<UWidgetComponent> WidgetComponent;
 
     virtual void BeginPlay() override;
 

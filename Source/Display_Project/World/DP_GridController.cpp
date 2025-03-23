@@ -58,12 +58,12 @@ void ADP_GridController::BeginPlay()
     }
 #endif    // WITH_EDITOR
 
-    SetGameState_Internal(EGameState::Preload);
-
     SetupGameMode();
     SetupPlayerController();
     SetupHUD();
     SpawnGrid();
+
+    SetGameState_Internal(EGameState::Preload);
 }
 
 ADP_PlayerController* ADP_GridController::GetPlayerController() const

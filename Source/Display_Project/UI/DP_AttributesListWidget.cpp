@@ -7,7 +7,7 @@
 #include "Components/VerticalBox.h"
 #include "Components/ComboBoxString.h"
 #include "Kismet/GameplayStatics.h"
-#include "World/DP_Display_1.h"
+#include "World/DP_Display.h"
 #include "DP_Utils.h"
 
 void UDP_AttributesListWidget::Init(EObjectType ObjectType, const TSet<EAttributeType>& Attributes)
@@ -74,10 +74,10 @@ TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateAttributeWid
                 [this](TObjectPtr<UComboBoxString> ComboBox, TArray<FAttributeData>& AttributeData)
                 {
                     TArray<AActor*> DisplayActors;
-                    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADP_Display_1::StaticClass(), DisplayActors);
+                    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADP_Display::StaticClass(), DisplayActors);
                     for (auto* Actor : DisplayActors)
                     {
-                        if (auto* DisplayActor = Cast<ADP_Display_1>(Actor))
+                        if (auto* DisplayActor = Cast<ADP_Display>(Actor))
                         {
                             FAttributeData Data;
                             Data.Set<FGuid>(DisplayActor->GetObjectGuid());
@@ -88,7 +88,7 @@ TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateAttributeWid
                 },
                 [this](const FAttributeData& Data)
                 {
-                    const auto* Display = DP::GetPlaceableActorByGuid<ADP_Display_1>(GetWorld(), Data.Get<FGuid>());
+                    const auto* Display = DP::GetPlaceableActorByGuid<ADP_Display>(GetWorld(), Data.Get<FGuid>());
                     return Display ? Display->GetObjectName() : "";
                 });
             break;

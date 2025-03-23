@@ -19,4 +19,5 @@ class IDP_SegmentInterface
 public:
     virtual void Set(TCHAR Character) = 0;
     virtual void Clear() = 0;
+    virtual void Teardown() = 0;
 };

@@ -7,7 +7,7 @@
 #include "DP_CoreTypes.h"
 #include "DP_Button.generated.h"
 
-class ADP_Display_1;
+class ADP_Display;
 class UWidgetComponent;
 
 UCLASS()
@@ -31,7 +31,7 @@ protected:
     int32 MaxLabelLength{3};
 
     UPROPERTY(EditAnywhere, Category = "Settings")
-    TObjectPtr<ADP_Display_1> LinkedDisplay;
+    TObjectPtr<ADP_Display> LinkedDisplay;
 
     UPROPERTY(EditAnywhere, Category = "Settings")
     FString LinkedDisplayText;
