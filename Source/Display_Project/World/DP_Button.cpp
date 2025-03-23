@@ -1,7 +1,7 @@
 // Display_Project, all rights reserved.
 
 #include "World/DP_Button.h"
-#include "World/DP_Display_1.h"
+#include "World/DP_Display.h"
 #include "UI/DP_TextWidget.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/KismetStringLibrary.h"
@@ -60,7 +60,7 @@ void ADP_Button::UpdateAttributes()
     }
     if (AttributesMap.Contains(EAttributeType::Display))
     {
-        LinkedDisplay = DP::GetPlaceableActorByGuid<ADP_Display_1>(GetWorld(), AttributesMap[EAttributeType::Display].Get<FGuid>());
+        LinkedDisplay = DP::GetPlaceableActorByGuid<ADP_Display>(GetWorld(), AttributesMap[EAttributeType::Display].Get<FGuid>());
     }
 }
 

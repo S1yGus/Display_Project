@@ -40,7 +40,7 @@ void ADP_Panel::SpawnScrews()
 {
     check(ScrewClass);
 
-    for (int32 i = 0; i < ScrewNum; ++i)
+    for (int32 i = 0; i < ScrewsNum; ++i)
     {
         auto* Screw = GetWorld()->SpawnActor<AActor>(ScrewClass, FTransform::Identity);
         check(Screw);

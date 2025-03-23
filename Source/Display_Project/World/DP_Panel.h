@@ -38,7 +38,7 @@ protected:
     FString ScrewSocketNamePattern{"Screw_"};
 
     UPROPERTY(EditDefaultsOnly, Category = "Settings")
-    int32 ScrewNum{4};
+    int32 ScrewsNum{4};
 
     virtual void BeginPlay() override;
 
