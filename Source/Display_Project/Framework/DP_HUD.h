@@ -47,6 +47,9 @@ public:
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
+    TSubclassOf<UDP_BaseAnimatedWidget> StandbyWidgetClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Classes")
     TSubclassOf<UDP_BaseAnimatedWidget> PreloadWidgetClass;
 
     UPROPERTY(EditDefaultsOnly, Category = "Classes")
@@ -76,6 +79,7 @@ private:
     [[nodiscard]] FORCEINLINE UDP_GameWidget* GetGameWidget() const;
     [[nodiscard]] FORCEINLINE UDP_SaveAndLoadWidget* GetSaveAndLoadWidget() const;
 
+    FORCEINLINE void CreateStandbyWidget();
     FORCEINLINE void CreatePreloadWidget();
     FORCEINLINE void CreateWelcomeWidget();
     FORCEINLINE void CreateGameWidget(const TMap<EObjectType, FObjectData>& ObjectsMap);

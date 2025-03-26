@@ -14,6 +14,8 @@ void ADP_HUD::CreateWidgets(const TMap<EObjectType, FObjectData>& ObjectsMap,   
                             float RotationSpeedNormalized,                              //
                             float SoundVolume)
 {
+    CreateStandbyWidget();
+    CreatePreloadWidget();
     CreateWelcomeWidget();
     CreateGameWidget(ObjectsMap);
     CreateInspectWidget();
@@ -88,6 +90,7 @@ void ADP_HUD::BeginPlay()
 {
     Super::BeginPlay();
 
+    check(StandbyWidgetClass);
     check(PreloadWidgetClass);
     check(WelcomeWidgetClass);
     check(GameWidgetClass);
@@ -114,6 +117,14 @@ UDP_SaveAndLoadWidget* ADP_HUD::GetSaveAndLoadWidget() const
     }
 
     return nullptr;
+}
+
+void ADP_HUD::CreateStandbyWidget()
+{
+    auto* StandbyWidget = CreateWidget<UDP_BaseAnimatedWidget>(GetWorld(), StandbyWidgetClass);
+    check(StandbyWidget);
+    StandbyWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
+    Widgets.Add(EWidgetType::Standby, StandbyWidget);
 }
 
 void ADP_HUD::CreatePreloadWidget()
@@ -189,8 +200,7 @@ void ADP_HUD::CreateSaveAndLoadWidget()
 
 void ADP_HUD::SetCurrentWidget()
 {
-    CurrentWidget = Widgets[CurrentWidgetType];
-    if (CurrentWidget)
+    if (CurrentWidget = Widgets[CurrentWidgetType])
     {
         CurrentWidget->SetVisibility(ESlateVisibility::Visible);
         CurrentWidget->ShowStartupAnimation();

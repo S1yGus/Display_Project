@@ -71,12 +71,12 @@ EWidgetType UI::GameStateToWidgetType(EGameState GameState)
 {
     switch (GameState)
     {
+        case EGameState::Standby:
+            return EWidgetType::Standby;
         case EGameState::Preload:
             return EWidgetType::Preload;
         case EGameState::Welcome:
             return EWidgetType::Welcome;
-        case EGameState::Standby:
-            [[fallthrough]];
         case EGameState::Placement:
             [[fallthrough]];
         case EGameState::Interact:
@@ -89,6 +89,8 @@ EWidgetType UI::GameStateToWidgetType(EGameState GameState)
             return EWidgetType::Options;
         case EGameState::SaveAndLoad:
             return EWidgetType::SaveAndLoad;
+        case EGameState::Warning:
+            return EWidgetType::None;
         default:
             return EWidgetType::None;
     }

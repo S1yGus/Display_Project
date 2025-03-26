@@ -293,7 +293,15 @@ void ADP_GridController::SetCurrentObjectType_Internal(EObjectType NewObjectType
 
 void ADP_GridController::OnSwitchToGameHandler()
 {
-    SetGameState(EGameState::Interact);
+    if (PrevGameStates.IsEmpty())
+    {
+        SetGameState(EGameState::Interact);
+    }
+    else
+    {
+        SetPrevGameState();
+    }
+
     UpdatePlayerLocation(SelectedObject ? SelectedObject->GetActorLocation() : Grid->GetActorLocation());
 
     for (auto Text : WelcomeText)
@@ -532,5 +540,6 @@ void ADP_GridController::OnInspectCompletedHandler()
 
 void ADP_GridController::OnAssetsPreloadCompletedHandler()
 {
+    SetGameState_Internal(EGameState::Standby);
     InitWelcomeState();
 }

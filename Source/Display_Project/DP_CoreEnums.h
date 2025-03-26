@@ -41,6 +41,7 @@ UENUM()
 enum class EWidgetType : uint8
 {
     None = 0,
+    Standby,
     Preload,
     Welcome,
     Game,
