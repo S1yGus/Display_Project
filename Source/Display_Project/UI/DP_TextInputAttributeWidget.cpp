@@ -10,6 +10,7 @@ void UDP_TextInputAttributeWidget::Update(const FAttributeData& Data)
 
     const auto NewText = FText::FromString(Data.Get<FString>());
     TextInput->SetText(NewText);
+    OnTextChanged(NewText);
 }
 
 void UDP_TextInputAttributeWidget::Reset()

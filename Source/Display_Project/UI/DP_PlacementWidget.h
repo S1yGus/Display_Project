@@ -24,7 +24,8 @@ public:
     FOnDestroyAllSignature OnDestroyAll;
 
     void CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap);
-    void DeselectPlacementObject();
+    void HideAttributesList();
+    void Copy(EObjectType ObjectType, const FAttributesMap& Attributes);
 
 protected:
     UPROPERTY(Meta = (BindWidget))
@@ -50,7 +51,9 @@ private:
     FORCEINLINE UDP_ObjectButtonWidget* CreateButtonWidget(EObjectType ObjectType, UTexture2D* Thumbnail);
     FORCEINLINE UDP_AttributesListWidget* CreateAttributesListWidget(EObjectType ObjectType, const TSet<EAttributeType>& Attributes);
     FORCEINLINE void ResetCurrentAttributesList();
-    FORCEINLINE void UpdateObjectButtonsSelection(EObjectType ObjectType);
+    FORCEINLINE void UpdateCurrentAttributesList(const FAttributesMap& Attributes);
+    FORCEINLINE void UpdateSelection(EObjectType ObjectType);
+    FORCEINLINE void UpdateButtonsSelection(EObjectType ObjectType);
 
     void OnClickedDestroyAllButtonHandler();
     void OnClickedObjectButtonHandler(EObjectType ObjectType);

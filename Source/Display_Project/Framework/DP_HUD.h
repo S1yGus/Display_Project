@@ -34,6 +34,8 @@ public:
     FOnDeleteSaveSignature OnDeleteSave;
     FOnShowHelpSignature OnShowHelp;
     FOnWarningResponseSignature OnWarningResponse;
+    FOnCopySignature OnCopy;
+    FOnMoveSignature OnMove;
     FOnInspectSignature OnInspect;
     FOnInspectCompletedSignature OnInspectCompleted;
 
@@ -41,8 +43,9 @@ public:
                        float SoundVolume);
     void ChangeCurrentWidget(EGameState GameState);
     void UpdateSaves(const TArray<FSaveRecordMetaData>& SaveRecordsMetaData);
+    void Select(EObjectType ObjectType, const FAttributesMap& Attributes);
+    void Copy(EObjectType ObjectType, const FAttributesMap& Attributes);
     void DeselectPlacementObject();
-    void Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes);
     bool ShowWarning(const FText& WarningText);
 
 protected:
@@ -108,6 +111,8 @@ private:
     void OnDeleteSaveHandler(const FGuid& Guid);
     void OnShowHelpHandler();
     void OnWarningResponseHandler(bool bCondition);
+    void OnCopyHandler();
+    void OnMoveHandler();
     void OnInspectHandler();
     void OnInspectCompletedHandler();
 };

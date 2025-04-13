@@ -24,6 +24,7 @@ public:
 
     void SpawnCurrentObject();
     void UpdatePreviewLocation(ADP_Node* ReferenceNode);
+    void DestroyPreview();
     void SetPanelLabel(const FText& Label);
 
     [[nodiscard]] TArray<FGuid> GetNodesState() const;
@@ -34,6 +35,7 @@ public:
 
     void UpdateCurrentObjectClass(UClass* ObjectClass);
     void AddCurrentObjectAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
+    void MoveCurrentObjectGuid(FGuid&& Guid);
 
 protected:
     UPROPERTY(EditAnywhere, Category = "Settings", Meta = (ClampMin = "0"))
@@ -68,6 +70,7 @@ protected:
 private:
     UClass* CurrentObjectClass;
     FAttributesMap CurrentObjectAttributesMap;
+    FGuid CurrentObjectGuid;
     UPROPERTY()
     TArray<TObjectPtr<ADP_Node>> Nodes;
     FOccupiedNodesMap OccupiedNodesMap;
@@ -89,7 +92,6 @@ private:
     void SpawnPanel();
     FORCEINLINE [[nodiscard]] bool CanSpawn() const { return bIsValidArea && bIsAreaVacant; }
     bool SpawnPreview(const FTransform& SpawnTransform);
-    FORCEINLINE void DestroyPreview();
     void UpdatePreviewMaterial();
     FORCEINLINE [[nodiscard]] TOptional<ADP_Node*> GetValidPreviewNode(ADP_Node* Node, const FIntPoint& ObjectSize);
     FORCEINLINE [[nodiscard]] ADP_Node* GetValidPreviewNodeX(ADP_Node* Node, int32 ObjectSizeX);

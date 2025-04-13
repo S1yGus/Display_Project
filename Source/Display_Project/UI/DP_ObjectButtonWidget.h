@@ -20,7 +20,7 @@ public:
     FOnClickedObjectButtonSignature OnClickedObjectButton;
 
     void Init(EObjectType ObjectType, UTexture2D* Thumbnail);
-    void UpdateSelection(EObjectType ObjectType);
+    void Select(EObjectType ObjectType);
 
 protected:
     UPROPERTY(Meta = (BindWidget))

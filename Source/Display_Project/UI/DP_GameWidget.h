@@ -27,11 +27,14 @@ public:
     FOnShowOptionsSignature OnShowOptions;
     FOnShowSaveAndLoadSignature OnShowSaveAndLoad;
     FOnShowHelpSignature OnShowHelp;
+    FOnCopySignature OnCopy;
+    FOnMoveSignature OnMove;
     FOnInspectSignature OnInspect;
 
     void CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap);
     void SwitchCurrentWidget(EGameState GameState);
-    void Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes);
+    void Select(EObjectType ObjectType, const FAttributesMap& Attributes);
+    void Copy(EObjectType ObjectType, const FAttributesMap& Attributes);
     void DeselectPlacementObject();
 
 protected:
@@ -59,5 +62,7 @@ private:
     void OnShowOptionsHandler();
     void OnShowSaveAndLoadHandler();
     void OnShowHelpHandler();
+    void OnCopyHandler();
+    void OnMoveHandler();
     void OnInspectHandler();
 };

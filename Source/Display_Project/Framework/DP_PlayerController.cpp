@@ -119,6 +119,23 @@ void ADP_PlayerController::InteractClick()
     }
 }
 
+void ADP_PlayerController::ObjectPlacementSelect()
+{
+    OnDeselectPlacementObject.Broadcast();
+}
+
+void ADP_PlayerController::Select()
+{
+    if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Clickable, false, HitResult))
+    {
+        OnObjectSelected.Broadcast(HitResult.GetActor());
+    }
+    else
+    {
+        OnObjectSelected.Broadcast(nullptr);
+    }
+}
+
 void ADP_PlayerController::OnClickHandler()
 {
     switch (CurrentGameState)
@@ -138,13 +155,18 @@ void ADP_PlayerController::OnClickHandler()
 
 void ADP_PlayerController::OnSelectHandler()
 {
-    if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Clickable, false, HitResult))
+    switch (CurrentGameState)
     {
-        OnObjectSelected.Broadcast(HitResult.GetActor());
-    }
-    else
-    {
-        OnObjectSelected.Broadcast(nullptr);
+        case EGameState::Placement:
+            ObjectPlacementSelect();
+            break;
+        case EGameState::Interact:
+            [[fallthrough]];
+        case EGameState::Select:
+            Select();
+            break;
+        default:
+            break;
     }
 }
 

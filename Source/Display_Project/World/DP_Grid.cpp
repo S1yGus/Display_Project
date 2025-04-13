@@ -4,6 +4,7 @@
 #include "World/DP_PlaceableActor.h"
 #include "World/DP_Node.h"
 #include "World/DP_Panel.h"
+#include "Misc/Optional.h"
 #include "DP_Utils.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogGrid, All, All)
@@ -34,17 +35,15 @@ void ADP_Grid::SpawnCurrentObject()
 
 void ADP_Grid::UpdatePreviewLocation(ADP_Node* ReferenceNode)
 {
-    if (!ReferenceNode || ReferenceNode == SelectedNode || bIsSpawning)
+    if (!ReferenceNode || SelectedNode == ReferenceNode || bIsSpawning)
         return;
 
     SelectedNode = ReferenceNode;
 
-    if (!IsValid(PreviewObject) && !SpawnPreview(FTransform{ReferenceNode->GetActorRotation(), ReferenceNode->GetActorLocation(), MinPreviewScale}))
+    if (!IsValid(PreviewObject) && !SpawnPreview(FTransform{SelectedNode->GetActorRotation(), SelectedNode->GetActorLocation(), MinPreviewScale}))
         return;
 
-    const TOptional<ADP_Node*> ValidNodeOptional = GetValidPreviewNode(ReferenceNode, PreviewObject->GetObjectSize());
-    bIsValidArea = ValidNodeOptional.IsSet();
-    if (bIsValidArea)
+    if (const auto ValidNodeOptional = GetValidPreviewNode(SelectedNode, PreviewObject->GetObjectSize()))
     {
         CurrentValidNode = ValidNodeOptional.GetValue();
         PreviewObject->SetActorLocation(CurrentValidNode->GetActorLocation());
@@ -52,6 +51,17 @@ void ADP_Grid::UpdatePreviewLocation(ADP_Node* ReferenceNode)
     }
 
     UpdatePreviewMaterial();
+}
+
+void ADP_Grid::DestroyPreview()
+{
+    if (PreviewObject && !bIsSpawning)
+    {
+        CurrentObjectAttributesMap.Empty();
+        CurrentObjectGuid.Invalidate();
+        PreviewObject->Destroy();
+        SelectedNode = nullptr;
+    }
 }
 
 void ADP_Grid::SetPanelLabel(const FText& Label)
@@ -119,7 +129,6 @@ void ADP_Grid::FreeAll()
 void ADP_Grid::UpdateCurrentObjectClass(UClass* ObjectClass)
 {
     CurrentObjectClass = ObjectClass;
-    DestroyPreview();
 }
 
 void ADP_Grid::AddCurrentObjectAttribute(EAttributeType AttributeType, FAttributeData AttributeData)
@@ -129,6 +138,11 @@ void ADP_Grid::AddCurrentObjectAttribute(EAttributeType AttributeType, FAttribut
         CurrentObjectAttributesMap.Add(AttributeType);
     }
     CurrentObjectAttributesMap[AttributeType] = AttributeData;
+}
+
+void ADP_Grid::MoveCurrentObjectGuid(FGuid&& Guid)
+{
+    CurrentObjectGuid = MoveTemp(Guid);
 }
 
 void ADP_Grid::BeginPlay()
@@ -208,20 +222,6 @@ bool ADP_Grid::SpawnPreview(const FTransform& SpawnTransform)
     }
 
     return false;
-}
-
-void ADP_Grid::DestroyPreview()
-{
-    if (PreviewObject && !bIsSpawning)
-    {
-        if (GetWorldTimerManager().IsTimerActive(SpawnTimerHandle))
-        {
-            GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
-        }
-        CurrentObjectAttributesMap.Empty();
-        PreviewObject->Destroy();
-        SelectedNode = nullptr;
-    }
 }
 
 void ADP_Grid::UpdatePreviewMaterial()
@@ -413,8 +413,17 @@ void ADP_Grid::SpawnObject()
 {
     auto Object = PreviewObject;
     PreviewObject = nullptr;
+
+    auto ObjectGuid = FGuid::NewGuid();
+    bool bMoved = false;
+    if (CurrentObjectGuid.IsValid())
+    {
+        ObjectGuid = MoveTemp(CurrentObjectGuid);
+        CurrentObjectGuid.Invalidate();
+        bMoved = true;
+    }
     Object->SetPreviewMode(false);
-    Object->Init(MoveTemp(CurrentObjectAttributesMap), FGuid::NewGuid());
+    Object->Init(MoveTemp(CurrentObjectAttributesMap), MoveTemp(ObjectGuid));
 
     TSet<TObjectPtr<ADP_Node>> TraversedNodes;
     const FIntPoint ObjectSize = Object->GetObjectSize();
@@ -439,5 +448,5 @@ void ADP_Grid::SpawnObject()
     }
 
     bIsSpawning = false;
-    OnObjectSpawnCompleted.Broadcast();
+    OnObjectSpawnCompleted.Broadcast(Object, bMoved);
 }

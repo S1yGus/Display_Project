@@ -19,14 +19,22 @@ class DISPLAY_PROJECT_API UDP_SelectWidget : public UUserWidget
 public:
     FOnAttributeChangedSignature OnAttributeChanged;
     FOnDestroySelectedSignature OnDestroySelected;
+    FOnCopySignature OnCopy;
+    FOnMoveSignature OnMove;
     FOnInspectSignature OnInspect;
 
     void CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap);
-    void Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes);
+    void Select(EObjectType ObjectType, const FAttributesMap& Attributes);
 
 protected:
     UPROPERTY(Meta = (BindWidget))
     TObjectPtr<UWidgetSwitcher> AttributesSwitcher;
+
+    UPROPERTY(Meta = (BindWidget))
+    TObjectPtr<UDP_ButtonWidget> CopyButton;
+
+    UPROPERTY(Meta = (BindWidget))
+    TObjectPtr<UDP_ButtonWidget> MoveButton;
 
     UPROPERTY(Meta = (BindWidget))
     TObjectPtr<UDP_ButtonWidget> InspectButton;
@@ -42,6 +50,8 @@ protected:
 private:
     TMap<EObjectType, int32> TypeIDMap;
 
+    void OnClickedCopyButtonHandler();
+    void OnClickedMoveButtonHandler();
     void OnClickedInspectButtonHandler();
     void OnClickedDestroyButtonHandler();
     void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
