@@ -73,6 +73,8 @@ TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateAttributeWid
             AttributeWidget = CreateComboBoxAttributeWidget(
                 [this](TObjectPtr<UComboBoxString> ComboBox, TArray<FAttributeData>& AttributeData)
                 {
+                    ComboBox->ClearOptions();
+                    AttributeData.Empty();
                     TArray<AActor*> DisplayActors;
                     UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADP_Display::StaticClass(), DisplayActors);
                     for (auto* Actor : DisplayActors)

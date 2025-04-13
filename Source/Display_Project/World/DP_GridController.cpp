@@ -86,11 +86,22 @@ ADP_GameModeBase* ADP_GridController::GetGameMode() const
     return GetWorld() ? GetWorld()->GetAuthGameMode<ADP_GameModeBase>() : nullptr;
 }
 
-void ADP_GridController::UpdatePlayerLocation(const FVector& Location)
+void ADP_GridController::UpdatePlayerLocation(EGameState GameState)
 {
     if (auto* PC = GetPlayerController())
     {
-        PC->UpdatePlayerLocation(Location);
+        FVector NewLoaction{Grid->GetActorLocation()};
+
+        if (GameState == EGameState::Select && IsValid(SelectedObject))
+        {
+            NewLoaction = SelectedObject->GetActorLocation();
+        }
+        else if (GameState == EGameState::Welcome || GameState == EGameState::Preload || GameState == EGameState::Standby)
+        {
+            NewLoaction = WelcomePoint->GetActorLocation();
+        }
+
+        PC->UpdatePlayerLocation(NewLoaction);
     }
 }
 
@@ -138,8 +149,8 @@ void ADP_GridController::SetupPlayerController()
         PC->OnUpdatePreviewLocation.AddUObject(this, &ThisClass::OnUpdatePreviewLocationHandler);
         PC->OnObjectSpawn.AddUObject(this, &ThisClass::OnSpawnCurrentObjectHandler);
         PC->OnObjectSelected.AddUObject(this, &ThisClass::OnSelectHandler);
+        PC->OnDeselectPlacementObject.AddUObject(this, &ThisClass::OnDeselectPlacementObjectHandler);
         PC->OnWelcomeScreenCompleted.AddUObject(this, &ThisClass::OnSwitchToGameHandler);
-        PC->UpdatePlayerLocation(WelcomePoint->GetActorLocation());
     }
 }
 
@@ -161,6 +172,8 @@ void ADP_GridController::SetupHUD()
         HUD->OnDeleteSave.AddUObject(this, &ThisClass::OnDeleteSaveHandler);
         HUD->OnShowHelp.AddUObject(this, &ThisClass::OnShowHelpHandler);
         HUD->OnWarningResponse.AddUObject(this, &ThisClass::OnWarningResponseHandler);
+        HUD->OnCopy.AddUObject(this, &ThisClass::OnCopyHandler);
+        HUD->OnMove.AddUObject(this, &ThisClass::OnMoveHandler);
         HUD->OnInspect.AddUObject(this, &ThisClass::OnInspectHandler);
         HUD->OnInspectCompleted.AddUObject(this, &ThisClass::OnInspectCompletedHandler);
         HUD->OnVideoQualityChanged.AddUObject(this, &ThisClass::OnVideoQualityChangedHandler);
@@ -223,20 +236,48 @@ void ADP_GridController::SpawnObjectsFromSave(const TArray<FObjectSaveData>& Sav
     }
 }
 
-void ADP_GridController::SetGameState(EGameState NewGameState)
+void ADP_GridController::DestroySelectedObject()
 {
-    if (NewGameState == CurrentGameState)
-        return;
+    if (SelectedObject)
+    {
+        Grid->Free(SelectedObject->GetObjectGuid());
+        SelectedObject = nullptr;
+    }
+}
 
-    if (NewGameState == EGameState::Interact)
+void ADP_GridController::DeselectPlacementObject()
+{
+    if (auto* HUD = GetHUD())
+    {
+        HUD->DeselectPlacementObject();
+        Grid->DestroyPreview();
+        SetPrevGameState();
+    }
+}
+
+void ADP_GridController::HandleSelectGameState()
+{
+    if (CurrentGameState == EGameState::Select && !IsValid(SelectedObject))
+    {
+        CurrentGameState = EGameState::Interact;
+    }
+}
+
+void ADP_GridController::UpdatePrevGameState(EGameState GameState)
+{
+    if (GameState == EGameState::Interact)
     {
         PrevGameStates.Empty();
     }
-    else
+    else if ((!PrevGameStates.IsEmpty() && PrevGameStates[PrevGameStates.Num() - 1] != GameState) || PrevGameStates.IsEmpty())
     {
         PrevGameStates.Add(CurrentGameState);
     }
+}
 
+void ADP_GridController::SetGameState(EGameState NewGameState)
+{
+    UpdatePrevGameState(NewGameState);
     SetGameState_Internal(NewGameState);
 }
 
@@ -252,6 +293,9 @@ void ADP_GridController::SetGameState_Internal(EGameState NewGameState)
 {
     CurrentGameState = NewGameState;
 
+    HandleSelectGameState();
+    UpdatePlayerLocation(CurrentGameState);
+
     if (auto* PC = GetPlayerController())
     {
         PC->UpdateGameState(CurrentGameState);
@@ -265,9 +309,6 @@ void ADP_GridController::SetGameState_Internal(EGameState NewGameState)
 
 void ADP_GridController::SetCurrentObjectType(EObjectType NewObjectType)
 {
-    if (CurrentObjectType == NewObjectType)
-        return;
-
     SetCurrentObjectType_Internal(NewObjectType);
 }
 
@@ -275,16 +316,7 @@ void ADP_GridController::SetCurrentObjectType_Internal(EObjectType NewObjectType
 {
     CurrentObjectType = NewObjectType;
 
-    if (CurrentObjectType == EObjectType::None)
-    {
-        if (auto* HUD = GetHUD())
-        {
-            HUD->DeselectPlacementObject();
-            Grid->UpdateCurrentObjectClass(nullptr);
-            SetGameState(EGameState::Interact);
-        }
-    }
-    else if (ObjectsMap.Contains(CurrentObjectType))
+    if (ObjectsMap.Contains(CurrentObjectType))
     {
         Grid->UpdateCurrentObjectClass(ObjectsMap[CurrentObjectType].Class);
         SetGameState(EGameState::Placement);
@@ -302,8 +334,6 @@ void ADP_GridController::OnSwitchToGameHandler()
         SetPrevGameState();
     }
 
-    UpdatePlayerLocation(SelectedObject ? SelectedObject->GetActorLocation() : Grid->GetActorLocation());
-
     for (auto Text : WelcomeText)
     {
         Text->InitShift();
@@ -320,9 +350,9 @@ void ADP_GridController::OnSpawnCurrentObjectHandler()
     Grid->SpawnCurrentObject();
 }
 
-void ADP_GridController::OnObjectSpawnCompletedHandler()
+void ADP_GridController::OnObjectSpawnCompletedHandler(AActor* Actor, bool bMoved)
 {
-    SetCurrentObjectType(EObjectType::None);
+    bMoved ? OnSelectHandler(Actor) : OnDeselectPlacementObjectHandler();
 }
 
 void ADP_GridController::OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData)
@@ -331,7 +361,7 @@ void ADP_GridController::OnAttributeChangedHandler(EAttributeType AttributeType,
     {
         Grid->AddCurrentObjectAttribute(AttributeType, AttributeData);
     }
-    else if (CurrentGameState == EGameState::Select)
+    else if (CurrentGameState == EGameState::Select && SelectedObject)
     {
         SelectedObject->UpdateAttribute(AttributeType, AttributeData);
     }
@@ -339,12 +369,9 @@ void ADP_GridController::OnAttributeChangedHandler(EAttributeType AttributeType,
 
 void ADP_GridController::OnSelectHandler(AActor* SelectedActor)
 {
-    if (CurrentGameState == EGameState::Placement)
+    if (auto* PlaceableActor = Cast<ADP_PlaceableActor>(SelectedActor))
     {
-        SetCurrentObjectType(EObjectType::None);
-    }
-    else if (auto* PlaceableActor = Cast<ADP_PlaceableActor>(SelectedActor))
-    {
+
         if (SelectedObject)
         {
             SelectedObject->SetSelected(false);
@@ -354,10 +381,9 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor)
 
         if (auto* HUD = GetHUD())
         {
-            HUD->Select(SelectedObject->GetObjectType(), SelectedObject->GetObjectName(), SelectedObject->GetObjectAttributes());
+            HUD->Select(SelectedObject->GetObjectType(), SelectedObject->GetObjectAttributes());
         }
 
-        UpdatePlayerLocation(SelectedObject->GetActorLocation());
         SetGameState(EGameState::Select);
     }
     else
@@ -368,17 +394,18 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor)
             SelectedObject = nullptr;
         }
 
-        UpdatePlayerLocation(Grid->GetActorLocation());
-        SetGameState(EGameState::Interact);
+        DeselectPlacementObject();
     }
+}
+
+void ADP_GridController::OnDeselectPlacementObjectHandler()
+{
+    DeselectPlacementObject();
 }
 
 void ADP_GridController::OnDestroySelectedHandler()
 {
-    Grid->Free(SelectedObject->GetObjectGuid());
-    SelectedObject = nullptr;
-
-    UpdatePlayerLocation(Grid->GetActorLocation());
+    DestroySelectedObject();
     SetGameState(EGameState::Interact);
 }
 
@@ -503,7 +530,6 @@ void ADP_GridController::OnDeleteSaveHandler(const FGuid& Guid)
 
 void ADP_GridController::OnShowHelpHandler()
 {
-    UpdatePlayerLocation(WelcomePoint->GetActorLocation());
     SetGameState(EGameState::Welcome);
 }
 
@@ -518,13 +544,30 @@ void ADP_GridController::OnWarningResponseHandler(bool bCondition)
     DeferredAction = nullptr;
 }
 
+void ADP_GridController::OnCopyHandler()
+{
+    if (auto* HUD = GetHUD(); HUD && IsValid(SelectedObject))
+    {
+        HUD->Copy(SelectedObject->GetObjectType(), SelectedObject->GetObjectAttributes());
+    }
+}
+
+void ADP_GridController::OnMoveHandler()
+{
+    if (auto* HUD = GetHUD(); HUD && IsValid(SelectedObject))
+    {
+        HUD->Copy(SelectedObject->GetObjectType(), SelectedObject->GetObjectAttributes());
+        Grid->MoveCurrentObjectGuid(SelectedObject->GetObjectGuid());
+        DestroySelectedObject();
+    }
+}
+
 void ADP_GridController::OnInspectHandler()
 {
-    SetGameState(EGameState::Inspect);
-
-    if (auto* Player = GetPlayer())
+    if (auto* Player = GetPlayer(); Player && IsValid(SelectedObject))
     {
         Player->StartInspect(SelectedObject->GetClass(), SelectedObject->GetObjectAttributes());
+        SetGameState(EGameState::Inspect);
     }
 }
 

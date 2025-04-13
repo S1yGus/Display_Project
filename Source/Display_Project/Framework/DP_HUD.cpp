@@ -59,19 +59,27 @@ void ADP_HUD::UpdateSaves(const TArray<FSaveRecordMetaData>& SaveRecordsMetaData
     }
 }
 
+void ADP_HUD::Select(EObjectType ObjectType, const FAttributesMap& Attributes)
+{
+    if (auto* GameWidget = GetGameWidget())
+    {
+        GameWidget->Select(ObjectType, Attributes);
+    }
+}
+
+void ADP_HUD::Copy(EObjectType ObjectType, const FAttributesMap& Attributes)
+{
+    if (auto* GameWidget = GetGameWidget())
+    {
+        GameWidget->Copy(ObjectType, Attributes);
+    }
+}
+
 void ADP_HUD::DeselectPlacementObject()
 {
     if (auto* GameWidget = GetGameWidget())
     {
         GameWidget->DeselectPlacementObject();
-    }
-}
-
-void ADP_HUD::Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes)
-{
-    if (auto* GameWidget = GetGameWidget())
-    {
-        GameWidget->Select(ObjectType, ObjectName, Attributes);
     }
 }
 
@@ -158,6 +166,8 @@ void ADP_HUD::CreateGameWidget(const TMap<EObjectType, FObjectData>& ObjectsMap)
     GameWidget->OnShowHelp.AddUObject(this, &ThisClass::OnShowHelpHandler);
     GameWidget->OnFadeoutAnimationFinished.AddUObject(this, &ThisClass::OnFadeoutAnimationFinishedHandler);
     GameWidget->OnWarningResponse.AddUObject(this, &ThisClass::OnWarningResponseHandler);
+    GameWidget->OnCopy.AddUObject(this, &ThisClass::OnCopyHandler);
+    GameWidget->OnMove.AddUObject(this, &ThisClass::OnMoveHandler);
     GameWidget->OnInspect.AddUObject(this, &ThisClass::OnInspectHandler);
     GameWidget->CreateWidgetsForObjects(ObjectsMap);
     Widgets.Add(EWidgetType::Game, GameWidget);
@@ -200,10 +210,13 @@ void ADP_HUD::CreateSaveAndLoadWidget()
 
 void ADP_HUD::SetCurrentWidget()
 {
-    if (CurrentWidget = Widgets[CurrentWidgetType])
+    if (Widgets.Contains(CurrentWidgetType))
     {
-        CurrentWidget->SetVisibility(ESlateVisibility::Visible);
-        CurrentWidget->ShowStartupAnimation();
+        if (CurrentWidget = Widgets[CurrentWidgetType])
+        {
+            CurrentWidget->SetVisibility(ESlateVisibility::Visible);
+            CurrentWidget->ShowStartupAnimation();
+        }
     }
 }
 
@@ -307,6 +320,16 @@ void ADP_HUD::OnShowHelpHandler()
 void ADP_HUD::OnWarningResponseHandler(bool bCondition)
 {
     OnWarningResponse.Broadcast(bCondition);
+}
+
+void ADP_HUD::OnCopyHandler()
+{
+    OnCopy.Broadcast();
+}
+
+void ADP_HUD::OnMoveHandler()
+{
+    OnMove.Broadcast();
 }
 
 void ADP_HUD::OnInspectHandler()

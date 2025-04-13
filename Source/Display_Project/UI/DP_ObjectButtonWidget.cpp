@@ -10,7 +10,7 @@ void UDP_ObjectButtonWidget::Init(EObjectType ObjectType, UTexture2D* Thumbnail)
     Type = ObjectType;
 }
 
-void UDP_ObjectButtonWidget::UpdateSelection(EObjectType ObjectType)
+void UDP_ObjectButtonWidget::Select(EObjectType ObjectType)
 {
     FrameImage->SetVisibility(ObjectType == Type ? ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Hidden);
 }

@@ -19,6 +19,7 @@ public:
     FOnUpdatePreviewLocationSignature OnUpdatePreviewLocation;
     FOnObjectSpawnSignature OnObjectSpawn;
     FOnObjectSelectedSignature OnObjectSelected;
+    FOnDeselectPlacementObjectSignature OnDeselectPlacementObject;
     FOnWelcomeScreenCompletedSignature OnWelcomeScreenCompleted;
 
     ADP_PlayerController();
@@ -67,6 +68,8 @@ private:
 
     void ObjectPlacementClick();
     void InteractClick();
+    void ObjectPlacementSelect();
+    void Select();
 
     void OnClickHandler();
     void OnSelectHandler();

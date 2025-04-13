@@ -27,14 +27,19 @@ void UDP_GameWidget::SwitchCurrentWidget(EGameState GameState)
     }
 }
 
-void UDP_GameWidget::Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes)
+void UDP_GameWidget::Select(EObjectType ObjectType, const FAttributesMap& Attributes)
 {
-    SelectWidget->Select(ObjectType, ObjectName, Attributes);
+    SelectWidget->Select(ObjectType, Attributes);
+}
+
+void UDP_GameWidget::Copy(EObjectType ObjectType, const FAttributesMap& Attributes)
+{
+    PlacementWidget->Copy(ObjectType, Attributes);
 }
 
 void UDP_GameWidget::DeselectPlacementObject()
 {
-    PlacementWidget->DeselectPlacementObject();
+    PlacementWidget->HideAttributesList();
 }
 
 void UDP_GameWidget::NativeOnInitialized()
@@ -52,6 +57,8 @@ void UDP_GameWidget::NativeOnInitialized()
 
     SelectWidget->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
     SelectWidget->OnDestroySelected.AddUObject(this, &ThisClass::OnDestroySelectedHandler);
+    SelectWidget->OnCopy.AddUObject(this, &ThisClass::OnCopyHandler);
+    SelectWidget->OnMove.AddUObject(this, &ThisClass::OnMoveHandler);
     SelectWidget->OnInspect.AddUObject(this, &ThisClass::OnInspectHandler);
 
     ControlPanelWidget->OnQuit.AddUObject(this, &ThisClass::OnQuitHandler);
@@ -104,6 +111,16 @@ void UDP_GameWidget::OnShowSaveAndLoadHandler()
 void UDP_GameWidget::OnShowHelpHandler()
 {
     OnShowHelp.Broadcast();
+}
+
+void UDP_GameWidget::OnCopyHandler()
+{
+    OnCopy.Broadcast();
+}
+
+void UDP_GameWidget::OnMoveHandler()
+{
+    OnMove.Broadcast();
 }
 
 void UDP_GameWidget::OnInspectHandler()

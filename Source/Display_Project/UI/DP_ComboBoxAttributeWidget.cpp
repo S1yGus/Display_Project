@@ -19,8 +19,6 @@ void UDP_ComboBoxAttributeWidget::Reset()
 {
     Super::Reset();
 
-    ComboBox->ClearOptions();
-    AttributeData.Empty();
     if (UpdateComboBox)
     {
         UpdateComboBox(ComboBox, AttributeData);
@@ -37,8 +35,8 @@ void UDP_ComboBoxAttributeWidget::NativeOnInitialized()
 
 void UDP_ComboBoxAttributeWidget::OnSelectionChangedHandler(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
-    if (SelectionType == ESelectInfo::Direct)
-        return;
-
-    OnAttributeChanged.Broadcast(GetType(), AttributeData[ComboBox->FindOptionIndex(SelectedItem)]);
+    if (const auto Index = ComboBox->FindOptionIndex(SelectedItem); Index != INDEX_NONE)
+    {
+        OnAttributeChanged.Broadcast(GetType(), AttributeData[ComboBox->FindOptionIndex(SelectedItem)]);
+    }
 }

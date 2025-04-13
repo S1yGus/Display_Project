@@ -23,7 +23,7 @@ void UDP_SelectWidget::CreateWidgetsForObjects(const TMap<EObjectType, FObjectDa
     }
 }
 
-void UDP_SelectWidget::Select(EObjectType ObjectType, const FString& ObjectName, const FAttributesMap& Attributes)
+void UDP_SelectWidget::Select(EObjectType ObjectType, const FAttributesMap& Attributes)
 {
     if (TypeIDMap.Contains(ObjectType))
     {
@@ -39,12 +39,26 @@ void UDP_SelectWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
 
+    check(CopyButton);
+    check(MoveButton);
     check(InspectButton);
     check(DestroyButton);
     check(AttributesSwitcher);
 
+    CopyButton->OnClicked.AddUObject(this, &ThisClass::OnClickedCopyButtonHandler);
+    MoveButton->OnClicked.AddUObject(this, &ThisClass::OnClickedMoveButtonHandler);
     InspectButton->OnClicked.AddUObject(this, &ThisClass::OnClickedInspectButtonHandler);
     DestroyButton->OnClicked.AddUObject(this, &ThisClass::OnClickedDestroyButtonHandler);
+}
+
+void UDP_SelectWidget::OnClickedCopyButtonHandler()
+{
+    OnCopy.Broadcast();
+}
+
+void UDP_SelectWidget::OnClickedMoveButtonHandler()
+{
+    OnMove.Broadcast();
 }
 
 void UDP_SelectWidget::OnClickedInspectButtonHandler()

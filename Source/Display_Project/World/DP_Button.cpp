@@ -75,6 +75,11 @@ void ADP_Button::UpdateLabel(const FString& NewLabel)
 
 void ADP_Button::UpdateLinkedDisplayText()
 {
+    if (!IsValid(LinkedDisplay) && AttributesMap.Contains(EAttributeType::Display))
+    {
+        LinkedDisplay = DP::GetPlaceableActorByGuid<ADP_Display>(GetWorld(), AttributesMap[EAttributeType::Display].Get<FGuid>());
+    }
+
     if (IsValid(LinkedDisplay))
     {
         FAttributeData Data;

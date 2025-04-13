@@ -65,7 +65,7 @@ private:
     [[nodiscard]] FORCEINLINE ADP_HUD* GetHUD() const;
     [[nodiscard]] FORCEINLINE ADP_GameModeBase* GetGameMode() const;
 
-    FORCEINLINE void UpdatePlayerLocation(const FVector& Location);
+    FORCEINLINE void UpdatePlayerLocation(EGameState GameState);
     FORCEINLINE void ShowWarning(const FText& WarningText, FDeferredAction&& Action);
     FORCEINLINE void UpdateUISaveRecords();
 
@@ -75,7 +75,11 @@ private:
     FORCEINLINE void SpawnGrid();
     FORCEINLINE void InitWelcomeState();
     FORCEINLINE void SpawnObjectsFromSave(const TArray<FObjectSaveData>& SaveObjectData);
+    FORCEINLINE void DestroySelectedObject();
+    FORCEINLINE void DeselectPlacementObject();
+    FORCEINLINE void HandleSelectGameState();
 
+    void UpdatePrevGameState(EGameState GameState);
     void SetGameState(EGameState NewGameState);
     void SetPrevGameState();
     void SetGameState_Internal(EGameState NewGameState);
@@ -85,9 +89,10 @@ private:
     void OnSwitchToGameHandler();
     void OnUpdatePreviewLocationHandler(AActor* ReferenceActor);
     void OnSpawnCurrentObjectHandler();
-    void OnObjectSpawnCompletedHandler();
+    void OnObjectSpawnCompletedHandler(AActor* Actor, bool bMoved);
     void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
     void OnSelectHandler(AActor* SelectedActor);
+    void OnDeselectPlacementObjectHandler();
     void OnDestroySelectedHandler();
     void OnDestroyAllHandler();
     void OnQuitHandler();
@@ -103,6 +108,8 @@ private:
     void OnDeleteSaveHandler(const FGuid& Guid);
     void OnShowHelpHandler();
     void OnWarningResponseHandler(bool bCondition);
+    void OnCopyHandler();
+    void OnMoveHandler();
     void OnInspectHandler();
     void OnInspectCompletedHandler();
     void OnAssetsPreloadCompletedHandler();
