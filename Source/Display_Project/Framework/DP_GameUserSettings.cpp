@@ -15,8 +15,9 @@ namespace
 
 const FString SettingsSaveSlotName{"SettingsSave"};
 const FString MasterSoundClassName{"Master"};
-const float MinRotationSpeed{0.1f};
-const float MaxRotationSpeed{2.0f};
+constexpr float MinRotationSpeed{0.1f};
+constexpr float MaxRotationSpeed{2.0f};
+constexpr int32 MinPostProcessQualityLevel{1};
 
 void FillVideoQualityOptions(FVideoQualityOptionsData& VideoQualityOptionsData)
 {
@@ -90,7 +91,7 @@ void UDP_GameUserSettings::SetVideoQuality(EVideoQuality Quality)
     const auto Value = static_cast<int32>(Quality);
     SetViewDistanceQuality(Value);
     SetAntiAliasingQuality(Value);
-    SetPostProcessingQuality(Value);
+    SetPostProcessingQuality(FMath::Max(MinPostProcessQualityLevel, Value));
     SetShadowQuality(Value);
     SetGlobalIlluminationQuality(Value);
     SetReflectionQuality(Value);
