@@ -9,6 +9,7 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class USpotLightComponent;
 class UInputAction;
 class ADP_PlaceableActor;
 struct FInputActionValue;
@@ -33,6 +34,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category = "Components")
     TObjectPtr<USceneComponent> InspectionPoint;
+
+    UPROPERTY(VisibleAnywhere, Category = "Components")
+    TObjectPtr<USpotLightComponent> SpotLightComponent;
 
     UPROPERTY(EditDefaultsOnly, Category = "Input")
     TObjectPtr<UInputAction> ZoomAction;

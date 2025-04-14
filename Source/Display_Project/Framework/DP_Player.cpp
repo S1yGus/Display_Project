@@ -4,6 +4,7 @@
 #include "Framework/DP_GameUserSettings.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
@@ -37,10 +38,16 @@ ADP_Player::ADP_Player()
     InspectionPoint = CreateDefaultSubobject<USceneComponent>("InspectionPoint");
     check(InspectionPoint);
     InspectionPoint->SetupAttachment(CameraComponent);
+
+    SpotLightComponent = CreateDefaultSubobject<USpotLightComponent>("InspectionLighting");
+    check(SpotLightComponent);
+    SpotLightComponent->SetVisibility(false);
+    SpotLightComponent->SetupAttachment(CameraComponent);
 }
 
 void ADP_Player::StartInspect(TSubclassOf<ADP_PlaceableActor> Class, const FAttributesMap& Attributes)
 {
+    SpotLightComponent->SetVisibility(true);
     InspectionPoint->SetRelativeRotation(InspectionPointDefaultRotation);
 
     // Spawn
@@ -68,6 +75,8 @@ void ADP_Player::StartInspect(TSubclassOf<ADP_PlaceableActor> Class, const FAttr
 
 void ADP_Player::StopInspect()
 {
+    SpotLightComponent->SetVisibility(false);
+
     // Scale
     ScaleInspectedObject(FVector::ZeroVector,
                          [this]()
