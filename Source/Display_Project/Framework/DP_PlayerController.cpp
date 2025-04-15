@@ -5,8 +5,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
 
-#define ECC_Node ETraceTypeQuery::TraceTypeQuery4
-#define ECC_Clickable ETraceTypeQuery::TraceTypeQuery3
+#define TraceTypeQueryNode ETraceTypeQuery::TraceTypeQuery4
+#define TraceTypeQueryClickable ETraceTypeQuery::TraceTypeQuery3
 
 static constexpr float UpdateLocationTimerRate{0.016f};
 
@@ -34,7 +34,7 @@ void ADP_PlayerController::Tick(float DeltaSeconds)
 
     if (CurrentGameState == EGameState::Placement)
     {
-        if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Node, false, HitResult))
+        if (FHitResult HitResult; GetHitResultUnderCursorByChannel(TraceTypeQueryNode, false, HitResult))
         {
             OnUpdatePreviewLocation.Broadcast(HitResult.GetActor());
         }
@@ -110,7 +110,7 @@ void ADP_PlayerController::ObjectPlacementClick()
 
 void ADP_PlayerController::InteractClick()
 {
-    if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Clickable, false, HitResult))
+    if (FHitResult HitResult; GetHitResultUnderCursorByChannel(TraceTypeQueryClickable, false, HitResult))
     {
         if (auto* PlaceableActor = Cast<ADP_PlaceableActor>(HitResult.GetActor()))
         {
@@ -126,7 +126,7 @@ void ADP_PlayerController::ObjectPlacementSelect()
 
 void ADP_PlayerController::Select()
 {
-    if (FHitResult HitResult; GetHitResultUnderCursorByChannel(ECC_Clickable, false, HitResult))
+    if (FHitResult HitResult; GetHitResultUnderCursorByChannel(TraceTypeQueryClickable, false, HitResult))
     {
         OnObjectSelected.Broadcast(HitResult.GetActor());
     }

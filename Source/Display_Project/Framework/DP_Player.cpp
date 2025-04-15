@@ -45,7 +45,7 @@ ADP_Player::ADP_Player()
     SpotLightComponent->SetupAttachment(CameraComponent);
 }
 
-void ADP_Player::StartInspect(TSubclassOf<ADP_PlaceableActor> Class, const FAttributesMap& Attributes)
+void ADP_Player::StartInspect(TSubclassOf<ADP_PlaceableActor> Class, const TAttributesMap& Attributes)
 {
     SpotLightComponent->SetVisibility(true);
     InspectionPoint->SetRelativeRotation(InspectionPointDefaultRotation);
@@ -142,7 +142,7 @@ void ADP_Player::UpdateSpringArmOffset(FViewport* Viewport, uint32 Value)
     }
 }
 
-void ADP_Player::ScaleInspectedObject(FVector TargetScale, FScaleComplete&& OnComplete)
+void ADP_Player::ScaleInspectedObject(FVector TargetScale, TScaleComplete&& OnComplete)
 {
     InspectedObjectTargetScale = TargetScale;
     if (!GetWorldTimerManager().IsTimerActive(InspectedObjectScaleTimerHandle))
@@ -161,7 +161,7 @@ void ADP_Player::SetSpringArmLength(float TargetLength)
     }
 }
 
-void ADP_Player::ChangeDOFSensorWidth(float TargetSensorWidth, FDOFSensorWidthChangeComplete&& OnComplete)
+void ADP_Player::ChangeDOFSensorWidth(float TargetSensorWidth, TDOFSensorWidthChangeComplete&& OnComplete)
 {
     TargetDOFSensorWidth = TargetSensorWidth;
     if (!GetWorldTimerManager().IsTimerActive(DOFSensorWidthChangeTimerHandle))

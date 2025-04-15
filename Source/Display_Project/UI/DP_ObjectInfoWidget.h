@@ -20,7 +20,7 @@ public:
     FOnAttributeChangedSignature OnAttributeChanged;
 
     void Init(EObjectType ObjectType, UTexture2D* Thumbnail, const TSet<EAttributeType>& Attributes);
-    void UpdateAttributes(const FAttributesMap& Attributes);
+    void UpdateAttributes(const TAttributesMap& Attributes);
 
 protected:
     UPROPERTY(Meta = (BindWidget))
@@ -32,5 +32,5 @@ protected:
     virtual void NativeOnInitialized() override;
 
 private:
-    void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
+    void OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData);
 };

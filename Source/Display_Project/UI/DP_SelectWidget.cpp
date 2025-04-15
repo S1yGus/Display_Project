@@ -23,7 +23,7 @@ void UDP_SelectWidget::CreateWidgetsForObjects(const TMap<EObjectType, FObjectDa
     }
 }
 
-void UDP_SelectWidget::Select(EObjectType ObjectType, const FAttributesMap& Attributes)
+void UDP_SelectWidget::Select(EObjectType ObjectType, const TAttributesMap& Attributes)
 {
     if (TypeIDMap.Contains(ObjectType))
     {
@@ -71,7 +71,7 @@ void UDP_SelectWidget::OnClickedDestroyButtonHandler()
     OnDestroySelected.Broadcast();
 }
 
-void UDP_SelectWidget::OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData)
+void UDP_SelectWidget::OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData)
 {
     OnAttributeChanged.Broadcast(AttributeType, AttributeData);
 }

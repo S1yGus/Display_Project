@@ -8,11 +8,11 @@
 class UComboBoxString;
 class ADP_Node;
 
-using FAttributeData = TVariant<FString, FGuid>;
-using FAttributesMap = TMap<EAttributeType, FAttributeData>;
-using FComboBoxDataUpdater = TFunction<void(TObjectPtr<UComboBoxString>, TArray<FAttributeData>&)>;
-using FComboBoxSelectedOptionGetter = TFunction<FString(const FAttributeData&)>;
-using FDeferredAction = TFunction<void()>;
-using FScaleComplete = TFunction<void()>;
-using FDOFSensorWidthChangeComplete = TFunction<void()>;
-using FOccupiedNodesMap = TMap<FGuid, TSet<TObjectPtr<ADP_Node>>>;
+using TAttributeData = TVariant<FString, FGuid>;
+using TAttributesMap = TMap<EAttributeType, TAttributeData>;
+using TComboBoxDataUpdater = TFunction<void(TObjectPtr<UComboBoxString>, TArray<TAttributeData>&)>;
+using TComboBoxSelectedOptionGetter = TFunction<FString(const TAttributeData&)>;
+using TDeferredAction = TFunction<void()>;
+using TScaleComplete = TFunction<void()>;
+using TDOFSensorWidthChangeComplete = TFunction<void()>;
+using TOccupiedNodesMap = TMap<FGuid, TSet<TObjectPtr<ADP_Node>>>;

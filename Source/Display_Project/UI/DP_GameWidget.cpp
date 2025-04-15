@@ -27,12 +27,12 @@ void UDP_GameWidget::SwitchCurrentWidget(EGameState GameState)
     }
 }
 
-void UDP_GameWidget::Select(EObjectType ObjectType, const FAttributesMap& Attributes)
+void UDP_GameWidget::Select(EObjectType ObjectType, const TAttributesMap& Attributes)
 {
     SelectWidget->Select(ObjectType, Attributes);
 }
 
-void UDP_GameWidget::Copy(EObjectType ObjectType, const FAttributesMap& Attributes)
+void UDP_GameWidget::Copy(EObjectType ObjectType, const TAttributesMap& Attributes)
 {
     PlacementWidget->Copy(ObjectType, Attributes);
 }
@@ -73,7 +73,7 @@ void UDP_GameWidget::OnObjectTypeChangedHandler(EObjectType ObjectType)
     OnObjectTypeChanged.Broadcast(ObjectType);
 }
 
-void UDP_GameWidget::OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData)
+void UDP_GameWidget::OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData)
 {
     OnAttributeChanged.Broadcast(AttributeType, AttributeData);
 }

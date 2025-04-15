@@ -28,13 +28,13 @@ public:
 
     [[nodiscard]] EObjectType GetObjectType() const { return Type; };
     [[nodiscard]] FString GetObjectName() const;
-    [[nodiscard]] const FAttributesMap& GetObjectAttributes() const { return AttributesMap; };
+    [[nodiscard]] const TAttributesMap& GetObjectAttributes() const { return AttributesMap; };
     [[nodiscard]] FIntPoint GetObjectSize() const { return Size; }
     [[nodiscard]] FGuid GetObjectGuid() const { return Guid; }
 
-    void Init(FAttributesMap&& Attributes, FGuid&& InGuid);
-    void Init(const FAttributesMap& Attributes, const FGuid& InGuid);
-    void UpdateAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
+    void Init(TAttributesMap&& Attributes, FGuid&& InGuid);
+    void Init(const TAttributesMap& Attributes, const FGuid& InGuid);
+    void UpdateAttribute(EAttributeType AttributeType, TAttributeData AttributeData);
     virtual void UpdateAttributes();
     virtual void SetPreviewMode(bool bEnabled);
     virtual void UpdateMaterial(UMaterialInterface* Material);
@@ -55,7 +55,7 @@ protected:
     TObjectPtr<UMaterialInterface> OverlayMaterial;
 
     EObjectType Type{EObjectType::None};
-    FAttributesMap AttributesMap;
+    TAttributesMap AttributesMap;
 
     virtual void BeginPlay() override;
 
@@ -65,5 +65,5 @@ private:
     TArray<UMaterialInterface*> DefaultMeshMaterials;
 
     FORCEINLINE void CollectDefaultMeshMaterials();
-    void SetAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
+    void SetAttribute(EAttributeType AttributeType, TAttributeData AttributeData);
 };

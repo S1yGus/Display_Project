@@ -11,7 +11,7 @@ void UDP_ObjectInfoWidget::Init(EObjectType ObjectType, UTexture2D* Thumbnail, c
     AttributesList->OnAttributeChanged.AddUObject(this, &ThisClass::OnAttributeChangedHandler);
 }
 
-void UDP_ObjectInfoWidget::UpdateAttributes(const FAttributesMap& Attributes)
+void UDP_ObjectInfoWidget::UpdateAttributes(const TAttributesMap& Attributes)
 {
     AttributesList->Update(Attributes);
 }
@@ -24,7 +24,7 @@ void UDP_ObjectInfoWidget::NativeOnInitialized()
     check(AttributesList);
 }
 
-void UDP_ObjectInfoWidget::OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData)
+void UDP_ObjectInfoWidget::OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData)
 {
     OnAttributeChanged.Broadcast(AttributeType, AttributeData);
 }

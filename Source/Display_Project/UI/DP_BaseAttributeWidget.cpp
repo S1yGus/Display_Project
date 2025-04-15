@@ -10,7 +10,7 @@ void UDP_BaseAttributeWidget::Init(EAttributeType AttributeType)
     AttributeName->SetText(UI::AttributeTypeToText(AttributeType));
 }
 
-void UDP_BaseAttributeWidget::Update(const FAttributeData& Data)
+void UDP_BaseAttributeWidget::Update(const TAttributeData& Data)
 {
 }
 

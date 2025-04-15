@@ -4,7 +4,7 @@
 #include "Components/EditableText.h"
 #include "DP_Utils.h"
 
-void UDP_TextInputAttributeWidget::Update(const FAttributeData& Data)
+void UDP_TextInputAttributeWidget::Update(const TAttributeData& Data)
 {
     Super::Update(Data);
 
@@ -32,7 +32,7 @@ void UDP_TextInputAttributeWidget::NativeOnInitialized()
 
 void UDP_TextInputAttributeWidget::OnTextChanged(const FText& Text)
 {
-    FAttributeData Data;
+    TAttributeData Data;
     Data.Set<FString>(Text.ToString());
     OnAttributeChanged.Broadcast(GetType(), Data);
 }

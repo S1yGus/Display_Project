@@ -20,7 +20,7 @@ public:
 
     void Init(EObjectType ObjectType, const TSet<EAttributeType>& Attributes);
     void Reset();
-    void Update(const FAttributesMap& Attributes);
+    void Update(const TAttributesMap& Attributes);
 
 protected:
     UPROPERTY(Meta = (BindWidget))
@@ -37,8 +37,8 @@ protected:
 private:
     [[nodiscard]] TObjectPtr<UDP_BaseAttributeWidget> CreateAttributeWidget(EAttributeType AttributeType, EObjectType ObjectType);
     [[nodiscard]] TObjectPtr<UDP_BaseAttributeWidget> CreateTextInputAttributeWidget(const FText& DefaultText);
-    [[nodiscard]] TObjectPtr<UDP_BaseAttributeWidget> CreateComboBoxAttributeWidget(FComboBoxDataUpdater&& UpdateFunc,
-                                                                                    FComboBoxSelectedOptionGetter&& SelectedOptionGetter);
+    [[nodiscard]] TObjectPtr<UDP_BaseAttributeWidget> CreateComboBoxAttributeWidget(TComboBoxDataUpdater&& UpdateFunc,
+                                                                                    TComboBoxSelectedOptionGetter&& SelectedOptionGetter);
 
-    void OnAttributeChangedHandler(EAttributeType Type, FAttributeData Data);
+    void OnAttributeChangedHandler(EAttributeType Type, TAttributeData Data);
 };

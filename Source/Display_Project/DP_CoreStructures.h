@@ -30,8 +30,8 @@ struct FBytesAttribute
 {
     GENERATED_USTRUCT_BODY()
 
-    void Sterilize(const FAttributeData& InAttributeData);
-    void Deserialize(FAttributeData& OutAttributeData) const;
+    void Sterilize(const TAttributeData& InAttributeData);
+    void Deserialize(TAttributeData& OutAttributeData) const;
 
 private:
     UPROPERTY()
@@ -52,8 +52,8 @@ struct FObjectSaveData
     UPROPERTY()
     FTransform Transform;
 
-    void SterilizeAttributes(const FAttributesMap& InAttributes);
-    void DeserializeAttributes(FAttributesMap& OutAttributes) const;
+    void SterilizeAttributes(const TAttributesMap& InAttributes);
+    void DeserializeAttributes(TAttributesMap& OutAttributes) const;
 
 private:
     UPROPERTY()

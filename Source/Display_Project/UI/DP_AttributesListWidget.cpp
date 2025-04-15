@@ -30,7 +30,7 @@ void UDP_AttributesListWidget::Reset()
     }
 }
 
-void UDP_AttributesListWidget::Update(const FAttributesMap& Attributes)
+void UDP_AttributesListWidget::Update(const TAttributesMap& Attributes)
 {
     for (auto* Widget : AttributesBox->GetAllChildren())
     {
@@ -71,7 +71,7 @@ TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateAttributeWid
             break;
         case EAttributeType::Display:
             AttributeWidget = CreateComboBoxAttributeWidget(
-                [this](TObjectPtr<UComboBoxString> ComboBox, TArray<FAttributeData>& AttributeData)
+                [this](TObjectPtr<UComboBoxString> ComboBox, TArray<TAttributeData>& AttributeData)
                 {
                     ComboBox->ClearOptions();
                     AttributeData.Empty();
@@ -81,14 +81,14 @@ TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateAttributeWid
                     {
                         if (auto* DisplayActor = Cast<ADP_Display>(Actor))
                         {
-                            FAttributeData Data;
+                            TAttributeData Data;
                             Data.Set<FGuid>(DisplayActor->GetObjectGuid());
                             AttributeData.Emplace(Data);
                             ComboBox->AddOption(DisplayActor->GetObjectName());
                         }
                     }
                 },
-                [this](const FAttributeData& Data)
+                [this](const TAttributeData& Data)
                 {
                     const auto* Display = DP::GetPlaceableActorByGuid<ADP_Display>(GetWorld(), Data.Get<FGuid>());
                     return Display ? Display->GetObjectName() : "";
@@ -114,8 +114,8 @@ TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateTextInputAtt
     return TextInputAttributeWidget;
 }
 
-TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateComboBoxAttributeWidget(FComboBoxDataUpdater&& UpdateFunc,
-                                                                                            FComboBoxSelectedOptionGetter&& SelectedOptionGetter)
+TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateComboBoxAttributeWidget(TComboBoxDataUpdater&& UpdateFunc,
+                                                                                            TComboBoxSelectedOptionGetter&& SelectedOptionGetter)
 {
     auto* ComboBoxAttributeWidget = CreateWidget<UDP_ComboBoxAttributeWidget>(GetWorld(), ComboBoxAttributeWidgetClass);
     check(ComboBoxAttributeWidget);
@@ -125,7 +125,7 @@ TObjectPtr<UDP_BaseAttributeWidget> UDP_AttributesListWidget::CreateComboBoxAttr
     return ComboBoxAttributeWidget;
 }
 
-void UDP_AttributesListWidget::OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData Data)
+void UDP_AttributesListWidget::OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData Data)
 {
     OnAttributeChanged.Broadcast(AttributeType, Data);
 }

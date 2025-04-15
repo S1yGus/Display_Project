@@ -20,7 +20,7 @@ public:
     void Init(EAttributeType AttributeType);
     EAttributeType GetType() const { return Type; }
 
-    virtual void Update(const FAttributeData& Data);
+    virtual void Update(const TAttributeData& Data);
     virtual void Reset();
 
 protected:

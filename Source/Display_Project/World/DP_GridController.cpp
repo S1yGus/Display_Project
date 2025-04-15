@@ -105,7 +105,7 @@ void ADP_GridController::UpdatePlayerLocation(EGameState GameState)
     }
 }
 
-void ADP_GridController::ShowWarning(const FText& WarningText, FDeferredAction&& Action)
+void ADP_GridController::ShowWarning(const FText& WarningText, TDeferredAction&& Action)
 {
     if (auto* HUD = GetHUD())
     {
@@ -223,7 +223,7 @@ void ADP_GridController::SpawnObjectsFromSave(const TArray<FObjectSaveData>& Sav
         {
             auto* PlaceableActor = GetWorld()->SpawnActor<ADP_PlaceableActor>(ObjectsMap[ObjectData.Type].Class, ObjectData.Transform);
             check(PlaceableActor);
-            FAttributesMap Attributes;
+            TAttributesMap Attributes;
             ObjectData.DeserializeAttributes(Attributes);
             PlaceableActor->Init(Attributes, ObjectData.Guid);
             SpawnedPlaceableActors.Add(PlaceableActor);
@@ -355,7 +355,7 @@ void ADP_GridController::OnObjectSpawnCompletedHandler(AActor* Actor, bool bMove
     bMoved ? OnSelectHandler(Actor) : OnDeselectPlacementObjectHandler();
 }
 
-void ADP_GridController::OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData)
+void ADP_GridController::OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData)
 {
     if (CurrentGameState == EGameState::Placement)
     {

@@ -15,10 +15,10 @@ class DISPLAY_PROJECT_API UDP_ComboBoxAttributeWidget : public UDP_BaseAttribute
     GENERATED_BODY()
 
 public:
-    void SetUpdateFunc(FComboBoxDataUpdater&& UpdateFunc) { UpdateComboBox = MoveTemp(UpdateFunc); };
-    void SetSelectedOptionGetter(FComboBoxSelectedOptionGetter&& SelectedOptionGetter) { ComboBoxSelectedOption = MoveTemp(SelectedOptionGetter); }
+    void SetUpdateFunc(TComboBoxDataUpdater&& UpdateFunc) { UpdateComboBox = MoveTemp(UpdateFunc); };
+    void SetSelectedOptionGetter(TComboBoxSelectedOptionGetter&& SelectedOptionGetter) { ComboBoxSelectedOption = MoveTemp(SelectedOptionGetter); }
 
-    virtual void Update(const FAttributeData& Data) override;
+    virtual void Update(const TAttributeData& Data) override;
     virtual void Reset() override;
 
 protected:
@@ -28,9 +28,9 @@ protected:
     virtual void NativeOnInitialized() override;
 
 private:
-    FComboBoxDataUpdater UpdateComboBox;
-    FComboBoxSelectedOptionGetter ComboBoxSelectedOption;
-    TArray<FAttributeData> AttributeData;
+    TComboBoxDataUpdater UpdateComboBox;
+    TComboBoxSelectedOptionGetter ComboBoxSelectedOption;
+    TArray<TAttributeData> AttributeData;
 
     UFUNCTION()
     void OnSelectionChangedHandler(FString SelectedItem, ESelectInfo::Type SelectionType);

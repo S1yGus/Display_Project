@@ -22,7 +22,7 @@ class DISPLAY_PROJECT_API ADP_Player : public APawn
 public:
     ADP_Player();
 
-    void StartInspect(TSubclassOf<ADP_PlaceableActor> Class, const FAttributesMap& Attributes);
+    void StartInspect(TSubclassOf<ADP_PlaceableActor> Class, const TAttributesMap& Attributes);
     void StopInspect();
 
 protected:
@@ -94,19 +94,19 @@ private:
     TObjectPtr<ADP_PlaceableActor> InspectedObject{nullptr};
     FTimerHandle InspectedObjectScaleTimerHandle;
     FVector InspectedObjectTargetScale{FVector::ZeroVector};
-    FScaleComplete OnScaleComplete{nullptr};
+    TScaleComplete OnScaleComplete{nullptr};
 
     FTimerHandle DOFSensorWidthChangeTimerHandle;
     float TargetDOFSensorWidth{0.0f};
     float TargetFocalDistance{0.0f};
-    FDOFSensorWidthChangeComplete OnDOFSensorWidthChangeComplete{nullptr};
+    TDOFSensorWidthChangeComplete OnDOFSensorWidthChangeComplete{nullptr};
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
     FORCEINLINE void UpdateSpringArmOffset(FViewport* Viewport, uint32 Value = 0);
-    FORCEINLINE void ScaleInspectedObject(FVector TargetScale, FScaleComplete&& OnComplete = nullptr);
+    FORCEINLINE void ScaleInspectedObject(FVector TargetScale, TScaleComplete&& OnComplete = nullptr);
     FORCEINLINE void SetSpringArmLength(float TargetLength);
-    FORCEINLINE void ChangeDOFSensorWidth(float TargetSensorWidth, FDOFSensorWidthChangeComplete&& OnComplete = nullptr);
+    FORCEINLINE void ChangeDOFSensorWidth(float TargetSensorWidth, TDOFSensorWidthChangeComplete&& OnComplete = nullptr);
 
     void OnZoomHandler(const FInputActionValue& Value);
     void OnZoomingHandler();

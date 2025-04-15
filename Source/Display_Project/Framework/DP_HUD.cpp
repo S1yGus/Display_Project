@@ -59,7 +59,7 @@ void ADP_HUD::UpdateSaves(const TArray<FSaveRecordMetaData>& SaveRecordsMetaData
     }
 }
 
-void ADP_HUD::Select(EObjectType ObjectType, const FAttributesMap& Attributes)
+void ADP_HUD::Select(EObjectType ObjectType, const TAttributesMap& Attributes)
 {
     if (auto* GameWidget = GetGameWidget())
     {
@@ -67,7 +67,7 @@ void ADP_HUD::Select(EObjectType ObjectType, const FAttributesMap& Attributes)
     }
 }
 
-void ADP_HUD::Copy(EObjectType ObjectType, const FAttributesMap& Attributes)
+void ADP_HUD::Copy(EObjectType ObjectType, const TAttributesMap& Attributes)
 {
     if (auto* GameWidget = GetGameWidget())
     {
@@ -236,7 +236,7 @@ void ADP_HUD::OnObjectTypeChangedHandler(EObjectType ObjectType)
     OnObjectTypeChanged.Broadcast(ObjectType);
 }
 
-void ADP_HUD::OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData)
+void ADP_HUD::OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData)
 {
     OnAttributeChanged.Broadcast(AttributeType, AttributeData);
 }

@@ -58,7 +58,7 @@ private:
     TObjectPtr<ADP_Grid> Grid;
     UPROPERTY()
     TObjectPtr<ADP_PlaceableActor> SelectedObject;
-    FDeferredAction DeferredAction{nullptr};
+    TDeferredAction DeferredAction{nullptr};
 
     [[nodiscard]] FORCEINLINE ADP_PlayerController* GetPlayerController() const;
     [[nodiscard]] FORCEINLINE ADP_Player* GetPlayer() const;
@@ -66,7 +66,7 @@ private:
     [[nodiscard]] FORCEINLINE ADP_GameModeBase* GetGameMode() const;
 
     FORCEINLINE void UpdatePlayerLocation(EGameState GameState);
-    FORCEINLINE void ShowWarning(const FText& WarningText, FDeferredAction&& Action);
+    FORCEINLINE void ShowWarning(const FText& WarningText, TDeferredAction&& Action);
     FORCEINLINE void UpdateUISaveRecords();
 
     FORCEINLINE void SetupGameMode();
@@ -90,7 +90,7 @@ private:
     void OnUpdatePreviewLocationHandler(AActor* ReferenceActor);
     void OnSpawnCurrentObjectHandler();
     void OnObjectSpawnCompletedHandler(AActor* Actor, bool bMoved);
-    void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
+    void OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData);
     void OnSelectHandler(AActor* SelectedActor);
     void OnDeselectPlacementObjectHandler();
     void OnDestroySelectedHandler();
