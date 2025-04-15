@@ -3,7 +3,7 @@
 #include "UI/DP_ComboBoxAttributeWidget.h"
 #include "Components/ComboBoxString.h"
 
-void UDP_ComboBoxAttributeWidget::Update(const FAttributeData& Data)
+void UDP_ComboBoxAttributeWidget::Update(const TAttributeData& Data)
 {
     Super::Update(Data);
 

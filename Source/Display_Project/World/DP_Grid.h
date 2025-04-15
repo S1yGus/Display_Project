@@ -34,7 +34,7 @@ public:
     void FreeAll();
 
     void UpdateCurrentObjectClass(UClass* ObjectClass);
-    void AddCurrentObjectAttribute(EAttributeType AttributeType, FAttributeData AttributeData);
+    void AddCurrentObjectAttribute(EAttributeType AttributeType, TAttributeData AttributeData);
     void MoveCurrentObjectGuid(FGuid&& Guid);
 
 protected:
@@ -69,11 +69,11 @@ protected:
 
 private:
     UClass* CurrentObjectClass;
-    FAttributesMap CurrentObjectAttributesMap;
+    TAttributesMap CurrentObjectAttributesMap;
     FGuid CurrentObjectGuid;
     UPROPERTY()
     TArray<TObjectPtr<ADP_Node>> Nodes;
-    FOccupiedNodesMap OccupiedNodesMap;
+    TOccupiedNodesMap OccupiedNodesMap;
     UPROPERTY()
     TObjectPtr<ADP_Node> SelectedNode;
     UPROPERTY()

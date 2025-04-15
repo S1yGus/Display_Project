@@ -43,8 +43,8 @@ public:
                        float SoundVolume);
     void ChangeCurrentWidget(EGameState GameState);
     void UpdateSaves(const TArray<FSaveRecordMetaData>& SaveRecordsMetaData);
-    void Select(EObjectType ObjectType, const FAttributesMap& Attributes);
-    void Copy(EObjectType ObjectType, const FAttributesMap& Attributes);
+    void Select(EObjectType ObjectType, const TAttributesMap& Attributes);
+    void Copy(EObjectType ObjectType, const TAttributesMap& Attributes);
     void DeselectPlacementObject();
     bool ShowWarning(const FText& WarningText);
 
@@ -94,7 +94,7 @@ private:
     FORCEINLINE void HandleGameWidget(EGameState GameState);
 
     void OnObjectTypeChangedHandler(EObjectType ObjectType);
-    void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
+    void OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData);
     void OnDestroyAllHandler();
     void OnDestroySelectedHandler();
     void OnFadeoutAnimationFinishedHandler();

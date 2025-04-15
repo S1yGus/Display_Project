@@ -131,7 +131,7 @@ void ADP_Grid::UpdateCurrentObjectClass(UClass* ObjectClass)
     CurrentObjectClass = ObjectClass;
 }
 
-void ADP_Grid::AddCurrentObjectAttribute(EAttributeType AttributeType, FAttributeData AttributeData)
+void ADP_Grid::AddCurrentObjectAttribute(EAttributeType AttributeType, TAttributeData AttributeData)
 {
     if (!CurrentObjectAttributesMap.Contains(AttributeType))
     {

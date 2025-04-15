@@ -24,7 +24,7 @@ public:
     FOnInspectSignature OnInspect;
 
     void CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap);
-    void Select(EObjectType ObjectType, const FAttributesMap& Attributes);
+    void Select(EObjectType ObjectType, const TAttributesMap& Attributes);
 
 protected:
     UPROPERTY(Meta = (BindWidget))
@@ -54,5 +54,5 @@ private:
     void OnClickedMoveButtonHandler();
     void OnClickedInspectButtonHandler();
     void OnClickedDestroyButtonHandler();
-    void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
+    void OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData);
 };

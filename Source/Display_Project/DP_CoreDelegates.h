@@ -8,7 +8,7 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnObjectTypeChangedSignature, EObjectType);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnClickedObjectButtonSignature, EObjectType);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnAttributeChangedSignature, EAttributeType, FAttributeData);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnAttributeChangedSignature, EAttributeType, TAttributeData);
 DECLARE_MULTICAST_DELEGATE(FOnObjectSpawnSignature);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnObjectSpawnCompletedSignature, AActor*, bool);
 DECLARE_MULTICAST_DELEGATE(FOnDestroyAllSignature);

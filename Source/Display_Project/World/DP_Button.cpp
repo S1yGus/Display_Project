@@ -82,7 +82,7 @@ void ADP_Button::UpdateLinkedDisplayText()
 
     if (IsValid(LinkedDisplay))
     {
-        FAttributeData Data;
+        TAttributeData Data;
         Data.Set<FString>(LinkedDisplayText);
         LinkedDisplay->UpdateAttribute(EAttributeType::DisplayText, Data);
     }

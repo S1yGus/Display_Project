@@ -42,21 +42,21 @@ FString ADP_PlaceableActor::GetObjectName() const
     return GetName();
 }
 
-void ADP_PlaceableActor::Init(FAttributesMap&& Attributes, FGuid&& InGuid)
+void ADP_PlaceableActor::Init(TAttributesMap&& Attributes, FGuid&& InGuid)
 {
     AttributesMap = MoveTemp(Attributes);
     Guid = MoveTemp(InGuid);
     UpdateAttributes();
 }
 
-void ADP_PlaceableActor::Init(const FAttributesMap& Attributes, const FGuid& InGuid)
+void ADP_PlaceableActor::Init(const TAttributesMap& Attributes, const FGuid& InGuid)
 {
     AttributesMap = Attributes;
     Guid = InGuid;
     UpdateAttributes();
 }
 
-void ADP_PlaceableActor::UpdateAttribute(EAttributeType AttributeType, FAttributeData AttributeData)
+void ADP_PlaceableActor::UpdateAttribute(EAttributeType AttributeType, TAttributeData AttributeData)
 {
     SetAttribute(AttributeType, AttributeData);
     UpdateAttributes();
@@ -105,7 +105,7 @@ void ADP_PlaceableActor::CollectDefaultMeshMaterials()
     }
 }
 
-void ADP_PlaceableActor::SetAttribute(EAttributeType AttributeType, FAttributeData AttributeData)
+void ADP_PlaceableActor::SetAttribute(EAttributeType AttributeType, TAttributeData AttributeData)
 {
     if (!AttributesMap.Contains(AttributeType))
     {

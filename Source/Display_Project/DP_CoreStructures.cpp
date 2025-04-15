@@ -2,7 +2,7 @@
 
 #include "DP_CoreStructures.h"
 
-void FBytesAttribute::Sterilize(const FAttributeData& InAttributeData)
+void FBytesAttribute::Sterilize(const TAttributeData& InAttributeData)
 {
     FMemoryWriter Writer(Bytes);
     bool bIsString{InAttributeData.IsType<FString>()};
@@ -19,7 +19,7 @@ void FBytesAttribute::Sterilize(const FAttributeData& InAttributeData)
     }
 }
 
-void FBytesAttribute::Deserialize(FAttributeData& OutAttributeData) const
+void FBytesAttribute::Deserialize(TAttributeData& OutAttributeData) const
 {
     FMemoryReader Reader(Bytes);
     bool bIsString;
@@ -38,7 +38,7 @@ void FBytesAttribute::Deserialize(FAttributeData& OutAttributeData) const
     }
 }
 
-void FObjectSaveData::SterilizeAttributes(const FAttributesMap& InAttributes)
+void FObjectSaveData::SterilizeAttributes(const TAttributesMap& InAttributes)
 {
     for (const auto& [AttributeType, AttributeData] : InAttributes)
     {
@@ -50,7 +50,7 @@ void FObjectSaveData::SterilizeAttributes(const FAttributesMap& InAttributes)
     }
 }
 
-void FObjectSaveData::DeserializeAttributes(FAttributesMap& OutAttributes) const
+void FObjectSaveData::DeserializeAttributes(TAttributesMap& OutAttributes) const
 {
     for (auto& [AttributeType, AttributeBytes] : Attributes)
     {

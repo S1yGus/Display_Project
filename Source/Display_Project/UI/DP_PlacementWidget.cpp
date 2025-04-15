@@ -29,7 +29,7 @@ void UDP_PlacementWidget::HideAttributesList()
     UpdateButtonsSelection(EObjectType::None);
 }
 
-void UDP_PlacementWidget::Copy(EObjectType ObjectType, const FAttributesMap& Attributes)
+void UDP_PlacementWidget::Copy(EObjectType ObjectType, const TAttributesMap& Attributes)
 {
     UpdateSelection(ObjectType);
     UpdateCurrentAttributesList(Attributes);
@@ -76,7 +76,7 @@ void UDP_PlacementWidget::ResetCurrentAttributesList()
     }
 }
 
-void UDP_PlacementWidget::UpdateCurrentAttributesList(const FAttributesMap& Attributes)
+void UDP_PlacementWidget::UpdateCurrentAttributesList(const TAttributesMap& Attributes)
 {
     if (auto* AttributesList = Cast<UDP_AttributesListWidget>(AttributesSwitcher->GetActiveWidget()))
     {
@@ -117,7 +117,7 @@ void UDP_PlacementWidget::OnClickedDestroyAllButtonHandler()
     OnDestroyAll.Broadcast();
 }
 
-void UDP_PlacementWidget::OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData)
+void UDP_PlacementWidget::OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData)
 {
     OnAttributeChanged.Broadcast(AttributeType, AttributeData);
 }

@@ -33,8 +33,8 @@ public:
 
     void CreateWidgetsForObjects(const TMap<EObjectType, FObjectData>& ObjectsMap);
     void SwitchCurrentWidget(EGameState GameState);
-    void Select(EObjectType ObjectType, const FAttributesMap& Attributes);
-    void Copy(EObjectType ObjectType, const FAttributesMap& Attributes);
+    void Select(EObjectType ObjectType, const TAttributesMap& Attributes);
+    void Copy(EObjectType ObjectType, const TAttributesMap& Attributes);
     void DeselectPlacementObject();
 
 protected:
@@ -54,7 +54,7 @@ protected:
 
 private:
     void OnObjectTypeChangedHandler(EObjectType ObjectType);
-    void OnAttributeChangedHandler(EAttributeType AttributeType, FAttributeData AttributeData);
+    void OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData);
     void OnDestroyAllHandler();
     void OnDestroySelectedHandler();
     void OnQuitHandler();
