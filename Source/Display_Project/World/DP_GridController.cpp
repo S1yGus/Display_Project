@@ -263,13 +263,16 @@ void ADP_GridController::HandleSelectGameState()
     }
 }
 
-void ADP_GridController::UpdatePrevGameState(EGameState GameState)
+void ADP_GridController::UpdatePrevGameState(EGameState NewGameState)
 {
-    if (GameState == EGameState::Interact)
+    if (NewGameState == CurrentGameState)
+        return;
+
+    if (NewGameState == EGameState::Interact)
     {
         PrevGameStates.Empty();
     }
-    else if ((!PrevGameStates.IsEmpty() && PrevGameStates[PrevGameStates.Num() - 1] != GameState) || PrevGameStates.IsEmpty())
+    else if (((!PrevGameStates.IsEmpty() && PrevGameStates[PrevGameStates.Num() - 1] != NewGameState) || PrevGameStates.IsEmpty()))
     {
         PrevGameStates.Add(CurrentGameState);
     }
@@ -319,6 +322,7 @@ void ADP_GridController::SetCurrentObjectType_Internal(EObjectType NewObjectType
     if (ObjectsMap.Contains(CurrentObjectType))
     {
         Grid->UpdateCurrentObjectClass(ObjectsMap[CurrentObjectType].Class);
+        Grid->DestroyPreview();
         SetGameState(EGameState::Placement);
     }
 }

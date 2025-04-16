@@ -79,7 +79,7 @@ private:
     FORCEINLINE void DeselectPlacementObject();
     FORCEINLINE void HandleSelectGameState();
 
-    void UpdatePrevGameState(EGameState GameState);
+    void UpdatePrevGameState(EGameState NewGameState);
     void SetGameState(EGameState NewGameState);
     void SetPrevGameState();
     void SetGameState_Internal(EGameState NewGameState);
