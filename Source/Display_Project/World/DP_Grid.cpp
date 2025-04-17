@@ -415,12 +415,10 @@ void ADP_Grid::SpawnObject()
     PreviewObject = nullptr;
 
     auto ObjectGuid = FGuid::NewGuid();
-    bool bMoved = false;
     if (CurrentObjectGuid.IsValid())
     {
         ObjectGuid = MoveTemp(CurrentObjectGuid);
         CurrentObjectGuid.Invalidate();
-        bMoved = true;
     }
     Object->SetPreviewMode(false);
     Object->Init(MoveTemp(CurrentObjectAttributesMap), MoveTemp(ObjectGuid));
@@ -448,5 +446,5 @@ void ADP_Grid::SpawnObject()
     }
 
     bIsSpawning = false;
-    OnObjectSpawnCompleted.Broadcast(Object, bMoved);
+    OnObjectSpawnCompleted.Broadcast(Object);
 }
