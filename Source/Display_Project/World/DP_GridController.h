@@ -58,6 +58,8 @@ private:
     TObjectPtr<ADP_Grid> Grid;
     UPROPERTY()
     TObjectPtr<ADP_PlaceableActor> SelectedObject;
+    bool bIsCopying{false};
+    bool bIsMoving{false};
     TDeferredAction DeferredAction{nullptr};
 
     [[nodiscard]] FORCEINLINE ADP_PlayerController* GetPlayerController() const;
@@ -76,7 +78,8 @@ private:
     FORCEINLINE void InitWelcomeState();
     FORCEINLINE void SpawnObjectsFromSave(const TArray<FObjectSaveData>& SaveObjectData);
     FORCEINLINE void DestroySelectedObject();
-    FORCEINLINE void DeselectPlacementObject();
+    FORCEINLINE void ClearPlacementSelection();
+    FORCEINLINE void DeselectObject();
     FORCEINLINE void HandleSelectGameState();
 
     void UpdatePrevGameState(EGameState NewGameState);
@@ -89,7 +92,7 @@ private:
     void OnSwitchToGameHandler();
     void OnUpdatePreviewLocationHandler(AActor* ReferenceActor);
     void OnSpawnCurrentObjectHandler();
-    void OnObjectSpawnCompletedHandler(AActor* Actor, bool bMoved);
+    void OnObjectSpawnCompletedHandler(AActor* Actor);
     void OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData);
     void OnSelectHandler(AActor* SelectedActor);
     void OnDeselectPlacementObjectHandler();

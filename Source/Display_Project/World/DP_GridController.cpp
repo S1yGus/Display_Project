@@ -245,13 +245,29 @@ void ADP_GridController::DestroySelectedObject()
     }
 }
 
-void ADP_GridController::DeselectPlacementObject()
+void ADP_GridController::ClearPlacementSelection()
 {
     if (auto* HUD = GetHUD())
     {
         HUD->DeselectPlacementObject();
-        Grid->DestroyPreview();
-        SetPrevGameState();
+    }
+    else
+    {
+        UE_LOG(LogGridController, Error, TEXT("HUD doesn't exist!"));
+    }
+
+    Grid->DestroyPreview();
+    SetPrevGameState();
+    bIsCopying = false;
+    bIsMoving = false;
+}
+
+void ADP_GridController::DeselectObject()
+{
+    if (SelectedObject)
+    {
+        SelectedObject->SetSelected(false);
+        SelectedObject = nullptr;
     }
 }
 
@@ -317,14 +333,22 @@ void ADP_GridController::SetCurrentObjectType(EObjectType NewObjectType)
 
 void ADP_GridController::SetCurrentObjectType_Internal(EObjectType NewObjectType)
 {
-    CurrentObjectType = NewObjectType;
-
-    if (ObjectsMap.Contains(CurrentObjectType))
+    if ((NewObjectType != CurrentObjectType || bIsMoving) && ObjectsMap.Contains(NewObjectType))
     {
-        Grid->UpdateCurrentObjectClass(ObjectsMap[CurrentObjectType].Class);
+        Grid->UpdateCurrentObjectClass(ObjectsMap[NewObjectType].Class);
         Grid->DestroyPreview();
-        SetGameState(EGameState::Placement);
+        bIsMoving = false;
     }
+
+    if (bIsCopying)
+    {
+        DeselectObject();
+        PrevGameStates.Pop();
+        bIsCopying = false;
+    }
+
+    SetGameState(EGameState::Placement);
+    CurrentObjectType = NewObjectType;
 }
 
 void ADP_GridController::OnSwitchToGameHandler()
@@ -354,9 +378,17 @@ void ADP_GridController::OnSpawnCurrentObjectHandler()
     Grid->SpawnCurrentObject();
 }
 
-void ADP_GridController::OnObjectSpawnCompletedHandler(AActor* Actor, bool bMoved)
+void ADP_GridController::OnObjectSpawnCompletedHandler(AActor* Actor)
 {
-    bMoved ? OnSelectHandler(Actor) : OnDeselectPlacementObjectHandler();
+    if (bIsMoving)
+    {
+        OnSelectHandler(Actor);
+        bIsMoving = false;
+    }
+    else
+    {
+        OnDeselectPlacementObjectHandler();
+    }
 }
 
 void ADP_GridController::OnAttributeChangedHandler(EAttributeType AttributeType, TAttributeData AttributeData)
@@ -376,10 +408,7 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor)
     if (auto* PlaceableActor = Cast<ADP_PlaceableActor>(SelectedActor))
     {
 
-        if (SelectedObject)
-        {
-            SelectedObject->SetSelected(false);
-        }
+        DeselectObject();
         SelectedObject = PlaceableActor;
         SelectedObject->SetSelected(true);
 
@@ -392,19 +421,18 @@ void ADP_GridController::OnSelectHandler(AActor* SelectedActor)
     }
     else
     {
-        if (SelectedObject)
+        if (!bIsCopying)
         {
-            SelectedObject->SetSelected(false);
-            SelectedObject = nullptr;
+            DeselectObject();
         }
 
-        DeselectPlacementObject();
+        ClearPlacementSelection();
     }
 }
 
 void ADP_GridController::OnDeselectPlacementObjectHandler()
 {
-    DeselectPlacementObject();
+    ClearPlacementSelection();
 }
 
 void ADP_GridController::OnDestroySelectedHandler()
@@ -553,6 +581,7 @@ void ADP_GridController::OnCopyHandler()
     if (auto* HUD = GetHUD(); HUD && IsValid(SelectedObject))
     {
         HUD->Copy(SelectedObject->GetObjectType(), SelectedObject->GetObjectAttributes());
+        bIsCopying = true;
     }
 }
 
@@ -563,6 +592,7 @@ void ADP_GridController::OnMoveHandler()
         HUD->Copy(SelectedObject->GetObjectType(), SelectedObject->GetObjectAttributes());
         Grid->MoveCurrentObjectGuid(SelectedObject->GetObjectGuid());
         DestroySelectedObject();
+        bIsMoving = true;
     }
 }
 
